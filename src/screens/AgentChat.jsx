@@ -427,7 +427,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [recalc, setRecalc] = useState(false)              // 스텝 9 R-3: 아래 턴 안내문 재계산 중 표시
   const [msgPlanIdx, setMsgPlanIdx] = useState(PLAN_DEFAULT) // 안내문에 쓰이는 요금제 (선택보다 늦게, 앵커링 뒤 교체 연출)
   const planName = ALT_PLANS[msgPlanIdx][0]
-  const foldLbl = /^[DS]/.test(variant('planfold') || '') ? '선택됨' : '선택한 요금제'   // D·S 시안은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
+  const foldLbl = /^[BDS]/.test(variant('planfold') || '') ? '선택됨' : '선택한 요금제'   // D·S 시안은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
   const scrollIndRef = useRef(null)
   const jumpChipRef = useRef(null)
   const tailRef = useRef(null)
@@ -471,8 +471,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const resetTurn = (el, turnItems) => { el.classList.remove('on'); unreveal(turnItems); resetFlat(el); unreveal([...el.querySelectorAll('.thinking')]); el.querySelectorAll('.thinking').forEach((d) => d.classList.remove('out')); setTail(TAIL) }
     // 접힘 해제 (요금제 선택 앞 스텝으로 되돌아올 때)
     const unfold = () => {
-      const card = usageCardRef.current; if (card) card.style.cssText = ''
-      for (const r of [foldCardRef.current, foldTailRef.current]) { if (r) { r.classList.remove('on'); r.style.opacity = '' } }
+      const card = usageCardRef.current
+      if (card) { card.style.cssText = ''; card.classList.remove('boxing'); [...card.children].forEach((c) => { c.style.opacity = '' }) }
+      for (const r of [foldCardRef.current, foldTailRef.current]) { if (r) { r.classList.remove('on', 'from-box', 'keep-box'); r.style.opacity = '' } }
     }
     const resetPen = () => {
       resetTurn(penEl, penItems); penItems[1].style.cssText = ''
@@ -1051,9 +1052,39 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       row.style.opacity = ''
       return alive()
     }
+    /* B-1 (사용자 2026-09-11 "카드가 줄어들면서 흰색 박스 형태가 되고 그게 다시 선택됨으로"):
+       ① 내용만 흐려지고 카드가 흰 박스(.boxing)로 바뀌며 요약 줄 높이까지 줄어든다 → ② 빈 흰 박스로 잠깐 머문다
+       → ③ 높이가 같아진 지점에서 갈아끼우고, 흰 박스가 '선택됨' 줄(뉴트럴 회색)로 물들며 글자가 떠오른다 */
+    const foldBox = async (mode) => {
+      const hold = mode === 'B2' ? 0 : 220                          // B2 는 머물지 않고 바로 물든다
+      const card = usageCardRef.current, row = foldCardRef.current
+      const h0 = card.offsetHeight
+      row.classList.add('on'); row.style.opacity = '0'
+      await new Promise(afterLayout); if (!alive()) return false
+      const hRow = row.offsetHeight
+      row.classList.remove('on'); row.style.opacity = ''
+      card.style.overflow = 'hidden'
+      card.classList.add('boxing')                                  // 흰 박스 표면이 0.3s 로 켜짐 (agent.css)
+      const inner = [...card.children]
+      await tween(500, (e) => {
+        card.style.height = `${h0 - (h0 - hRow) * e}px`
+        const o = String(Math.max(0, 1 - e * 1.8))                  // 내용은 앞쪽에서 먼저 사라진다
+        inner.forEach((c) => { c.style.opacity = o })
+      }, inOut); if (!alive()) return false
+      if (hold) { await wait(hold); if (!alive()) return false }      // ② 빈 흰 박스로 한 박자 (B2 는 생략)
+      card.style.display = 'none'; card.classList.remove('boxing')
+      inner.forEach((c) => { c.style.opacity = '' })
+      row.classList.add('on', 'from-box')                            // ③ 흰 박스 → 선택됨 줄
+      if (mode === 'B3') row.classList.add('keep-box')               // B3 은 흰 박스 그대로 남는다
+      await new Promise(afterLayout); if (!alive()) return false
+      row.classList.remove('from-box')
+      await wait(420)
+      return alive()
+    }
     const foldPlans = async () => {
       const F = variant('planfold') || 'off'
       if (F === 'off' || reducedMotion()) return true
+      if (F[0] === 'B') return foldBox(F)
       if (F[0] === 'S') return foldSmooth(F)
       if (F === 'D1') return dissolvePlans()
       const card = usageCardRef.current, row = foldCardRef.current
@@ -1070,11 +1101,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const foldFinal = () => {
       const F = variant('planfold') || 'off'
       const card = usageCardRef.current, r1 = foldCardRef.current, r2 = foldTailRef.current
-      r1.classList.remove('on'); r2.classList.remove('on'); r1.style.opacity = ''; r2.style.opacity = ''
-      card.style.cssText = ''
+      r1.classList.remove('on', 'from-box', 'keep-box'); r2.classList.remove('on', 'from-box', 'keep-box'); r1.style.opacity = ''; r2.style.opacity = ''
+      card.style.cssText = ''; card.classList.remove('boxing'); [...card.children].forEach((c) => { c.style.opacity = '' })
       if (F === 'off' || reducedMotion()) return
       card.style.display = 'none'
       foldRow().classList.add('on')
+      if (F === 'B3') foldRow().classList.add('keep-box')
     }
     const finalPenaltyAnswer = () => {
       showNow(penItems); hideOpening(penItems[1])

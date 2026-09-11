@@ -874,3 +874,11 @@ html[data-mwidth="W2"] .altcard-A1 .alt-cards, html[data-mwidth="W3"] .altcard-A
 .plan-fold .lbl { grid-column: 1 / -1; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }
 .plan-fold b { grid-column: 1; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
 .plan-fold em { grid-column: 2; font-style: normal; font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+
+/* B-1 (§27-2): 카드가 줄어들며 빈 흰 박스가 되고, 그 박스가 '선택됨' 줄로 물든다 */
+html .ai-card.plans.flatable.boxing, .ai-card.plans.boxing { background: #fff; border-radius: 18px; box-shadow: 0 2px 10px rgba(6,12,31,.06); transition: background .3s cubic-bezier(.65,0,.35,1), box-shadow .3s cubic-bezier(.65,0,.35,1); }
+.plan-fold { transition: opacity .4s cubic-bezier(.65,0,.35,1), background .45s cubic-bezier(.65,0,.35,1), box-shadow .45s cubic-bezier(.65,0,.35,1); }
+.plan-fold > * { transition: opacity .35s cubic-bezier(.65,0,.35,1) .06s; }
+.plan-fold.from-box { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
+.plan-fold.from-box > * { opacity: 0; transition: none; }
+.plan-fold.keep-box { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
