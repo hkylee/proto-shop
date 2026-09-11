@@ -837,10 +837,7 @@ html[data-zippop="Z3"] .sheet.zip { transform: translateY(46%) scale(.92); trans
 html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radius: 0; }
 
 
-/* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 기준으로 찍힌 고정 좌표를 실제 화면 높이(--sh)에 비례시킨다 ──
-   그 밖의 요소는 이미 위(top)·아래(bottom) 어느 한쪽에 붙어 있어 높이가 줄어도 겹치지 않는다. */
-html[data-mfit="F2"] .greeting { top: calc(var(--sh, 852px) * 0.2477); }        /* 211/852 */
-html[data-mfit="F2"] .suggest-stack,
-html[data-mfit="F2"] .launch-ov .stack { bottom: calc(var(--sh, 852px) * 0.4507); }   /* 384/852 */
+/* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 높이를 그대로 쓰던 자리만 실제 화면 높이(--sh)로 ──
+   나머지는 위(top)·아래(bottom) 한쪽에 붙어 있어 높이가 줄어도 자리가 맞는다.
+   특히 .suggest-stack / .launch-ov .stack 의 bottom 384 는 키패드(310)+SearchAi(52)+13 이라 비례시키면 안 된다(고정 유지). */
 html[data-mfit="F2"] .scroll-ind { height: calc(var(--sh, 852px) - 291px); }    /* 776 − 199 − 16 = 852 − 291 */
-html[data-mfit="F2"] .toss { padding-top: calc(var(--sh, 852px) * 0.1408); gap: calc(var(--sh, 852px) * 0.0704); }
