@@ -457,7 +457,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const altEl = altRef.current, ptr = ptrRef.current
     const altItems = [...altEl.children].filter((el) => !['pen', 'opts', 'form', 'addr', 'review', 'auth', 'pay'].some((c) => el.classList.contains(c))) // [요금제 카드 캐러셀]; 이후 턴은 별도 시퀀스
     const turnKids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))   // 생각 점(N-2)은 순서 배열에서 제외
-    const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold'))                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
+    const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold-host'))                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
     const optsEl = optsRef.current, turns = [...optsEl.children]                 // .opt-turn × 4 + .done, 각각 [msg, msg2|none, card]
     const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
@@ -1271,6 +1271,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const T = rv()
       await ptr?.tap(discRow(), { move: 320, pause: 60 }); if (!alive()) return
       setDiscPick(DISC_REC); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
+      if (variant('penfold') === 'A1') { await wait(900); if (!alive()) return }       // A1: 선택 테두리를 한 박자 더 보여준 뒤 접는다
       ptr?.hide()
       if (!await collapseCard(plansCardRef.current, penFoldRef.current)) return         // 재출력 카드도 요약 줄로 (§28)
       await follow(penFoldRef.current); if (!alive()) return
@@ -1279,8 +1280,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       for (let i = 0; i < 3; i++) { if (!await playOptSection(i, T)) return }
       ptr?.hide()
       setTail(TAIL)
-      await scrollTo(scroll, anchorBottom(optKids(turns[2])[2])); if (!alive()) return
-      if (userTap()) await reselectPrep()   // 사용자 탭 모드: 스텝 8 의 첫 탭(쿠폰 변경) 자리까지 올라가 대기
+      await scrollTo(scroll, anchorBottom(optFold(2) || optKids(turns[2])[2])); if (!alive()) return   // 접힌 카드는 display:none → 요약 줄을 기준으로 (사용자 2026-09-11 '위로 앵커링돼')
     }
     const finalOpts1 = () => {
       setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
@@ -1288,7 +1288,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       penFoldRef.current?.classList.add('on')
       for (let i = 0; i < 3; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
       setOptPick((p) => p.map((v, k) => (k < 3 ? OPTS[k].rec : v)))
-      afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[2])[2]) })
+      afterLayout(() => { scroll.scrollTop = anchorBottom(optFold(2) || optKids(turns[2])[2]) })
     }
     /* ── 9번: 마지막 섹션의 행 → T 안심보상 탭 → 완료 안내 + [신청서 작성 시작하기] */
     const playOpts2 = async () => {
@@ -1803,7 +1803,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <div className="plan-all" style={{ '--i': 1 }}><span>전체보기</span></div>
             </Card>
             {/* 6→7: 할인 방법을 고르면 이 재출력 카드도 요약 줄로 접힌다 (Figma ixGPs9 271:125825) */}
-            <div className="plan-fold pen-fold" ref={penFoldRef}><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
+            <div className="pen-fold-host" ref={penFoldRef}>
+              <div className="plan-fold pf-1"><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
+              <div className="plan-fold pf-2"><span className="lbl">선택한 할인 방법</span><b>통신요금 24개월 할인</b><em>다시 선택하기</em></div>
+            </div>
           </div>
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
           <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>다시 선택하기</em></div>
