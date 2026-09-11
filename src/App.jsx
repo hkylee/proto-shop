@@ -105,7 +105,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: LAB ? (Q0.get('pf') || 'F1') : CONFIRMED.planfold })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -251,6 +251,13 @@ const SHEETLOOKS = [
   { id: 'L1', label: 'L-1 테두리만 복원', desc: '시트 안에서 transparent 로 덮어쓰던 미선택 테두리만 Figma 값(2px #EBEEF6)으로 되돌린다. 시트 농도는 지금 그대로 — 가장 적게 건드리지만 흑백 모드에서는 선이 여전히 옅다' },
   { id: 'L3', label: 'L-3 회색 시트 + 행은 그림자로', desc: '테두리 대신 시트 자체를 옅은 회색 판(94%)으로 바꾸고 흰 행에 얕은 그림자를 준다. 뒤에 무엇이 있든·흑백이든 층이 확실히 갈리지만 유리 느낌은 약해진다' },
   { id: 'off', label: '없음 (지금)', desc: '비교용. 미선택 테두리 없음 + 시트 흰색 92% — 행과 배경이 같은 흰색으로 붙어 보이는 현재 상태' },
+]
+// 3안 스텝 6 · 요금제 선택 플로우 끝의 접힘 (html[data-planfold], Figma ixGPs9 261:117032) — 사용자 2026-09-11
+const PLANFOLDS = [
+  { id: 'F1', label: 'F-1 접히며 제자리에 요약 줄 (Figma)', desc: '[적용하기] 직후 요금제 카드가 높이 0 으로 접히고(0.5s) 같은 자리에 "선택한 요금제 · 5GX 프라임 · 다시 선택하기" 회색 줄이 함께 페이드 인. Figma 마지막 프레임 그대로 — 한 동작으로 읽힘' },
+  { id: 'F2', label: 'F-2 줄이 먼저, 카드가 뒤따라 접힘', desc: '요약 줄이 카드 아래에 먼저 생기고(0.32s) 그 뒤 카드가 접혀 사라진다. "이걸로 정해졌다 → 목록은 치운다" 두 박자로 읽혀 무엇이 무엇으로 바뀌었는지가 분명하다' },
+  { id: 'F3', label: 'F-3 접힌 뒤 대화 맨 아래 재출력', desc: '카드는 조용히 접혀 사라지고, 요약 줄은 위약금 답변이 끝난 뒤 대화의 맨 아래에 나타난다. 기존 Y-1(접혀 사라지고 아래에 재출력)과 같은 언어라 대화의 시간 순서가 지켜진다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 카드가 그대로 남고 접히지 않는다' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -715,6 +722,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.pdenter = pdenterV }, [pdenterV])
   const [sheetlookV, setSheetlookV] = useState(() => (LAB ? (Q0.get('sl') || CONFIRMED.sheetlook) : CONFIRMED.sheetlook))
   useEffect(() => { document.documentElement.dataset.sheetlook = sheetlookV }, [sheetlookV])
+  const [planfoldV, setPlanfoldV] = useState(() => (LAB ? (Q0.get('pf') || 'F1') : CONFIRMED.planfold))
+  useEffect(() => { document.documentElement.dataset.planfold = planfoldV }, [planfoldV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -1078,6 +1087,13 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">3안 · 요금제 선택이 끝났을 때 카드가 접히는 방식 (스텝 5에서 → 스텝 6, Figma 261:117032)</b>
+            {PLANFOLDS.map((v) => (
+              <button key={v.id} aria-pressed={planfoldV === v.id} onClick={() => { setPlanfoldV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{PLANFOLDS.find((v) => v.id === planfoldV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나) — L-2 확정</b>

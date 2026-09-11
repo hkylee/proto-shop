@@ -505,3 +505,12 @@ Agent가 사용자 입력 없이 다음 턴으로 스스로 이어갈 때(예: �
   - 폐기: S-1(납작해진 뒤 내려앉기)·S-3(아래가 먼저 붙음) — 사용자가 S-2(한 번에)를 확인해 경로 시안은 곡선 시안으로 대체.
 - 구현 주의: `play()` 와 `playEndOnly()` 가 같은 표면을 만지므로 `run` 토큰을 **`swap()` 안의 await 뒤까지** 확인해야 한다 — 안 하면 진행 중이던 높이 트윈이 새로 만든 화면을 덮어쓴다(실제로 발생해 끝맺음이 재생되지 않았다). `.modal.morph .box{height:52px !important}` — 인라인으로 잡아 둔 측정 높이를 이기려면 `!important` 가 필요하다.
 - 2026-09-11 끝맺음 **단계별 모핑 + 수축 경로 시안 S-1/S-2/S-3** 배포. PENDING (§29-2).
+
+## 27. 3안 스텝 6 · 요금제 선택이 끝나면 카드가 접힌다 (**PENDING · 2026-09-11** · Figma ixGPs9 261:117032 4프레임)
+
+- Figma 마지막 프레임: 요금제가 적용되면 대화의 요금제 카드(캐러셀 + 전체보기)가 사라지고 그 자리에 **"선택한 요금제 / 5GX 프라임 / [다시 선택하기]"** 회색 요약 줄만 남는다. 이용중 요금제 카드는 그대로.
+- `html[data-planfold]` (`?pf=`): **F1 접히며 제자리에 요약 줄**(카드 높이 0 으로 0.5s + 줄 페이드 인, 동시 — Figma 그대로) / **F2 줄이 먼저, 카드가 뒤따라 접힘**(0.32s 뒤 접힘, 두 박자) / **F3 접힌 뒤 대화 맨 아래 재출력**(위약금 답변이 끝난 뒤 맨 아래에 — 기존 Y-1 언어) / off 기존(접히지 않음).
+- 코드: `AgentChat.jsx` `foldPlans()`(적용 직후) · `foldTail()`(F3, playPenaltyAnswer 끝) · `foldFinal()`(직접 진입·되돌아오기) · `unfold()`(앞 스텝 복귀 시 resetApply 에서). 요약 줄은 `.plan-fold.at-card`(카드 자리) 와 `.plan-fold.at-tail`(F3) 두 벌. 스타일은 agent.css `.plan-fold`.
+- **주의**: 접힌 카드는 `display:none` 이라 `anchorBottom(usageCardRef)` 가 0 이 된다 → 위약금 타이핑·스크롤 기준을 `planAnchorEl()`(접혔으면 요약 줄)로 바꿔 두었다.
+- CONFIRMED `off` 라 프로덕션은 변화 없음. LAB 기본 F1. 시안 아티팩트 https://claude.ai/code/artifact/f343659b-976d-45cc-995e-28940f1f7065 (planfold-lab, `VITE_LAB=1 VITE_AN=3`).
+- 2026-09-11 3안 스텝 6 **요금제 카드 접힘 시안 F-1/F-2/F-3** 추가 (Figma 261:117032). PENDING, 프로덕션 불변 (§27).

@@ -867,3 +867,10 @@ html[data-mwidth="W2"] .altcard-A1 .alt-cards, html[data-mwidth="W3"] .altcard-A
   html[data-mwidth="W2"] .ai-card.flatable.altcard-A1 .plan-card,
   html[data-mwidth="W2"] .pd2 .plan-carousel .plan-card { width: min(300px, calc(100vw - 93px)); }
 }
+
+/* ── 요금제 선택 플로우의 끝 = 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma ixGPs9 261:117032 마지막 프레임, 2026-09-11) ── */
+.plan-fold { display: none; width: 353px; box-sizing: border-box; padding: 18px 20px; border-radius: 18px; background: var(--bg-neutral-subtle); grid-template-columns: 1fr auto; align-items: end; row-gap: 6px; column-gap: 12px; opacity: 0; transition: opacity .4s cubic-bezier(.65,0,.35,1); }
+.plan-fold.on { display: grid; opacity: 1; }
+.plan-fold .lbl { grid-column: 1 / -1; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }
+.plan-fold b { grid-column: 1; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
+.plan-fold em { grid-column: 2; font-style: normal; font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }

@@ -388,6 +388,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [applied, setApplied] = useState(false)
   const usageCardRef = useRef(null)             // 4번: 요금제 카드 캐러셀 (전체보기 포함)
   const plansCardRef = useRef(null)             // 6번: 위약금 답변 뒤 재제시 캐러셀 (할인 탭 대상)
+  const foldCardRef = useRef(null), foldTailRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
   const [discPick, setDiscPick] = useState(-1)  // 적용된 요금제 카드의 할인 선택 (-1 없음 → 스텝 6에서 고객이 24개월 탭)
   const penRef = useRef(null)                   // 6번: 위약금 질문 말풍선 + 답변 턴 컨테이너
   const penVarRef = useRef(null)
@@ -467,6 +468,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       jumpChip.classList.remove('on', 'down', 'near', 'absorb', 'release', 'pressing'); jumpChip.style.top = ''; jumpChip.textContent = CHIP_UP
     }
     const resetTurn = (el, turnItems) => { el.classList.remove('on'); unreveal(turnItems); resetFlat(el); unreveal([...el.querySelectorAll('.thinking')]); el.querySelectorAll('.thinking').forEach((d) => d.classList.remove('out')); setTail(TAIL) }
+    // 접힘 해제 (요금제 선택 앞 스텝으로 되돌아올 때)
+    const unfold = () => {
+      const card = usageCardRef.current; if (card) card.style.cssText = ''
+      foldCardRef.current?.classList.remove('on'); foldTailRef.current?.classList.remove('on')
+    }
     const resetPen = () => {
       resetTurn(penEl, penItems); penItems[1].style.cssText = ''
       setKbOpen(false); setPenTyped(''); setPenTyping(false)
@@ -510,7 +516,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const openSheet = () => { sheetRef.current.classList.add('on') }                 // 풀페이지 팝업이 아래에서 올라온다 (딤 없음)
     const hideSheet = () => { sheetRef.current?.classList.remove('on') }             // 선택값은 유지한 채 팝업만 내림
     const closeSheet = () => { hideSheet(); setSelPlan(-1); setSheetTab(0) }
-    const resetApply = () => { setApplied(false); setDiscPick(-1); setOptK(OPT.plan); resetPen(); resetOpts(); resetReselect() }
+    const resetApply = () => { setApplied(false); setDiscPick(-1); setOptK(OPT.plan); resetPen(); resetOpts(); resetReselect(); unfold() }
     const parkOnAll = () => ptr?.park(allRef.current)
     const snapBottom = (el) => requestAnimationFrame(() => { scroll.scrollTop = anchorBottom(el) })
     // 아래로만 진행하는 팬: 목표가 현재보다 위면 움직이지 않는다 (재선택 외에는 위아래 요동 금지 — 사용자 2026-09-07)
@@ -938,14 +944,17 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     /* ── 10번: 위약금 질문 — SearchAi 탭 → 키패드 상승 → 타이핑(스텝 3과 같은 리듬) → 전송 → 키패드 하강 → 말풍선이 채팅 시작선에 (Figma 12349:37144 → 37232) */
     // 키패드가 열린 상태에서 마지막 카드 하단이 (키보드 위로 올라간) SearchAi 위 30px 에 오는 scrollTop.
     // K-1 처럼 채팅 영역이 키보드 높이만큼 줄어도 SearchAi 와 영역 하단이 같이 올라가므로 값은 같다
-    const kbScrollTarget = () => { const row = usageCardRef.current; return row.offsetTop + row.offsetHeight - (SEARCH_TOP_KB - GAP) }
+    // 요금제 카드가 접히면(§27) 그 자리의 요약 줄이 기준이 된다 — 접힌 카드는 display:none 이라 offsetTop 이 0
+    const planAnchorEl = () => { const c = usageCardRef.current; return c && c.style.display !== 'none' ? c : foldRow() || c }
+    const kbScrollTarget = () => { const row = planAnchorEl(); return row.offsetTop + row.offsetHeight - (SEARCH_TOP_KB - GAP) }
     const playPenalty = async () => {
       // 6번 앞부분: 시트의 [적용하기] 탭 → 시트 내려감 → 4번 캐러셀의 카드가 선택됨 → 그 다음 고객이 끼어들어 질문
       // Figma T1mhl 10906:6356 → 4864: 시트만 닫히고 카드는 아직 선택 표시 없음(사용자 2026-09-07). 화면이 아래에 정착한 뒤에야 입력 시작 — 모션 교차 방지
       await ptr?.tap(applyRef.current, { move: 300, pause: 0 }); if (!alive()) return
       ptr?.hide(); hideSheet(); setOptK(OPT.disc)                  // 요금제 적용(전송) → 다음 옵션 = 할인 방법
       await wait(600); if (!alive()) return
-      await scrollTo(scroll, anchorBottom(usageCardRef.current)); if (!alive()) return
+      if (!await foldPlans()) return                                // 선택 플로우의 끝 = 카드 접힘 + 요약 줄 (§27)
+      await scrollTo(scroll, anchorBottom(planAnchorEl())); if (!alive()) return
       await wait(700); if (!alive()) return
       await ptr?.tap(searchRef.current, { move: 420, pause: 100 }); if (!alive()) return
       ptr?.hide()
@@ -979,6 +988,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(T.tail); if (!alive()) return
       setTail(TAIL)
       await follow(card2, true); if (!alive()) return
+      if (!await foldTail()) return
       ptr?.park(discRow())
     }
     // 뷰포트 위쪽 요소들을 높이 0 으로 접어 없앤다 (opacity 와 함께). 줄어드는 만큼 scrollTop 을 보정해 보이는 화면은 고정
@@ -992,6 +1002,38 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         scroll.scrollTop -= gone - prev; prev = gone
       }, inOut)
       els.forEach((el) => { el.style.display = 'none' })
+    }
+    /* ── 요금제 선택 플로우의 끝 = 카드가 접히고 요약 줄이 남는다 (html[data-planfold], Figma ixGPs9 261:117032, 사용자 2026-09-11)
+       F1 접히며 제자리에 요약 줄(카드 높이 0 + 줄 페이드 인, 동시) / F2 요약 줄이 먼저 자리 잡고 카드가 뒤따라 접힘(두 박자) / F3 카드는 조용히 접히고 줄은 위약금 답변이 끝난 뒤 대화 맨 아래에 */
+    const foldRow = () => (variant('planfold') === 'F3' ? foldTailRef : foldCardRef).current
+    const shrink = async (el, dur) => {
+      const h = el.offsetHeight
+      el.style.overflow = 'hidden'
+      await tween(dur, (e) => { el.style.height = `${h * (1 - e)}px`; el.style.opacity = String(Math.max(0, 1 - e * 1.5)) }, inOut)
+      el.style.display = 'none'
+    }
+    const foldPlans = async () => {
+      const F = variant('planfold') || 'off'
+      if (F === 'off' || reducedMotion()) return true
+      const card = usageCardRef.current, row = foldCardRef.current
+      if (F === 'F2') { row.classList.add('on'); await wait(320); if (!alive()) return false }
+      if (F === 'F1') row.classList.add('on')
+      await shrink(card, 500); return alive()
+    }
+    const foldTail = async () => {
+      if (variant('planfold') !== 'F3' || reducedMotion()) return true
+      const row = foldTailRef.current
+      row.classList.add('on'); await follow(row); return alive()
+    }
+    // 최종 상태(직접 진입·되돌아오기): 접힘이 이미 끝난 모습
+    const foldFinal = () => {
+      const F = variant('planfold') || 'off'
+      const card = usageCardRef.current, r1 = foldCardRef.current, r2 = foldTailRef.current
+      r1.classList.remove('on'); r2.classList.remove('on')
+      card.style.cssText = ''
+      if (F === 'off' || reducedMotion()) return
+      card.style.display = 'none'
+      foldRow().classList.add('on')
     }
     const finalPenaltyAnswer = () => {
       showNow(penItems); hideOpening(penItems[1])
@@ -1379,7 +1421,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭') }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
     const dispatch = () => {
-      const upToPenalty = () => { finalUsage(); finalPenalty() }
+      const upToPenalty = () => { finalUsage(); finalPenalty(); foldFinal() }
       const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalReselect(); finalOpts2() }
       const upToForm = () => { upToOpts2(); finalForm() }
       if (payout) {
@@ -1502,6 +1544,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <div className="alt-cards" style={{ '--i': 0 }}>{ALT_CARDS.map((_, i) => <PlanCard key={i} idx={i} sel={applied && i === planIdx} style={{ '--i': i }} />)}</div>
             <div className="plan-all" ref={allRef} style={{ '--i': 1 }}><span>전체보기</span></div>
           </Card>
+          {/* 요금제 선택이 끝나면 카드가 접히고 이 요약 줄이 남는다 (Figma ixGPs9 261:117032 마지막 프레임) */}
+          <div className="plan-fold at-card" ref={foldCardRef}><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
 
           {/* 6번: 끼어든 질문 — 말풍선 + 타이틀(27:12503) → 안내(27:12538) → 안내 2·3 + 요금제·할인 재제시 카드(27:26848) */}
           <div className="pen" ref={penRef}>
@@ -1515,6 +1559,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <div className="plan-all" style={{ '--i': 1 }}><span>전체보기</span></div>
             </Card>
           </div>
+          {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
+          <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
 
           {/* 7~9번: 옵션 순차 선택 (Figma 26:31995 → 26:33289). 추천은 안내문 + '추천' 배지로만, 선택은 포인터 탭 */}
           <div className="opts" ref={optsRef}>
