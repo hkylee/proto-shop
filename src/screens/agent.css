@@ -917,7 +917,7 @@ html[data-selfade="N3"] .plan-fold > * { transition: opacity .4s cubic-bezier(.4
 /* ── 6→7 요약 줄 구성 시안 (html[data-penfold], 사용자 2026-09-11 "6→7 넘어가는게 애매한데") ──
    A1 요금제 줄 하나(고른 걸 한 박자 더 보여준 뒤 접음) / A2 한 상자에 요금제 + 할인 방법 두 쌍 / A3 줄 두 개로 분리 */
 .pen-fold-host { display: none; flex-direction: column; gap: 8px; }
-.pen-fold-host.on { display: flex; }
+.pen-fold-host.on { display: flex; opacity: 1; }   /* .pen > * 등장 규칙(opacity 0)을 덮는다 — 없으면 접힌 뒤 투명하게 남아 '사라진' 것처럼 보였다 */
 .pen-fold-host .plan-fold { display: grid; opacity: 1; }
 .pen-fold-host.from-box .plan-fold { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
 .pen-fold-host.from-box .plan-fold > * { opacity: 0; transition: none; }
