@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+<title>Idea 2. 모달 형식 통합 — 시안 draft</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+/* NEXT Platform DS 토큰 (본 프로토타입 src/styles/tokens.css 와 같은 값) */
+:root {
+  --bg-basement: #E2E6F1;
+  --bg-neutral-subtle: rgba(0,38,140,.08);
+  --fg-neutral-solid: #060C1F;
+  --fg-neutral-mute: #4F5972;
+  --fg-neutral-subtle: #6C7691;
+  --fg-brand-solid: #3A38EC;
+  --blue-100: #DEE6FF;
+  --blue-600: #4B59FF;
+  --gray-200: #D3D9E8;
+  --line-weak: #F4F5FA;
+  --shadow-ai: 0 0 80px 0 rgba(16,49,140,.12);
+  --font: "Pretendard Variable", "Pretendard", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --ease: cubic-bezier(.65,0,.35,1);
+  --r2: cubic-bezier(.22,1,.36,1);   /* R-2 느린 출발 + 긴 안착 */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+body { font-family: var(--font); background: #0B0F1E; color: #fff; letter-spacing: -.03em; min-height: 100dvh; }
+.page { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 24px; }
+header h1 { font-size: 21px; font-weight: 700; letter-spacing: -.05em; }
+header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(255,255,255,.6); max-width: 640px; }
+.cols { display: flex; gap: 36px; align-items: flex-start; flex-wrap: wrap; }
+
+/* ── 시안 스위처 ── */
+.seg { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.1); gap: 2px; }
+.seg button { min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.6); display: grid; place-items: center; }
+.seg button.on { background: #fff; color: #0B0F1E; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.ctrl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ctrl .btn { min-height: 40px; padding: 0 16px; border-radius: 12px; background: rgba(255,255,255,.12); font-size: 13.5px; font-weight: 600; display: grid; place-items: center; }
+.ctrl .btn:active { background: rgba(255,255,255,.2); }
+.ctrl .kind { font-size: 12.5px; color: rgba(255,255,255,.5); }
+
+/* ── 폰 (375×812 기준, 폭은 1:1 유동 W-2 방식) ── */
+.phone { position: relative; width: 375px; max-width: 100%; height: 760px; border-radius: 38px; overflow: hidden; background: var(--bg-basement); box-shadow: 0 30px 80px -30px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.1); flex: none; }
+.screen { position: absolute; inset: 0; overflow: hidden; }
+/* 뒤 배경: 대화 화면 느낌 */
+.bg { position: absolute; inset: 0; background:
+  radial-gradient(520px 420px at 12% 6%, rgba(122,146,255,.30), transparent 62%),
+  radial-gradient(460px 380px at 92% 22%, rgba(168,140,255,.24), transparent 60%),
+  var(--bg-basement); }
+.statusbar { position: absolute; left: 0; right: 0; top: 0; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; color: var(--fg-neutral-solid); font-size: 14.5px; font-weight: 600; z-index: 2; }
+.statusbar .dots { display: flex; gap: 5px; align-items: center; }
+.statusbar .dots i { width: 16px; height: 9px; border-radius: 2px; background: var(--fg-neutral-solid); opacity: .85; }
+.statusbar .dots i.s { width: 9px; border-radius: 50%; height: 9px; }
+.chat { position: absolute; left: 0; right: 0; top: 52px; bottom: 0; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 10px; color: var(--fg-neutral-solid); z-index: 1; }
+.msg-user { align-self: flex-end; max-width: 84%; padding: 11px 16px; border-radius: 18px; background: rgba(255,255,255,.72); font-size: 14.5px; font-weight: 500; line-height: 20px; }
+.msg-ai { font-size: 15px; line-height: 23px; color: var(--fg-neutral-solid); }
+.msg-ai.dim { color: var(--fg-neutral-subtle); }
+.done-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: var(--fg-neutral-mute); }
+.done-row .ck { width: 17px; height: 17px; border-radius: 50%; background: var(--fg-neutral-solid); position: relative; flex: none; }
+.done-row .ck::after { content: ""; position: absolute; left: 5px; top: 4.5px; width: 5px; height: 3px; border-left: 1.6px solid #fff; border-bottom: 1.6px solid #fff; transform: rotate(-45deg); }
+.done-row b { font-weight: 600; color: var(--fg-neutral-solid); }
+
+/* 입력창 (SearchAi) — 마지막에 모달이 이걸로 줄어든다 */
+.searchai { position: absolute; left: 20px; right: 20px; bottom: 30px; height: 52px; border-radius: 999px; background: rgba(255,255,255,.6); box-shadow: var(--shadow-ai); backdrop-filter: blur(20px); display: flex; align-items: center; gap: 14px; padding: 0 20px 0 22px; z-index: 3; color: var(--fg-neutral-subtle); font-size: 15px; font-weight: 500; }
+.searchai .spark { flex: none; width: 20px; height: 20px; color: var(--blue-600); }
+.searchai .txt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.searchai .wave { flex: none; display: flex; gap: 2px; align-items: flex-end; height: 14px; }
+.searchai .wave i { width: 2px; border-radius: 1px; background: var(--fg-neutral-subtle); }
+.searchai.hl { animation: pillPop .7s var(--r2); }
+@keyframes pillPop { 0% { transform: scale(.94); opacity: .4; } 100% { transform: none; opacity: 1; } }
+.home-ind { position: absolute; left: 50%; transform: translateX(-50%); bottom: 9px; width: 134px; height: 5px; border-radius: 3px; background: var(--fg-neutral-solid); opacity: .85; z-index: 4; }
+
+/* ── 통합 모달 표면 ──────────────────────────────────────────────
+   질문 → 로딩(스켈레톤 반짝) → 다음 질문 … 을 같은 표면이 높이만 바꿔 이어간다 */
+.modal { position: absolute; left: 16px; right: 16px; bottom: 92px; z-index: 7; border-radius: 28px;
+  background: rgba(255,255,255,.42); border: 1px solid rgba(255,255,255,.5); box-shadow: 0 0 80px rgba(16,49,140,.12), 0 10px 40px -12px rgba(6,12,31,.16);
+  backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); color: var(--fg-neutral-solid);
+  transform: translateY(130%); transition: transform .9s var(--r2), bottom .9s var(--r2), border-radius .5s var(--ease); overflow: hidden; }
+.modal.on { transform: none; }
+/* 마지막: 모달이 입력창 자리로 줄어든다 (스마트 애니메이팅) */
+.modal.shrink { transform: none; bottom: 30px; border-radius: 999px; transition: transform .7s var(--r2), bottom .7s var(--r2), border-radius .7s var(--r2), opacity .35s .3s ease; opacity: 0; }
+.modal .box { padding: 22px 20px 20px; transition: height .42s var(--ease); overflow: hidden; }
+.modal .pane { display: flex; flex-direction: column; gap: 16px; }
+.modal .pane.out { opacity: 0; transition: opacity .15s linear; }
+.modal .pane.in { animation: paneIn .35s var(--ease) both; }
+@keyframes paneIn { 0% { opacity: 0; transform: translateY(7px); } 100% { opacity: 1; transform: none; } }
+.modal .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 0 4px; }
+.modal .hd h3 { font-size: 18px; font-weight: 600; line-height: 25px; letter-spacing: -.05em; word-break: keep-all; }
+.modal .hd .x { width: 18px; height: 18px; position: relative; flex: none; margin-top: 3px; opacity: .85; }
+.modal .hd .x::before, .modal .hd .x::after { content: ""; position: absolute; left: 8px; top: -1px; width: 1.7px; height: 20px; background: var(--fg-neutral-solid); }
+.modal .hd .x::before { transform: rotate(45deg); } .modal .hd .x::after { transform: rotate(-45deg); }
+.modal .rows { display: flex; flex-direction: column; gap: 10px; }
+.opt { border: 2px solid #EBEEF6; border-radius: 18px; padding: 17px 20px; background: #fff; display: flex; flex-direction: column; gap: 3px; transition: border-color .3s var(--ease), transform .14s var(--ease); min-height: 56px; justify-content: center; }
+.opt .t { font-size: 15.5px; font-weight: 600; line-height: 21px; }
+.opt .d { font-size: 13px; font-weight: 500; line-height: 18px; color: var(--fg-neutral-mute); }
+.opt:active { transform: scale(.985); }
+.opt.sel { border-color: var(--fg-neutral-solid); }
+
+/* 로딩 pane — ChatGPT 식 스켈레톤 반짝 */
+.load .cap { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+.load .cap .spark { width: 18px; height: 18px; flex: none; color: var(--fg-brand-solid); }
+.load .cap .ttl { font-size: 16.5px; font-weight: 600; line-height: 23px; color: var(--fg-neutral-subtle); }
+.load .cap .num { font-size: 13.5px; font-weight: 600; color: var(--fg-neutral-subtle); opacity: .8; font-variant-numeric: tabular-nums; }
+.sk { display: flex; flex-direction: column; gap: 10px; }
+.sk i { display: block; height: 42px; border-radius: 14px; background: rgba(255,255,255,.55); position: relative; overflow: hidden; }
+.sk i.short { width: 46%; height: 26px; border-radius: 9px; }
+.sk i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 18%, rgba(255,255,255,.95) 48%, transparent 78%); transform: translateX(-100%); animation: sweep 1.35s ease-in-out infinite; }
+.sk i:nth-child(2)::after { animation-delay: .1s; } .sk i:nth-child(3)::after { animation-delay: .2s; } .sk i:nth-child(4)::after { animation-delay: .3s; }
+@keyframes sweep { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+/* 글자도 같이 숨 쉰다 */
+.load .cap .ttl, .load .cap .num { animation: breathe 1.6s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .52; } }
+.spark svg { display: block; width: 100%; height: 100%; }
+
+/* M-3 진행 레일 */
+.modal .kicker { display: flex; align-items: center; gap: 6px; padding: 0 4px; font-size: 12.5px; font-weight: 600; color: var(--fg-neutral-subtle); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.modal .pane.has-kicker { gap: 8px; }
+.modal .pane.has-kicker .rows { margin-top: 8px; }
+.rail { display: flex; gap: 5px; padding: 0 4px 2px; }
+.rail i { height: 3px; flex: 1; border-radius: 2px; background: rgba(6,12,31,.14); overflow: hidden; position: relative; }
+.rail i.done { background: var(--fg-neutral-solid); }
+.rail i.now::after { content: ""; position: absolute; inset: 0; width: 100%; background: var(--fg-neutral-solid); transform-origin: 0 50%; animation: railRun 1.5s var(--ease) infinite; }
+@keyframes railRun { 0% { transform: scaleX(.05); opacity: .5; } 70%, 100% { transform: scaleX(1); opacity: 1; } }
+
+/* ── 오른쪽 설명 ── */
+.notes { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 16px; }
+.note { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 18px 20px; }
+.note h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.note h4 em { font-style: normal; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); }
+.note p, .note li { font-size: 13px; line-height: 20px; color: rgba(255,255,255,.72); word-break: keep-all; }
+.note ul { margin: 8px 0 0; padding-left: 17px; display: flex; flex-direction: column; gap: 5px; }
+.note .good { color: #9DE8B6; } .note .bad { color: #FFB4A8; }
+.note.rec { background: rgba(75,89,255,.16); border-color: rgba(140,152,255,.4); }
+.flowmap { display: flex; flex-direction: column; gap: 7px; }
+.flowmap div { font-size: 12.5px; line-height: 18px; color: rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
+.flowmap div.on { color: #fff; font-weight: 600; }
+@media (max-width: 900px) { .page { padding: 20px 16px 56px; } .cols { gap: 24px; } .phone { height: 700px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Idea 2. 모달 형식 통합</h1>
+    <p>유연하게 옵션을 선택할 때와 정형적 태스크를 탈 Case 간의 모달 처리 방식. 질문 → 로딩 → 다음 질문을 <b>같은 모달 표면</b>이 높이만 바꿔 이어가고, 로딩은 답변 영역이 반짝이는 스켈레톤으로 통일한다. 다음 프로세스가 없으면 모달이 입력창 자리로 줄어든다.</p>
+  </header>
+
+  <div class="cols">
+    <div class="stack">
+      <div class="seg" id="seg"></div>
+      <div class="ctrl">
+        <button class="btn" id="play">▶ 처음부터 재생</button>
+        <span class="kind" id="kind"></span>
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="bg"></div>
+          <div class="statusbar"><span>9:41</span><span class="dots"><i class="s"></i><i></i></span></div>
+          <div class="chat" id="chat"></div>
+          <div class="searchai" id="pill"><span class="spark" aria-hidden="true"></span><span class="txt">T에 대해 무엇이든 물어보세요.</span><span class="wave"><i style="height:6px"></i><i style="height:11px"></i><i style="height:14px"></i><i style="height:8px"></i></span></div>
+          <section class="modal" id="modal"><div class="box" id="box"></div></section>
+          <div class="home-ind"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <h4>지금 보고 있는 흐름</h4>
+        <div class="flowmap" id="flowmap"></div>
+      </div>
+      <div class="note" id="desc"></div>
+      <div class="note rec">
+        <h4>정리 — 1/N 이냐, 전부 “생각중” 이냐</h4>
+        <p><b>모달 컴포넌트는 하나로 통합하고, 진행 표시만 조건부로 두는 것</b>을 권합니다. 로딩 반짝임·높이 트윈·닫기 규칙을 한 벌로 쓰면 정형/비정형을 사용자가 구분해 배울 필요가 없습니다.</p>
+        <ul>
+          <li><span class="good">정형 태스크(결제·할인·수령처럼 N이 이미 확정)</span>에서는 남은 개수를 보여주는 편이 낫습니다. 모달이 연달아 뜨는 구간에서 “몇 번 더 답하면 끝나는지”가 보이면 중간 이탈이 줄고, 다음 모달이 뜨는 게 예측 가능해집니다.</li>
+          <li><span class="bad">단, N을 확정할 수 없으면 절대 쓰지 않습니다.</span> Agent 가 도중에 단계를 늘리면 2/3 → 2/5 가 되고, 그 순간 진행 표시가 신뢰를 깎습니다. 이때는 M-2 처럼 카운터 없이 하나씩만.</li>
+          <li>숫자가 부담스럽다면 M-3 처럼 <b>레일</b>로 같은 정보를 줄 수 있습니다. 정확한 개수 대신 “거의 끝나간다”는 감각만 전달돼 N이 흔들려도 덜 위험합니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SPARK = '<svg viewBox="0 0 20 20" fill="none"><path d="M10 1.6l1.5 4.3a4 4 0 002.6 2.6l4.3 1.5-4.3 1.5a4 4 0 00-2.6 2.6L10 18.4l-1.5-4.3a4 4 0 00-2.6-2.6L1.6 10l4.3-1.5a4 4 0 002.6-2.6L10 1.6z" fill="currentColor"/></svg>'
+document.querySelectorAll('.spark').forEach((el) => { el.innerHTML = SPARK })
+
+/* ── 시나리오 ─────────────────────────────────────────────────
+   정형 태스크 3개(N=3)를 연달아 묻고, 마지막에 다음 프로세스가 없어 모달이 입력창으로 줄어든다.
+   loadFor = 그 모달을 띄우기 전에 보여줄 로딩 제목 = "{다음 업무처리} 고민중" */
+const TASKS = [
+  { load: '결제 방법', q: '어떻게 결제할까요?', opts: [
+      ['한번에 결제할게요.', '일시 결제 1,288,000원 더 필요해요'],
+      ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'],
+      ['12개월 할부로 할게요', '월 휴대폰 가격 71,566원'],
+      ['18개월 할부로 할게요', '월 휴대폰 가격 53,667원'],
+    ], pick: 2, done: '12개월 할부' },
+  { load: '추가 할인 수단', q: '추가로 할인받을 수 있는 수단이 있어요.', opts: [
+      ['쿠폰/이용권'], ['제휴 포인트'], ['추가 할인 수단을 사용하지 않기'],
+    ], pick: 0, done: '쿠폰 30,000원' },
+  { load: '수령 방법', q: '어떻게 받으시겠어요?', opts: [
+      ['택배로 받을게요', '9/12(금) 도착 예정'], ['가까운 매장에서 받을게요', '강남대로점 · 오늘 방문 가능'],
+    ], pick: 0, done: '택배 수령' },
+]
+const N = TASKS.length
+
+const VARIANTS = [
+  { id: 'M1', label: 'M-1 1/N 카운터', badge: '스크린샷 아래 케이스',
+    desc: '정형 태스크일 때만 로딩 제목 옆에 <b>1/N</b>. 유연한 옵션 선택(N 미확정)에서는 카운터가 붙지 않고 제목만 뜬다.',
+    pros: ['남은 개수가 보여 “몇 번 더”가 예측된다', '연달아 뜨는 모달이 의도된 묶음으로 읽힌다'],
+    cons: ['N 이 도중에 바뀌면(2/3 → 2/5) 신뢰가 깎인다', '정형/비정형에서 제목 모양이 달라진다'] },
+  { id: 'M2', label: 'M-2 전면 통합', badge: '카운터 없음',
+    desc: '모든 응답 처리를 <b>{다음 업무처리} 고민중</b> 하나로. 개수를 약속하지 않고 한 번에 하나씩만 묻는다.',
+    pros: ['정형/비정형이 완전히 같은 경험 — 규칙이 하나', 'Agent 가 단계를 늘려도 약속을 깨지 않는다'],
+    cons: ['정형 태스크에서 끝이 안 보인다 — 모달이 몇 번 더 뜰지 모름', '길어지면 “계속 물어보네” 로 느껴질 수 있다'] },
+  { id: 'M3', label: 'M-3 진행 레일', badge: '숫자 대신 선',
+    desc: '제목 위에 세그먼트 레일. 정형일 때만 칸이 채워지고, 진행 중인 칸은 로딩과 같은 박자로 늘어난다. 숫자는 쓰지 않는다.',
+    pros: ['“거의 끝나간다”는 감각만 줘서 N 이 흔들려도 덜 위험', '제목 문구는 M-2 와 똑같이 유지된다'],
+    cons: ['정확히 몇 개 남았는지는 알 수 없다', '레일이 얇아 작은 화면에서 눈에 덜 띈다'] },
+]
+let V = (new URLSearchParams(location.search).get('m') || 'M1').toUpperCase()
+if (!VARIANTS.some((v) => v.id === V)) V = 'M1'
+
+const $ = (s) => document.querySelector(s)
+const seg = $('#seg'), modal = $('#modal'), box = $('#box'), chat = $('#chat'), pill = $('#pill')
+const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+let run = 0   // 재생 세션 — 시안을 바꾸면 이전 재생을 버린다
+
+seg.innerHTML = VARIANTS.map((v) => `<button data-id="${v.id}">${v.label}</button>`).join('')
+seg.onclick = (e) => { const b = e.target.closest('button'); if (b) { V = b.dataset.id; sync(); play() } }
+
+function sync() {
+  seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === V))
+  const v = VARIANTS.find((x) => x.id === V)
+  $('#kind').textContent = `정형 태스크 ${N}단계 → 다음 프로세스 없음`
+  $('#desc').innerHTML = `<h4>${v.label}<em>${v.badge}</em></h4><p>${v.desc}</p>`
+    + `<ul>${v.pros.map((p) => `<li><span class="good">좋은 점</span> ${p}</li>`).join('')}`
+    + `${v.cons.map((c) => `<li><span class="bad">약한 점</span> ${c}</li>`).join('')}</ul>`
+  const q = new URLSearchParams(location.search); q.set('m', V)
+  history.replaceState(null, '', `?${q}`)
+}
+
+function flow(i, phase) {
+  $('#flowmap').innerHTML = TASKS.map((t, k) => {
+    const cur = k === i
+    const tag = cur ? (phase === 'load' ? '로딩 — 답변 영역 반짝임' : '질문 — 옵션 선택') : k < i ? '완료' : '대기'
+    return `<div class="${cur ? 'on' : ''}">${k + 1}/${N} ${t.load} · ${tag}</div>`
+  }).join('') + `<div class="${i >= N ? 'on' : ''}">끝 · 다음 프로세스 없음 → 모달이 입력창으로 줄어듦</div>`
+}
+
+/* 표면 높이를 재서 트윈 — 옛 내용 0.15s 아웃 → 높이 0.42s → 새 내용 0.35s 페이드업 (본 프로토타입 M-3 두 박자와 같은 언어) */
+async function swap(html, first) {
+  const old = box.firstElementChild
+  if (old && !first) { old.classList.add('out'); await wait(150) }
+  const from = box.offsetHeight
+  box.innerHTML = html
+  box.firstElementChild.classList.add('in')
+  box.querySelectorAll('.spark').forEach((el) => { el.innerHTML = SPARK })
+  const to = box.scrollHeight
+  if (!first) { box.style.height = `${from}px`; box.offsetHeight; box.style.height = `${to}px`; await wait(420) }
+  box.style.height = 'auto'
+}
+
+const loadPane = (i) => {
+  const t = TASKS[i]
+  const rail = V === 'M3' ? `<div class="rail">${TASKS.map((_, k) => `<i class="${k < i ? 'done' : k === i ? 'now' : ''}"></i>`).join('')}</div>` : ''
+  const num = V === 'M1' ? `<span class="num">${i + 1}/${N}</span>` : ''
+  return `<div class="pane load">${rail}<div class="cap"><span class="spark"></span><span class="ttl">${t.load} 고민중</span>${num}</div>`
+    + `<div class="sk"><i class="short"></i><i></i><i></i><i></i></div></div>`
+}
+const askPane = (i) => {
+  const t = TASKS[i]
+  const rail = V === 'M3' ? `<div class="rail">${TASKS.map((_, k) => `<i class="${k <= i ? 'done' : ''}"></i>`).join('')}</div>` : ''
+  // M-1 은 카운터를 제목 위 키커로 — 제목 줄과 나란히 두면 긴 질문이 밀려 줄바꿈된다
+  const kicker = V === 'M1' ? `<div class="kicker">${i + 1}/${N} · ${t.load}</div>` : ''
+  return `<div class="pane${kicker ? ' has-kicker' : ''}">${rail}${kicker}<div class="hd"><h3>${t.q}</h3><span class="x"></span></div>`
+    + `<div class="rows">${t.opts.map(([a, b]) => `<button class="opt"><span class="t">${a}</span>${b ? `<span class="d">${b}</span>` : ''}</button>`).join('')}</div></div>`
+}
+
+async function play() {
+  const my = ++run
+  const alive = () => my === run
+  chat.innerHTML = `<div class="msg-user">아이폰 17 프로 그라파이트 256G 로 개통할게</div>`
+    + `<div class="msg-ai dim">요청하신 조합으로 진행할게요. 몇 가지만 골라주시면 바로 신청서까지 만들어 드려요.</div>`
+  modal.className = 'modal'; modal.style.removeProperty('bottom'); box.style.height = 'auto'; box.innerHTML = ''
+  pill.classList.remove('hl')
+  flow(0, 'load')
+  await wait(450); if (!alive()) return
+
+  for (let i = 0; i < N; i++) {
+    // 로딩: 답변 영역이 반짝인다
+    flow(i, 'load')
+    await swap(loadPane(i), i === 0)
+    if (i === 0) { modal.classList.add('on') }
+    if (!alive()) return
+    await wait(i === 0 ? 1500 : 1750); if (!alive()) return
+
+    // 질문: 같은 표면이 옵션으로 바뀐다
+    flow(i, 'ask')
+    await swap(askPane(i))
+    if (!alive()) return
+    await wait(1200); if (!alive()) return
+
+    // 선택 (S-1 2px 검은 테두리)
+    const opts = box.querySelectorAll('.opt')
+    const sel = opts[TASKS[i].pick] || opts[0]
+    sel.classList.add('sel')
+    await wait(700); if (!alive()) return
+    chat.insertAdjacentHTML('beforeend', `<div class="done-row"><span class="ck"></span>${TASKS[i].load} <b>${TASKS[i].done}</b></div>`)
+    await wait(350); if (!alive()) return
+  }
+
+  // 다음 프로세스 없음 → 모달이 입력창 자리로 줄어든다 (스마트 애니메이팅)
+  flow(N, 'end')
+  chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">필요한 건 다 골랐어요. 신청서를 만들어 두었으니 확인만 해주세요.</div>`)
+  await wait(500); if (!alive()) return
+  modal.classList.add('shrink')
+  await wait(560); if (!alive()) return
+  pill.classList.add('hl')
+}
+
+sync(); play()
+</script>
+</body>
+</html>
