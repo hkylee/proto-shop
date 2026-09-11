@@ -13,7 +13,7 @@ import './agent2.css'
    시트가 내려가면 대화에는 고른 결과 한 줄(카드)만 남는다. 요금제 [더보기] 는 3안과 같은 전체 요금제 팝업.
    stage: usage(추천 → 시트 → [전체보기] → 팝업 → 적용 → 결과 카드) → sim → benefit → discount → pay  (그 뒤 신청서~결제는 3안 AgentChat form… 를 그대로 잇는다) */
 
-const STAGES = ['usage', 'sim', 'benefit', 'discount', 'pay']
+const STAGES = ['usage', 'plandisc', 'sim', 'benefit', 'discount', 'pay']
 const USAGE_MSG_1 = '최근 6개월간 현황을 살펴보니 월평균 22.4GB를 사용해 제공량 20GB를 초과했고, 초과 시 속도 제한이 적용되고 있어요.'
 const USAGE_MSG_2 = '데이터를 제한 없이 사용할 수 있는 5GX 프라임 플러스를 추천드려요. 요금제를 변경하시면 월 36,200원이 높아지지만, 넷플릭스·FLO 혜택도 함께 이용할 수 있어요.'   // Figma 134:60944 축약본 (요금제명은 0청년 99 대신 프로토 기준 유지)
 const PLAN_SHEET_TITLE = '요금제를 선택해주세요.'
@@ -26,6 +26,9 @@ const REC = POP_PLANS[0]   // 5GX 프라임 플러스 (AI PICK)
 
 // 시트로 고르는 턴들. rows = [이름, 설명, 우측값], pick = 포인터가 고르는 행 (Figma 기준). 안내문은 Figma 134:60944 축약본 (2026-09-09: 추천·되묻기 문장 삭제)
 const TURNS = [
+  // 요금제를 고른 직후 할인 방법 (Figma ixGPs9 229:92086 5·6번째 프레임, 2026-09-11). 요금제와 한 세트라 '요금제 추천' 단계 안에 둔다
+  { id: 'plandisc', k: 8, label: '할인 방법',     msgs: ['공통지원금으로 할인 받으시는걸 추천드려요. 24개월동안 사용하면서 가격 할인을 가장 많이 받으실 수 있어요.'],
+    sheet: '할인 방법을 선택해주세요.', rows: [['공통지원금', '휴대폰 가격에서 바로 할인', '-300,000원'], ['선택약정 12개월', '12개월간 통신요금 25% 할인', '-250,000원'], ['선택약정 24개월', '24개월간 통신요금 25% 할인', '-280,000원']], pick: 0 },
   { id: 'sim',     k: 8,  label: 'SIM 유형',      msgs: ['기기변경으로 진행 중이시니, 쓰시던 유심을 그대로 사용하시면 새로 사지 않아도 되고 개통도 가장 빠르게 끝나요.'],
     sheet: '어떤 SIM으로 개통하시겠어요?', rows: [['eSIM', '칩 없이 QR로 바로 개통해요', '3,000원'], ['새 USIM 구매', '택배로 받아 끼우면 바로 개통돼요', '3,000원'], ['가지고 있는 USIM 사용', '쓰던 USIM을 그대로 사용해요', '3,000원']], pick: 2 },
   { id: 'benefit', k: 12, label: '추가 혜택',     msgs: ['데이터를 넉넉하게 쓰시려면 청년 데이터 60GB 추가를 추천드려요. 자동으로 추가돼서 신경 쓰지 않으셔도 돼요.'],
@@ -40,8 +43,8 @@ const TURNS = [
     sheet: '추가로 받을 수 있는 혜택이 있어요.', rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']], pick: 0 },
 ]
 // 스테이지 → 그 스테이지에서 재생하는 턴 인덱스
-const STAGE_TURNS = { sim: [0], benefit: [1], discount: [2, 3], pay: [4, 5] }
-const turnsUpTo = (stage) => { const all = []; if (!STAGE_TURNS[stage]) return all; for (const s of ['sim', 'benefit', 'discount', 'pay']) { all.push(...STAGE_TURNS[s]); if (s === stage) break } return all }
+const STAGE_TURNS = { plandisc: [0], sim: [1], benefit: [2], discount: [3, 4], pay: [5, 6] }
+const turnsUpTo = (stage) => { const all = []; if (!STAGE_TURNS[stage]) return all; for (const s of ['plandisc', 'sim', 'benefit', 'discount', 'pay']) { all.push(...STAGE_TURNS[s]); if (s === stage) break } return all }
 
 const SHEET_MS = 900       // 시트 상승 (R-2 0.9s)
 const SHEET_OUT_MS = SHEET_KEEP_MS - 100   // 시트 하강 뒤 다음 요소까지 (내용 유지 시간과 같은 곳에서)
