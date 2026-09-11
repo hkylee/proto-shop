@@ -103,7 +103,7 @@ const TAIL = SCREEN_H - SEARCH_TOP + GAP                      // 채팅 끝 여�
 const PEN_TAIL = SCREEN_H - CHAT_TOP - 44 + 30               // 말풍선 아래 답변 자리 여백 → 말풍선을 시작선까지 올릴 수 있는 tail
 const OPENING_MT = 23, TURN_GAP = 8                          // .opening margin-top · 턴 컨테이너 flex gap (agent.css 와 동일)
 const OPENING_OUTER = OPENING_MT + TURN_GAP
-const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'replan', 'reselect', 'opts2', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
+const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'reselect', 'opts2', 'replan', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
 /* 15 [결제하기] 탭 → 결제(외부) 화면으로 이동해 마무리 (T1mhl 10906:6338: 흰 화면 · 닫기 · '외부이동'). 돌아오지 않는다 = 플로우 끝 */
 /* 14 [실물 신분증 촬영] 탭 → 밖(신분증 촬영)으로 → 복귀 → '신원 인증 완료' 선 → 요금 납부 방식(기존 수단 유지 추천 → 탭) → 요금안내서(Bill Letter 추천 → 탭) → 결제 안내 + 시트 [결제하기] (T1mhl 10906:5737)
    업무처리 결과 선(txt_complete)은 왼쪽 → 오른쪽으로 그려진다: 시안 html[data-line] D1 선만 / D2 순차(체크 → 글 → 선) / D3 한 붓 */
@@ -162,10 +162,10 @@ const PEN_MSGS = ['지금 요금제를 변경해도 위약금이나 할인반환
 const DISC_REC = 2   // 재제시 카드에서 추천·탭하는 할인 = 선택약정 24개월
 // 옵션 순차 선택: 미리 선택하지 않고 안내문이 추천을 말하고 추천 행에 '추천' 배지, 사용자가 탭해 고른다 (사용자 방향 2026-09-07). rows = [이름, 설명, 우측값]
 const OPTS = [
-  { msg: '추가 할인을 받을 수 있어요. 적용할 할인 방법을 선택해 주세요.', rec: 0, rows: [['쿠폰/이용권'], ['제휴 포인트'], ['추가 할인 수단을 사용하지 않기']] },
-  { msg: '보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
-  { msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
-  { msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
+  { sum: '할인 방법', msg: '추가 할인을 받을 수 있어요. 적용할 할인 방법을 선택해 주세요.', rec: 0, rows: [['쿠폰/이용권'], ['제휴 포인트'], ['추가 할인 수단을 사용하지 않기']] },
+  { sum: '할인 방법', msg: '보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
+  { sum: '결제 방법', msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
+  { sum: '혜택', msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
 ]
 const REPLAN_PICK = 2   // 스텝 8 에서 바꿔 고르는 요금제 (Figma 는 0 청년 107)
 const OPT_RESELECT = { sec: 1, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
@@ -459,7 +459,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const turnKids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))   // 생각 점(N-2)은 순서 배열에서 제외
     const penEl = penRef.current, penItems = [...penEl.children]                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
     const optsEl = optsRef.current, turns = [...optsEl.children]                 // .opt-turn × 4 + .done, 각각 [msg, msg2|none, card]
-    const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking'))
+    const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
     const formEl = formRef.current, formItems = [...formEl.children]   // [말풍선, 개인정보 Alert]
     const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking'))   // [안내, 완료 선, 안내 2, 신청서 카드, 칩]
@@ -486,7 +486,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     // 옵션 섹션 되감기: from 이후 턴만 (재선택 스텝은 마지막 섹션의 행만 되감아야 하므로)
     const resetOpts = (from = 0) => {
-      for (let i = from; i < turns.length; i++) resetTurn(turns[i], optKids(turns[i]))
+      for (let i = from; i < turns.length; i++) { resetTurn(turns[i], optKids(turns[i])); uncollapseOpt(i) }
       if (from === 0) optsEl.classList.remove('on')
       setOptPick((p) => p.map((v, i) => (i >= from ? -1 : v)))
       resetForm()
@@ -750,7 +750,29 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       reselectPrepDone = true
       ptr?.park(optRow(sec, row), 0, '쿠폰 변경')
     }
-    const playReselect = async () => {
+    /* 8번(2026-09-11 개편): 이제 모든 턴이 요약 줄로 접히므로, 위로 스크롤해 카드를 찾는 대신
+       쿠폰 줄의 [다시 선택하기] 를 눌러 그 자리에서 목록을 다시 펼치고 30,000원 쿠폰으로 바꾼다. 뒤 선택에 영향이 없어 확인 모달도 없다 */
+    const playReselectFold = async () => {
+      const { sec, row } = OPT_RESELECT, fold = optFold(sec)
+      await follow(fold); if (!alive()) return
+      await wait(600); if (!alive()) return
+      await ptr?.tap(fold.querySelector('em'), { move: 420, pause: 120 }); if (!alive()) return
+      ptr?.hide(); uncollapseOpt(sec)
+      const card = turns[sec].querySelector('.opt-card')
+      await new Promise(afterLayout); if (!alive()) return
+      if (!await revealCard(card, 120)) return
+      await follow(card, true); if (!alive()) return
+      await wait(700); if (!alive()) return
+      await ptr?.tap(optRow(sec, row), { move: 400, pause: 120 }); if (!alive()) return
+      setOptPick((p) => p.map((v, i) => (i === sec ? row : v)))
+      await wait(560); if (!alive()) return
+      ptr?.hide()
+      if (!await collapseCard(card, optFold(sec))) return
+      await follow(optFold(sec)); if (!alive()) return
+      await wait(400); if (!alive()) return
+      ptr?.park(optRow(3, OPTS[3].rec), 450, '탭')
+    }
+    const playReselectOld = async () => {
       // 8번: 마지막 안내("마지막으로… T 안심보상…")가 뜨자 → 쿠폰 섹션으로 올라가(H-3) 30,000원 쿠폰으로 바꾸고 → 하단 칩(K-2) 탭 → 내려옴(C-3)
       const last = turns[3], [, , lastCard] = optKids(last)
       if (!await reselectIntro()) return
@@ -1062,6 +1084,37 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 안착 느낌 시안 (html[data-boxland], 사용자 2026-09-11 "좀 더 스무스하게 랜딩되는 경험"):
     //   E1 긴 안착(끝을 길게 감속하고 머무는 박자를 줄임) / E2 마지막 16px 을 따로 아주 느리게 / E3 그림자·라운드가 함께 내려앉음 / off B-1 기본값
     const EXPO_OUT = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -9 * t))
+    /* 확정된 접힘 모션(B-1 + E-3 + N-2, §27-7)을 카드 → 요약 줄 어디서나 쓰도록 뺀 것.
+       카드를 요약 줄 높이까지 흰 박스로 줄이고 → 높이가 같은 지점에서 갈아끼우고 → 배경이 먼저 물들고 글자가 따라 뜬다 */
+    const collapseCard = async (card, row, hold = 100) => {
+      if (!card || !row || reducedMotion()) { if (card) card.style.display = 'none'; row?.classList.add('on'); return alive() }
+      const h0 = card.offsetHeight
+      row.classList.add('on'); row.style.opacity = '0'
+      await new Promise(afterLayout); if (!alive()) return false
+      const hRow = row.offsetHeight
+      row.classList.remove('on'); row.style.opacity = ''
+      card.style.overflow = 'hidden'
+      card.classList.add('boxing', 'l3-start')
+      await new Promise(afterLayout); if (!alive()) return false
+      card.classList.remove('l3-start')
+      const inner = [...card.children]
+      await tween(640, (e) => {
+        card.style.height = `${h0 - (h0 - hRow) * e}px`
+        const p = (h0 - (h0 - (h0 - hRow) * e)) / (h0 - hRow)
+        inner.forEach((c) => { c.style.opacity = String(Math.max(0, 1 - p * 1.8)) })
+      }, (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -9 * t))); if (!alive()) return false
+      if (hold) { await wait(hold); if (!alive()) return false }
+      card.style.display = 'none'; card.classList.remove('boxing')
+      inner.forEach((c) => { c.style.opacity = '' })
+      row.style.transition = ''
+      row.classList.add('on', 'from-box')
+      await new Promise(afterLayout); if (!alive()) return false
+      row.classList.remove('from-box')
+      await wait(820)
+      return alive()
+    }
+    const optFold = (i) => turns[i]?.querySelector('.opt-fold')
+    const uncollapseOpt = (i) => { const c = turns[i]?.querySelector('.opt-card'), r = optFold(i); if (c) { c.style.cssText = ''; c.classList.remove('boxing', 'l3-start'); [...c.children].forEach((k) => { k.style.opacity = '' }) } if (r) { r.classList.remove('on', 'from-box'); r.style.opacity = '' } }
     const foldBox = async (mode) => {
       const L = variant('boxland') || 'off'
       const hold = mode === 'B2' ? 0 : (L === 'E1' ? 110 : L === 'E3' ? 100 : 220)   // B2 는 머물지 않고 바로 물든다
@@ -1207,6 +1260,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await ptr?.tap(optRow(i, o.rec)); if (!alive()) return false
       setOptPick((p) => p.map((v, k) => (k === i ? o.rec : v)))
       await wait(520); if (!alive()) return false
+      ptr?.hide()
+      if (!await collapseCard(t.querySelector('.opt-card'), optFold(i))) return false   // 고르면 요약 줄로 접힘
+      await follow(optFold(i)); if (!alive()) return false
       return true
     }
     const playOpts1 = async () => {
@@ -1223,7 +1279,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalOpts1 = () => {
       setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
-      for (let i = 0; i < 3; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])) }
+      for (let i = 0; i < 3; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
       setOptPick((p) => p.map((v, k) => (k < 3 ? OPTS[k].rec : v)))
       afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[2])[2]) })
     }
@@ -1468,7 +1524,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       reveal(newRow); await follow(newRow); if (!alive()) return
       setReplanIdx(REPLAN_PICK)
       await wait(400); if (!alive()) return
-      ptr?.park(optRow(OPT_RESELECT.sec, OPT_RESELECT.row), 450, '탭')   // 다음 스텝(쿠폰 재선택)의 첫 탭 자리
+      ptr?.park(doneChipRef.current, 450, '탭')   // 다음 스텝(신청서)의 첫 탭 자리
     }
     // 위 블록을 비활성으로 (Figma 271:124668: 이전 요약 줄과 그때 고른 옵션들이 흐려지고 [다시 선택하기] 도 꺼진다)
     const staleAbove = () => { foldCardRef.current?.classList.add('stale'); optsRef.current?.classList.add('stale') }
@@ -1597,9 +1653,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
     const dispatch = () => {
       const upToPenalty = () => { finalUsage(); finalPenalty(); foldFinal() }
-      const upToReplan = () => { upToPenalty(); finalOpts1(); finalReplan() }
-      const upToOpts2 = () => { upToReplan(); finalReselect(); finalOpts2() }
-      const upToForm = () => { upToOpts2(); finalForm() }
+
+      const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalReselect(); finalOpts2() }
+      const upToReplan = () => { upToOpts2(); finalReplan() }
+      const upToForm = () => { upToReplan(); finalForm() }
       if (payout) {
         if (prevRef.current === 'pay' && !reduced) run(playPayout)
         else { upToForm(); finalAddr(); finalContact(); finalReview(); finalAuth(); (mode === 'an2' ? finalPay2 : finalPay)(); finalPayout() }
@@ -1634,22 +1691,22 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (form) {
         if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); if (histRef.current) { setTail(SCREEN_H); scroll.scrollTop = anchorHeader(histRef.current) }; run(() => playForm(true)) }   // 2안: 스텝 8 마지막(말풍선이 시작선)이 보이는 상태에서 칩 탭 → 신청서   // 2안: 바텀시트 흐름 끝(AgentChat2) → 신청서 재생
         else if (prevRef.current === 'opts2' && !reduced) run(playForm)
-        else { resetForm(); upToOpts2(); finalForm(true) }
+        else { resetForm(); upToReplan(); finalForm(true) }
         prevRef.current = 'form'; return
       }
       if (opts2) {
         if (prevRef.current === 'reselect' && !reduced) run(playOpts2)
-        else { resetForm(); upToOpts2() }
+        else { resetForm(); upToReplan() }
         prevRef.current = 'opts2'; return
       }
       if (reselect) {
-        if (prevRef.current === 'replan' && !reduced) run(playReselect)
-        else { resetOpts(3); upToReplan(); finalReselect() }
+        if (prevRef.current === 'opts1' && !reduced) run(playReselectFold)
+        else { resetOpts(3); upToPenalty(); finalOpts1(); finalReselect() }
         prevRef.current = 'reselect'; return
       }
       if (replan) {
-        if (prevRef.current === 'opts1' && !reduced) run(playReplan)
-        else { resetReselect(); resetOpts(3); upToPenalty(); finalOpts1(); finalReplan() }
+        if (prevRef.current === 'opts2' && !reduced) run(playReplan)
+        else { upToOpts2(); finalReplan() }
         prevRef.current = 'replan'; return
       }
       if (opts1) {
@@ -1758,6 +1815,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
                 <Card className="plans flatable opt-card">
                   {o.rows.map(([n, d, r], j) => <PlanRow key={j} name={n} desc={d || undefined} price={r} sel={optPick[i] === j} style={{ '--i': j }} />)}
                 </Card>
+                {/* 고르면 이 줄로 접힌다 (Figma ixGPs9 271:126718 — 모든 옵션 턴 공통 규칙) */}
+                <div className="plan-fold opt-fold"><span className="lbl">선택한 {o.sum}</span><b>{optPick[i] >= 0 ? [o.rows[optPick[i]][0], o.rows[optPick[i]][2]].filter(Boolean).join(' ') : ''}</b><em>다시 선택하기</em></div>
               </div>
             ))}
             <div className="opt-turn done">
