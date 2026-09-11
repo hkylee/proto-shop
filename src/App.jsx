@@ -105,7 +105,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: LAB ? (Q0.get('pf') || 'B1') : CONFIRMED.planfold, foldsync: LAB ? (Q0.get('fy') || 'T1') : CONFIRMED.foldsync, boxland: LAB ? (Q0.get('bl') || 'E3') : CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: LAB ? (Q0.get('sv') || 'N1') : CONFIRMED.selfade })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -757,15 +757,15 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.pdenter = pdenterV }, [pdenterV])
   const [sheetlookV, setSheetlookV] = useState(() => (LAB ? (Q0.get('sl') || CONFIRMED.sheetlook) : CONFIRMED.sheetlook))
   useEffect(() => { document.documentElement.dataset.sheetlook = sheetlookV }, [sheetlookV])
-  const [planfoldV, setPlanfoldV] = useState(() => (LAB ? (Q0.get('pf') || 'B1') : CONFIRMED.planfold))
+  const [planfoldV, setPlanfoldV] = useState(() => (LAB ? (Q0.get('pf') || CONFIRMED.planfold) : CONFIRMED.planfold))
   useEffect(() => { document.documentElement.dataset.planfold = planfoldV }, [planfoldV])
-  const [foldsyncV, setFoldsyncV] = useState(() => (LAB ? (Q0.get('fy') || 'T1') : CONFIRMED.foldsync))
+  const [foldsyncV, setFoldsyncV] = useState(() => (LAB ? (Q0.get('fy') || CONFIRMED.foldsync) : CONFIRMED.foldsync))
   useEffect(() => { document.documentElement.dataset.foldsync = foldsyncV }, [foldsyncV])
-  const [boxlandV, setBoxlandV] = useState(() => (LAB ? (Q0.get('bl') || 'E3') : CONFIRMED.boxland))
+  const [boxlandV, setBoxlandV] = useState(() => (LAB ? (Q0.get('bl') || CONFIRMED.boxland) : CONFIRMED.boxland))
   useEffect(() => { document.documentElement.dataset.boxland = boxlandV }, [boxlandV])
   const [boxfadeV, setBoxfadeV] = useState(() => (LAB ? (Q0.get('bf') || CONFIRMED.boxfade) : CONFIRMED.boxfade))
   useEffect(() => { document.documentElement.dataset.boxfade = boxfadeV }, [boxfadeV])
-  const [selfadeV, setSelfadeV] = useState(() => (LAB ? (Q0.get('sv') || 'N1') : CONFIRMED.selfade))
+  const [selfadeV, setSelfadeV] = useState(() => (LAB ? (Q0.get('sv') || CONFIRMED.selfade) : CONFIRMED.selfade))
   useEffect(() => { document.documentElement.dataset.selfade = selfadeV }, [selfadeV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
@@ -1130,20 +1130,24 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 풀팝업이 내려가는 것과 [선택됨] 변환의 맞물림 (스텝 5에서 → 스텝 6)</b>
+            <b className="vtitle">3안 · 풀팝업 하강과 [선택됨] 변환의 맞물림 (스텝 5에서 → 스텝 6) — T-1 확정</b>
             {FOLDSYNCS.map((v) => (
               <button key={v.id} aria-pressed={foldsyncV === v.id} onClick={() => { setFoldsyncV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
+          )}
+          {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 흰 박스가 [선택됨] 으로 바뀔 때의 오파시티 (T-1 + E-3 기준, 스텝 5에서 → 스텝 6)</b>
+            <b className="vtitle">3안 · 흰 박스가 [선택됨] 으로 바뀔 때의 오파시티 (스텝 5에서 → 스텝 6) — N-2 확정</b>
             {SELFADES.map((v) => (
               <button key={v.id} aria-pressed={selfadeV === v.id} onClick={() => { setSelfadeV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{SELFADES.find((v) => v.id === selfadeV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">3안 · 흰 박스로 줄어들 때 내용이 사라지는 방식 — 원래 기조 유지</b>
