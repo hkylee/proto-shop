@@ -96,3 +96,9 @@ html[data-knobtime="T0"] .ai2 .s2knob { transition: opacity .3s, translate .35s 
 .ai2 .s2xpill .button-ai.pressing { opacity: .6; }
 /* S2 에서는 접힌 시트의 제목 줄이 탭 대상이라 커서를 준다 */
 html[data-simx="S2"] .ai2 .sheet2.fold .hd { cursor: pointer; }
+
+/* ── 모달 뒤 딤 (html[data-dimfx], 2·3안 모든 바텀 모달 공통, 사용자 2026-09-11 "전반적인 인터랙션 고민") ──
+   G0 기존 전면(2안 20% · 3안 22% · 신청서 38%) / G1 없음 / G2 모달 영역만 그라디언트 — 위는 투명하고 아래로 갈수록 진해져 시트 주변만 가라앉는다 */
+html[data-dimfx="G1"] .ai-sheet-dim, html[data-dimfx="G1"] .ai-sheet-dim.deep, html[data-dimfx="G1"] .ai2 .s2dim { background: none; }
+html[data-dimfx="G2"] .ai-sheet-dim, html[data-dimfx="G2"] .ai2 .s2dim { background: linear-gradient(to bottom, rgba(6,12,31,0) 38%, rgba(6,12,31,.05) 58%, rgba(6,12,31,.15) 78%, rgba(6,12,31,.28) 100%); }
+html[data-dimfx="G2"] .ai-sheet-dim.deep { background: linear-gradient(to bottom, rgba(6,12,31,0) 30%, rgba(6,12,31,.08) 54%, rgba(6,12,31,.22) 76%, rgba(6,12,31,.38) 100%); }
