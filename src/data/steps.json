@@ -48,7 +48,6 @@
       "title": "옵션 선택",
       "steps": [
         "agent-opts1",
-        "agent-reselect",
         "agent-opts2",
         "agent-replan"
       ]
@@ -179,21 +178,6 @@
       "view": {
         "type": "agent-chat",
         "stage": "opts1"
-      }
-    },
-    {
-      "id": "agent-reselect",
-      "zone": "agent",
-      "screen": "스크롤 위로 → 쿠폰 재선택",
-      "utterance": null,
-      "utteranceNote": "마지막 안내(추가 혜택)가 뜨자 화면을 위로 밀어 쿠폰 섹션에서 [30,000원]으로 바꾸고 하단 칩으로 다시 내려옴",
-      "purpose": [
-        "대화가 길어진 뒤에도 이전 선택(쿠폰)으로 되돌아가 고칠 수 있다는 것이 화면에서 읽히는지, 스크롤로 올라가는 행동이 자연스러운지 검증",
-        "되돌아간 뒤 다시 아래로 내려오는 동선이 현재 위치를 잃게 하지 않는지 확인"
-      ],
-      "view": {
-        "type": "agent-chat",
-        "stage": "reselect"
       }
     },
     {

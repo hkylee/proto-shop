@@ -103,7 +103,7 @@ const TAIL = SCREEN_H - SEARCH_TOP + GAP                      // 채팅 끝 여�
 const PEN_TAIL = SCREEN_H - CHAT_TOP - 44 + 30               // 말풍선 아래 답변 자리 여백 → 말풍선을 시작선까지 올릴 수 있는 tail
 const OPENING_MT = 23, TURN_GAP = 8                          // .opening margin-top · 턴 컨테이너 flex gap (agent.css 와 동일)
 const OPENING_OUTER = OPENING_MT + TURN_GAP
-const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'reselect', 'opts2', 'replan', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
+const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'opts2', 'replan', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
 /* 15 [결제하기] 탭 → 결제(외부) 화면으로 이동해 마무리 (T1mhl 10906:6338: 흰 화면 · 닫기 · '외부이동'). 돌아오지 않는다 = 플로우 끝 */
 /* 14 [실물 신분증 촬영] 탭 → 밖(신분증 촬영)으로 → 복귀 → '신원 인증 완료' 선 → 요금 납부 방식(기존 수단 유지 추천 → 탭) → 요금안내서(Bill Letter 추천 → 탭) → 결제 안내 + 시트 [결제하기] (T1mhl 10906:5737)
    업무처리 결과 선(txt_complete)은 왼쪽 → 오른쪽으로 그려진다: 시안 html[data-line] D1 선만 / D2 순차(체크 → 글 → 선) / D3 한 붓 */
@@ -391,7 +391,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [applied, setApplied] = useState(false)
   const usageCardRef = useRef(null)             // 4번: 요금제 카드 캐러셀 (전체보기 포함)
   const plansCardRef = useRef(null)             // 6번: 위약금 답변 뒤 재제시 캐러셀 (할인 탭 대상)
-  const foldCardRef = useRef(null), foldTailRef = useRef(null), foldNewRef = useRef(null), replanOutRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
+  const foldCardRef = useRef(null), foldTailRef = useRef(null), foldNewRef = useRef(null), replanOutRef = useRef(null), penFoldRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
   const [discPick, setDiscPick] = useState(-1)  // 적용된 요금제 카드의 할인 선택 (-1 없음 → 스텝 6에서 고객이 24개월 탭)
   const penRef = useRef(null)                   // 6번: 위약금 질문 말풍선 + 답변 턴 컨테이너
   const penVarRef = useRef(null)
@@ -457,7 +457,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const altEl = altRef.current, ptr = ptrRef.current
     const altItems = [...altEl.children].filter((el) => !['pen', 'opts', 'form', 'addr', 'review', 'auth', 'pay'].some((c) => el.classList.contains(c))) // [요금제 카드 캐러셀]; 이후 턴은 별도 시퀀스
     const turnKids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))   // 생각 점(N-2)은 순서 배열에서 제외
-    const penEl = penRef.current, penItems = [...penEl.children]                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
+    const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold'))                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
     const optsEl = optsRef.current, turns = [...optsEl.children]                 // .opt-turn × 4 + .done, 각각 [msg, msg2|none, card]
     const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
@@ -482,6 +482,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const resetPen = () => {
       resetTurn(penEl, penItems); penItems[1].style.cssText = ''
+      if (plansCardRef.current) { plansCardRef.current.style.cssText = ''; plansCardRef.current.classList.remove('boxing', 'l3-start'); [...plansCardRef.current.children].forEach((k) => { k.style.opacity = '' }) }
+      penFoldRef.current?.classList.remove('on', 'from-box')
       setKbOpen(false); setPenTyped(''); setPenTyping(false)
     }
     // 옵션 섹션 되감기: from 이후 턴만 (재선택 스텝은 마지막 섹션의 행만 되감아야 하므로)
@@ -1269,6 +1271,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const T = rv()
       await ptr?.tap(discRow(), { move: 320, pause: 60 }); if (!alive()) return
       setDiscPick(DISC_REC); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
+      ptr?.hide()
+      if (!await collapseCard(plansCardRef.current, penFoldRef.current)) return         // 재출력 카드도 요약 줄로 (§28)
+      await follow(penFoldRef.current); if (!alive()) return
       optsEl.classList.add('on'); void optsEl.offsetHeight
       setTail(420)
       for (let i = 0; i < 3; i++) { if (!await playOptSection(i, T)) return }
@@ -1279,6 +1284,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalOpts1 = () => {
       setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
+      if (plansCardRef.current) plansCardRef.current.style.display = 'none'
+      penFoldRef.current?.classList.add('on')
       for (let i = 0; i < 3; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
       setOptPick((p) => p.map((v, k) => (k < 3 ? OPTS[k].rec : v)))
       afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[2])[2]) })
@@ -1287,12 +1294,14 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const playOpts2 = async () => {
       const T = rv()
       const last = turns[3], [, , card] = optKids(last), done = turns[4], [dm, , chipWrap] = optKids(done)
-      await wait(500); if (!alive()) return                           // 행은 재선택 스텝에서 이미 나와 있다
       setTail(420)
+      if (!await reselectIntro()) return                              // 추가 혜택 턴 등장 (옛 재선택 스텝이 하던 몫, 스텝 8 폐기 2026-09-11)
       await ptr?.tap(optRow(3, OPTS[3].rec)); if (!alive()) return
       setOptPick((p) => p.map((v, k) => (k === 3 ? OPTS[3].rec : v)))
       await wait(700); if (!alive()) return
       ptr?.hide()
+      if (!await collapseCard(card, optFold(3))) return                // T 안심보상도 요약 줄로 (Figma 271:125498)
+      await follow(optFold(3)); if (!alive()) return
       done.classList.add('on'); void done.offsetHeight
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return
@@ -1304,7 +1313,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalOpts2 = () => {
       setOptK(OPT.benefit)
-      turns[3].classList.add('on'); showNow(optKids(turns[3])); turns[4].classList.add('on'); showNow(optKids(turns[4]))
+      turns[3].classList.add('on'); showNow(optKids(turns[3])); const c3 = turns[3].querySelector('.opt-card'); if (c3) c3.style.display = 'none'; optFold(3)?.classList.add('on')
+      turns[4].classList.add('on'); showNow(optKids(turns[4]))
       setOptPick((p) => p.map((v, k) => (k === 3 ? OPTS[3].rec : v)))
       afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[4])[2]) })
     }
@@ -1654,7 +1664,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const dispatch = () => {
       const upToPenalty = () => { finalUsage(); finalPenalty(); foldFinal() }
 
-      const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalReselect(); finalOpts2() }
+      const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalOpts2() }
       const upToReplan = () => { upToOpts2(); finalReplan() }
       const upToForm = () => { upToReplan(); finalForm() }
       if (payout) {
@@ -1695,15 +1705,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         prevRef.current = 'form'; return
       }
       if (opts2) {
-        if (prevRef.current === 'reselect' && !reduced) run(playOpts2)
-        else { resetForm(); upToReplan() }
+        if (prevRef.current === 'opts1' && !reduced) run(playOpts2)
+        else { resetForm(); unstale(); upToOpts2() }   // 재선택은 스텝 9 — 여기서는 아직 켜지 않는다
         prevRef.current = 'opts2'; return
       }
-      if (reselect) {
-        if (prevRef.current === 'opts1' && !reduced) run(playReselectFold)
-        else { resetOpts(3); upToPenalty(); finalOpts1(); finalReselect() }
-        prevRef.current = 'reselect'; return
-      }
+
       if (replan) {
         if (prevRef.current === 'opts2' && !reduced) run(playReplan)
         else { upToOpts2(); finalReplan() }
@@ -1796,6 +1802,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <div className="alt-cards" style={{ '--i': 0 }}>{ALT_CARDS.map((_, i) => <PlanCard key={i} idx={i} sel={applied && i === planIdx} disc={i === planIdx ? discPick : -1} style={{ '--i': i }} />)}</div>
               <div className="plan-all" style={{ '--i': 1 }}><span>전체보기</span></div>
             </Card>
+            {/* 6→7: 할인 방법을 고르면 이 재출력 카드도 요약 줄로 접힌다 (Figma ixGPs9 271:125825) */}
+            <div className="plan-fold pen-fold" ref={penFoldRef}><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
           </div>
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
           <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>다시 선택하기</em></div>
