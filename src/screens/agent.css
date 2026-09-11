@@ -752,8 +752,8 @@ html[data-fsh="H3"] .fs-body { animation: none; }
 .ai-sheet.p2a .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; transition: border-color .3s cubic-bezier(.65,0,.35,1); }
 .ai-sheet.p2a .plan-row.sel { border-color: var(--fg-neutral-solid); }
 .ai-sheet.p2a:not(.on) { visibility: hidden; transition: transform .5s var(--kb-ease), visibility 0s .5s; }
+/* 시트 결과 = 질문/답 말풍선 (Figma 230:92732). 카드 한 줄이던 것을 2안의 다른 결과와 같은 표현으로 통일 (2026-09-11) */
 .pay2 .p2-result { width: 353px; }
-.pay2 .p2-result .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; box-shadow: 0 0 20px rgba(35,55,155,.05); }
 .pay2 .p2-result:empty { display: none; }
 .input-field .p2-timer { margin-left: auto; font-style: normal; font-size: 14px; color: var(--fg-neutral-mute); font-variant-numeric: tabular-nums; }
 

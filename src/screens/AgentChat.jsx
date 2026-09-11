@@ -1570,7 +1570,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <Thinking />
             <AiMessage>{P2_MSGS[0]}</AiMessage>
             <AiMessage>{P2_MSGS[1]}</AiMessage>
-            <div className="p2-result">{p2pick >= 0 && <PlanRow name={P2_SHEET_A.rows[p2pick]} />}</div>
+            {/* 시트 [네/아니요] 를 고른 결과 = 질문/답 말풍선 (Figma ixGPs9 230:92732, 사용자 2026-09-11). 2안의 다른 시트 결과와 같은 표현 */}
+            <div className="p2-result">{p2pick >= 0 && <AnswerBubble q={P2_SHEET_A.title} a={P2_SHEET_A.rows[p2pick]} />}</div>
             <AiMessage>{P2_MSGS[2]}</AiMessage>
             <div className="done-line"><i className="chk" /><span>{P2_DONE}</span><em /></div>
             <AiMessage>{P2_MSGS[3]}</AiMessage>
