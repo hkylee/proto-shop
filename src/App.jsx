@@ -104,7 +104,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: LAB ? (Q0.get('sx') || 'S1') : CONFIRMED.simx })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -223,6 +223,13 @@ const KNOBTIMES = [
   { id: 'T1', label: 'T-1 시트와 동시', desc: '안내가 끝나고 모달이 올라오기 시작하는 순간 ∨ 도 화면 아래에서 시트와 같은 R-2 0.9s 곡선으로 함께 올라온다. 시트 위 12px 에 붙어 한 덩어리처럼 움직임 — "거의 동시" 그대로' },
   { id: 'T2', label: 'T-2 시트가 앉은 직후', desc: '모달이 0.9s 로 안착한 바로 뒤 ∨ 가 제자리에서 0.3s 페이드업. 시트 → ∨ 두 박자로 읽힘 (지금까지 본 것)' },
   { id: 'T3', label: 'T-3 안착 0.5s 뒤', desc: '모달이 앉고 0.5s 쉰 뒤 ∨ 가 뜬다. "가려졌네" 하고 Agent 가 알려주는 느낌 — 가장 느림' },
+]
+// 2안 스텝 6 · SIM 시트의 × 를 눌렀을 때 어떻게 돌아오나 (html[data-simx], Figma ixGPs9 234:92897, 사용자 2026-09-11)
+const SIMXS = [
+  { id: 'S1', label: 'S-1 대화에 칩 (Figma 그대로)', desc: '× 를 누르면 시트가 내려가고 안내문 아래에 [개통 방법 선택하기] 칩이 남는다 → 탭하면 칩이 사라지고 "이어서 진행할게요." 한 줄이 붙은 뒤 시트가 R-2 로 다시 올라온다. 닫았다는 사실과 돌아온 경로가 대화에 남음' },
+  { id: 'S2', label: 'S-2 제자리 접힘', desc: '시트가 사라지지 않고 제목 줄 68px 만 남기고 바닥에 접힌다(∨ K-2 와 같은 언어) → 제목 줄을 탭하면 다시 펼쳐진다. 대화에는 아무것도 남지 않고 "잠깐 치워둔" 느낌' },
+  { id: 'S3', label: 'S-3 입력창 위 복귀 알약', desc: '시트는 완전히 내려가고 SearchAi 위 12px 에 [개통 방법 선택하기] 알약이 떠 있는다 → 탭하면 시트 복귀. 대화 흐름은 그대로 두고 복귀 수단만 화면에 남기는 방식' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. × 를 누르지 않고 바로 고른다' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -629,6 +636,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.knob = knobV }, [knobV])
   const [knobtimeV, setKnobtimeV] = useState(() => (LAB ? (Q0.get('kt') || CONFIRMED.knobtime) : CONFIRMED.knobtime))
   useEffect(() => { document.documentElement.dataset.knobtime = knobtimeV }, [knobtimeV])
+  const [simxV, setSimxV] = useState(() => (LAB ? (Q0.get('sx') || 'S1') : CONFIRMED.simx))
+  useEffect(() => { document.documentElement.dataset.simx = simxV }, [simxV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -989,6 +998,13 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">2안 · SIM 시트 × 를 눌렀을 때 어떻게 돌아오나 (스텝 5에서 → 스텝 6, Figma 234:92897)</b>
+            {SIMXS.map((v) => (
+              <button key={v.id} aria-pressed={simxV === v.id} onClick={() => { setSimxV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{SIMXS.find((v) => v.id === simxV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2안 · ∨ 등장 타이밍 (K-1 확정 · 스텝 3에서 → 스텝 4) — T-0 확정</b>

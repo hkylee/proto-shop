@@ -30,7 +30,8 @@ const TURNS = [
   { id: 'plandisc', k: 8, label: '할인 방법',     msgs: ['공통지원금으로 할인 받으시는걸 추천드려요. 24개월동안 사용하면서 가격 할인을 가장 많이 받으실 수 있어요.'],
     sheet: '할인 방법을 선택해주세요.', rows: [['공통지원금', '휴대폰 가격에서 바로 할인', '-300,000원'], ['선택약정 12개월', '12개월간 통신요금 25% 할인', '-250,000원'], ['선택약정 24개월', '24개월간 통신요금 25% 할인', '-280,000원']], pick: 0 },
   { id: 'sim',     k: 8,  label: 'SIM 유형',      msgs: ['기기변경으로 진행 중이시니, 쓰시던 유심을 그대로 사용하시면 새로 사지 않아도 되고 개통도 가장 빠르게 끝나요.'],
-    sheet: '어떤 SIM으로 개통하시겠어요?', rows: [['eSIM', '칩 없이 QR로 바로 개통해요', '3,000원'], ['새 USIM 구매', '택배로 받아 끼우면 바로 개통돼요', '3,000원'], ['가지고 있는 USIM 사용', '쓰던 USIM을 그대로 사용해요', '3,000원']], pick: 2 },
+    sheet: '어떤 SIM으로 개통하시겠어요?', rows: [['eSIM', '칩 없이 QR로 바로 개통해요', '3,000원'], ['새 USIM 구매', '택배로 받아 끼우면 바로 개통돼요', '3,000원'], ['가지고 있는 USIM 사용', '쓰던 USIM을 그대로 사용해요', '3,000원']], pick: 2,
+    xchip: '개통 방법 선택하기', xmsg: '이어서 진행할게요.' },   // 시트 × → 복귀 시안 (html[data-simx], Figma 229 234:92897)
   { id: 'benefit', k: 12, label: '추가 혜택',     msgs: ['데이터를 넉넉하게 쓰시려면 청년 데이터 60GB 추가를 추천드려요. 자동으로 추가돼서 신경 쓰지 않으셔도 돼요.'],
     sheet: '어떤 혜택을 선택하시겠어요?', rows: [['청년 데이터 60GB 추가', '매월 데이터를 넉넉하게 사용해요'], ['콘텐츠 이용권', 'YouTube · Netflix · TVING 중 하나'], ['추가 혜택을 선택하지 않을게요', '나중에 Tworld에서 신청할 수 있어요']], pick: 0, icon: true },
   { id: 'disc',    k: 9,  label: '추가 할인 수단', msgs: ['쿠폰이나 이용권이 있으시면 바로 적용해서 가장 간편하게 할인받으실 수 있어요. 어떤 방식으로 할인받으실래요?'],
@@ -99,6 +100,7 @@ export default function AgentChat2({ stage = 'usage' }) {
   // ∨ 플로팅 (Figma 210:122678 ButtonIconAiItem 44, 시트 위 12px): 모달이 방금 나온 응답을 가리면 뜬다. html[data-knob] K1 채팅 내려가기 / K2 시트 접힘 / K3 시트가 잠깐 비켜줌 / off
   const knobOverRef = useRef(0)   // 모달이 직전 응답을 가린 양(px) — armKnob 이 재고 revealHidden 이 쓴다
   const [knobBase, setKnobBase] = useState('search')   // T0: 카드가 바닥에 닿은 순간엔 SearchAi 위(88)에, 시트가 오면 시트 위(20+h+12)로 함께 올라감
+  const xpillRef = useRef(null), [xpill, setXpill] = useState(false)   // S-3: 시트를 닫으면 SearchAi 위에 뜨는 복귀 알약
   const knobRef = useRef(null), [knob, setKnob] = useState(false), [knobUp, setKnobUp] = useState(false), [sheetFold, setSheetFold] = useState(false), [sheetAway, setSheetAway] = useState(false), [sheetH, setSheetH] = useState(0)   // 대화 안 추천 요금제 카드 (recflow ≠ old) · P3 선택 테두리
   const recflow = variant('recflow') || 'old'
 
@@ -114,7 +116,8 @@ export default function AgentChat2({ stage = 'usage' }) {
     const T = rv()
     const s5 = [...scroll.querySelectorAll(':scope > .s5')]           // [말풍선, 타이틀, 안내 1, 이용중 카드, 추천 문장, (추천 카드 — recflow ≠ old)]
     const turnEls = turnRefs.current
-    const kids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))
+    // .xdetour = 시트 × → 복귀 시안이 쓰는 조각(칩 · '이어서 진행할게요.'). 턴의 기본 순서(안내 → 결과)를 흐트러뜨리지 않게 제외한다
+    const kids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('xdetour'))
     const setTail = (px) => { if (tailRef.current) tailRef.current.style.height = `${px}px` }
     const downTo = (el) => scrollTo(scroll, Math.max(scroll.scrollTop, anchorBottom(el)))
     // 2안 상단 앵커링 (사용자 2026-09-09, Figma 90:86712): 새 턴이 시작되면 그 턴의 첫 요소를 채팅 시작선(199)에 맞춘다. 이후 같은 턴 안의 요소는 아래로 흘러 쌓이고 스크롤하지 않는다
@@ -130,7 +133,8 @@ export default function AgentChat2({ stage = 'usage' }) {
       planResRef.current.classList.remove('on', 'in')
       if (recRef.current) recRef.current.style.cssText = ''; setRecSel(false)
       setKnob(false); setKnobUp(false); setSheetFold(false); setSheetAway(false); setKnobBase('search')
-      turnEls.forEach((el) => { el.classList.remove('on'); unreveal([...el.children]); el.querySelectorAll('.thinking').forEach((d) => { d.classList.remove('out'); d.style.display = '' }) })
+      setXpill(false)
+      turnEls.forEach((el) => { el.classList.remove('on'); unreveal([...el.children]); el.querySelectorAll('.thinking').forEach((d) => { d.classList.remove('out'); d.style.display = '' }); el.querySelectorAll('.xdetour').forEach((d) => { d.classList.remove('gone'); d.style.display = '' }) })
       doneRef.current.classList.remove('on'); unreveal([...doneRef.current.children]); doneRef.current.querySelector('.thinking').style.display = ''; const dop = doneRef.current.querySelector('.opening'); if (dop) dop.style.cssText = ''
       setPicks(TURNS.map(() => -1)); setSheet(null); setSheetPick(-1); setPop(false); setPopSel(-1); setPopTab(0)
       setHead(7); setTail(TAIL); ptr?.hide()
@@ -150,7 +154,12 @@ export default function AgentChat2({ stage = 'usage' }) {
       el.style.height = '0px'; el.style.opacity = '0'; el.style.marginTop = '0'; el.style.marginBottom = '0'
       await wait(470); el.style.display = 'none'
     }
-    const finalTurn = (i) => { const el = turnEls[i]; el.classList.add('on'); showNow(kids(el)); el.querySelector('.thinking').style.display = 'none'; setPicks((p) => p.map((v, j) => (j === i ? TURNS[i].pick : v))) }
+    // S-1 만 대화에 흔적('이어서 진행할게요.')을 남긴다 — 최종 상태에도 그대로 있어야 한다. 칩은 눌러서 사라진 것이라 최종 상태엔 없다
+    const finalTurn = (i) => {
+      const el = turnEls[i]; el.classList.add('on'); showNow(kids(el)); el.querySelector('.thinking').style.display = 'none'
+      const xmsg = el.querySelector('.x-msg'); if (xmsg) { if (variant('simx') === 'S1') showNow([xmsg]); else xmsg.style.display = 'none' }
+      setPicks((p) => p.map((v, j) => (j === i ? TURNS[i].pick : v)))
+    }
     const finalDone = () => { const el = doneRef.current; el.classList.add('on'); showNow(kids(el)); el.querySelector('.thinking').style.display = 'none'; hideOpening(el.querySelector('.opening')) }
     const settle = () => {
       resetAll()
@@ -278,6 +287,37 @@ export default function AgentChat2({ stage = 'usage' }) {
       knobOverRef.current = 0
       return alive()
     }
+    /* ── 시트 × → 어떻게 다시 돌아오나 (Figma ixGPs9 234:92897, 사용자 2026-09-11). html[data-simx] ──
+       S1 대화에 칩: 시트가 내려가고 안내문 아래에 [개통 방법 선택하기] 칩이 남는다 → 탭 → 칩이 사라지고 '이어서 진행할게요.' → 시트 복귀 (Figma 그대로)
+       S2 제자리 접힘: 시트가 제목 줄(68px)만 남기고 바닥에 접힌다 → 제목 줄 탭 → 다시 펼쳐짐. 대화에는 아무것도 남지 않음
+       S3 입력창 위 알약: 시트는 완전히 내려가고 SearchAi 위 12px 에 복귀 알약이 떠 있는다 → 탭 → 시트 복귀. 대화 흐름을 건드리지 않음 */
+    const sheetDetour = async (i, el, msg) => {
+      const t = TURNS[i], S = variant('simx') || 'off', T = rv()
+      if (!t.xchip || S === 'off' || reducedMotion()) return true
+      await wait(SHEET_HOLD); if (!alive()) return false
+      await ptr?.tap(sheetRef.current?.querySelector('.hd .x'), { move: 420, pause: 120 }); if (!alive()) return false
+      if (S === 'S2') {
+        setSheetFold(true); await wait(900); if (!alive()) return false
+        await ptr?.tap(sheetRef.current?.querySelector('.hd'), { move: 380, pause: 120 }); if (!alive()) return false
+        setSheetFold(false); ptr?.hide(); await wait(SHEET_MS); return alive()
+      }
+      ptr?.hide(); await closeSheet(); if (!alive()) return false
+      if (S === 'S3') {
+        setXpill(true); await wait(480); if (!alive()) return false
+        await ptr?.tap(xpillRef.current?.firstElementChild, { move: 420, pause: 120 }); if (!alive()) return false
+        setXpill(false); ptr?.hide(); await wait(300); if (!alive()) return false
+        await openSheet(i, msg); return alive()
+      }
+      const chip = el.querySelector('.x-chip'), xmsg = el.querySelector('.x-msg')
+      reveal(chip); await follow(chip); if (!alive()) return false
+      await wait(500); if (!alive()) return false
+      await ptr?.tap(chip.firstElementChild, { move: 420, pause: 120 }); if (!alive()) return false
+      ptr?.hide(); chip.classList.add('gone'); await wait(320); if (!alive()) return false
+      chip.style.display = 'none'
+      reveal(xmsg); await follow(xmsg); if (!alive()) return false
+      await wait(T.text); if (!alive()) return false
+      await openSheet(i, xmsg); return alive()
+    }
     const pickInSheet = async (row) => {
       await wait(SHEET_HOLD); if (!alive()) return false
       const el = sheetRef.current.querySelectorAll('.plan-row')[row], sh = sheetRef.current
@@ -301,6 +341,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       setHead(t.k, t.label)
       await openSheet(i, msg2 || msg1); if (!alive()) return false
       if (!await revealHidden()) return false
+      if (!await sheetDetour(i, el, msg2 || msg1)) return false
       if (!await pickInSheet(t.pick)) return false
       setPicks((p) => p.map((v, j) => (j === i ? t.pick : v)))
       reveal(result); await wait(150); if (!alive()) return false
@@ -438,6 +479,9 @@ export default function AgentChat2({ stage = 'usage' }) {
           <div className="turn2" key={t.id} ref={(el) => { turnRefs.current[i] = el }}>
             <Thinking />
             {t.msgs.map((m, j) => <AiMessage key={j}>{m.split('\n').map((l, k) => <span key={k}>{k > 0 && <br />}{l}</span>)}</AiMessage>)}
+            {/* 시트 × → 복귀 시안 S-1 (Figma 234:92897): 안내문 아래 칩 → 탭 → 칩이 사라지고 '이어서 진행할게요.' → 시트 복귀 */}
+            {t.xchip && <div className="cta-stack xdetour x-chip"><div className="button-ai">{t.xchip}</div></div>}
+            {t.xmsg && <p className="msg-ai xdetour x-msg">{t.xmsg}</p>}
             <div className="t2-result">
               {picks[i] >= 0 && <AnswerBubble q={t.sheet} a={t.rows[picks[i]][0]} />}
             </div>
@@ -467,6 +511,8 @@ export default function AgentChat2({ stage = 'usage' }) {
       {/* 바텀 모달 (AiAgentBottomSheet 96:41834): 딤 + 시트. 요금제 = 추천 1장 + [더보기], 나머지 = RadioCard 행 */}
       <div className={`ai-sheet-dim s2dim ${sheet !== null ? 'on' : ''}`} aria-hidden />
       <div className={`s2knob ${knob ? 'on' : ''} ${knobUp ? 'up' : ''} base-${knobBase}`} ref={knobRef} style={{ '--sheet-h': `${sheetH}px` }} aria-label="가려진 내용 보기"><i /></div>
+      {/* 시트 × → 복귀 시안 S-3: 대화가 아니라 SearchAi 위 12px 에 뜨는 복귀 알약 */}
+      <div className={`s2xpill ${xpill ? 'on' : ''}`} ref={xpillRef}><div className="button-ai">개통 방법 선택하기</div></div>
       <div className={`sheet2 ${sheet !== null ? 'on' : ''} ${out !== null ? 'out' : ''} ${sheetFold ? 'fold' : ''} ${sheetAway ? 'away' : ''}`} ref={sheetRef} aria-hidden={sheet === null}>
         <div className="hd"><h3>{shown === 'plan' ? (recflow === 'old' ? PLAN_SHEET_TITLE : REC_SHEET_TITLE) : sheetTurn?.sheet}</h3><i className="x" /></div>
         {shown === 'plan' && recflow === 'old' && (<>
