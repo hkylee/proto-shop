@@ -427,7 +427,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [recalc, setRecalc] = useState(false)              // 스텝 9 R-3: 아래 턴 안내문 재계산 중 표시
   const [msgPlanIdx, setMsgPlanIdx] = useState(PLAN_DEFAULT) // 안내문에 쓰이는 요금제 (선택보다 늦게, 앵커링 뒤 교체 연출)
   const planName = ALT_PLANS[msgPlanIdx][0]
-  const foldLbl = variant('planfold') === 'D1' ? '선택됨' : '선택한 요금제'   // D-1 은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
+  const foldLbl = /^[DS]/.test(variant('planfold') || '') ? '선택됨' : '선택한 요금제'   // D·S 시안은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
   const scrollIndRef = useRef(null)
   const jumpChipRef = useRef(null)
   const tailRef = useRef(null)
@@ -1026,9 +1026,35 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       row.style.opacity = ''
       return alive()
     }
+    /* S 시안 (사용자 2026-09-11 "F-1 인데 페이드아웃되면서 부드럽게"): 카드를 요약 줄 높이까지 줄이면서 페이드아웃 →
+       높이가 같아진 지점에서 갈아끼우므로 자리 튐이 0 (스크롤 보정도 불필요) → 요약 줄 페이드인.
+       S1 한 호흡(0.55s + 0.25s) / S2 먼저 흐려지고 자리가 줄어듦(0.3 → 0.4 + 0.25) / S3 느린 출발 긴 안착(0.8s R-2 + 0.35s) */
+    const foldSmooth = async (mode) => {
+      const card = usageCardRef.current, row = foldCardRef.current
+      const h0 = card.offsetHeight
+      row.classList.add('on'); row.style.opacity = '0'
+      await new Promise(afterLayout); if (!alive()) return false
+      const hRow = row.offsetHeight
+      row.classList.remove('on')
+      card.style.overflow = 'hidden'
+      if (mode === 'S2') {
+        await tween(300, (e) => { card.style.opacity = String(1 - e) }, inOut); if (!alive()) return false
+        await tween(400, (e) => { card.style.height = `${h0 - (h0 - hRow) * e}px` }, inOut); if (!alive()) return false
+      } else {
+        const dur = mode === 'S3' ? 800 : 550, ease = mode === 'S3' ? inOutQuart : inOut   // S3 = 느린 출발 + 긴 안착
+        await tween(dur, (e) => { card.style.height = `${h0 - (h0 - hRow) * e}px`; card.style.opacity = String(Math.max(0, 1 - e * 1.25)) }, ease); if (!alive()) return false
+      }
+      card.style.display = 'none'                                  // 높이가 같아진 지점 — 갈아끼워도 아래가 움직이지 않는다
+      row.classList.add('on'); row.style.opacity = '0'
+      await new Promise(afterLayout); if (!alive()) return false
+      await tween(mode === 'S3' ? 350 : 250, (e) => { row.style.opacity = String(e) }, inOut); if (!alive()) return false
+      row.style.opacity = ''
+      return alive()
+    }
     const foldPlans = async () => {
       const F = variant('planfold') || 'off'
       if (F === 'off' || reducedMotion()) return true
+      if (F[0] === 'S') return foldSmooth(F)
       if (F === 'D1') return dissolvePlans()
       const card = usageCardRef.current, row = foldCardRef.current
       if (F === 'F2') { row.classList.add('on'); await wait(320); if (!alive()) return false }
