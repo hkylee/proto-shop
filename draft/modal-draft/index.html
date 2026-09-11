@@ -36,6 +36,8 @@ header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(25
 .seg button { min-height: 40px; padding: 0 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.6); display: grid; place-items: center; }
 .seg button.on { background: #fff; color: #0B0F1E; }
 .stack { display: flex; flex-direction: column; gap: 14px; }
+.segrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.segrow .lbl { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.45); }
 .ctrl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .ctrl .btn { min-height: 40px; padding: 0 16px; border-radius: 12px; background: rgba(255,255,255,.12); font-size: 13.5px; font-weight: 600; display: grid; place-items: center; }
 .ctrl .btn:active { background: rgba(255,255,255,.2); }
@@ -79,8 +81,17 @@ header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(25
   backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); color: var(--fg-neutral-solid);
   transform: translateY(130%); transition: transform .9s var(--r2), bottom .9s var(--r2), border-radius .5s var(--ease); overflow: hidden; }
 .modal.on { transform: none; }
-/* 마지막: 모달이 입력창 자리로 줄어든다 (스마트 애니메이팅) */
-.modal.shrink { transform: none; bottom: 30px; border-radius: 999px; transition: transform .7s var(--r2), bottom .7s var(--r2), border-radius .7s var(--r2), opacity .35s .3s ease; opacity: 0; }
+/* ── 끝맺음(다음 프로세스 없음) 시안 ─────────────────────────────────
+   폐기: 모달이 입력창 알약으로 줄어드는 모핑(스마트 애니메이팅). 높이·모서리·투명도가 한꺼번에
+   움직여 형태가 뭉개졌다 (사용자 2026-09-11 "존나 어색해").
+   E-1 그냥 내려감 / E-2 제자리 접힘 / E-3 마지막 답변에 자리 넘김 */
+.modal.e1 { transform: translateY(130%); transition: transform .62s cubic-bezier(.4,0,.2,1); }
+.modal.e2 { transition: opacity .26s .3s ease; opacity: 0; }
+.modal.e2 .box { height: 0 !important; padding-top: 0; padding-bottom: 0; transition: height .4s var(--ease), padding .4s var(--ease); }
+.modal.e2 .pane { opacity: 0; transition: opacity .15s linear; }
+.modal.e3 { transform: translateY(130%); transition: transform .62s cubic-bezier(.4,0,.2,1); }
+.msg-ai.handoff { animation: handoff .5s var(--ease) both; }
+@keyframes handoff { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: none; } }
 .modal .box { padding: 22px 20px 20px; transition: height .42s var(--ease); overflow: hidden; }
 .modal .pane { display: flex; flex-direction: column; gap: 16px; }
 .modal .pane.out { opacity: 0; transition: opacity .15s linear; }
@@ -149,8 +160,10 @@ header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(25
   <div class="cols">
     <div class="stack">
       <div class="seg" id="seg"></div>
+      <div class="segrow"><span class="lbl">끝맺음</span><div class="seg" id="seg2"></div></div>
       <div class="ctrl">
         <button class="btn" id="play">▶ 처음부터 재생</button>
+        <button class="btn" id="playend">↺ 끝맺음만 다시</button>
         <span class="kind" id="kind"></span>
       </div>
       <div class="phone">
@@ -171,6 +184,7 @@ header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(25
         <div class="flowmap" id="flowmap"></div>
       </div>
       <div class="note" id="desc"></div>
+      <div class="note" id="desc2"></div>
       <div class="note rec">
         <h4>정리 — 1/N 이냐, 전부 “생각중” 이냐</h4>
         <p><b>모달 컴포넌트는 하나로 통합하고, 진행 표시만 조건부로 두는 것</b>을 권합니다. 로딩 반짝임·높이 트윈·닫기 규칙을 한 벌로 쓰면 정형/비정형을 사용자가 구분해 배울 필요가 없습니다.</p>
@@ -221,25 +235,46 @@ const VARIANTS = [
     pros: ['“거의 끝나간다”는 감각만 줘서 N 이 흔들려도 덜 위험', '제목 문구는 M-2 와 똑같이 유지된다'],
     cons: ['정확히 몇 개 남았는지는 알 수 없다', '레일이 얇아 작은 화면에서 눈에 덜 띈다'] },
 ]
-let V = (new URLSearchParams(location.search).get('m') || 'M1').toUpperCase()
-if (!VARIANTS.some((v) => v.id === V)) V = 'M1'
+const ENDS = [
+  { id: 'E1', label: 'E-1 그냥 내려감', badge: '가장 단순',
+    desc: '모달이 올라온 길로 그대로 내려간다(0.62s). 모양은 하나도 바뀌지 않고, 입력창은 원래 자리에 이미 있으니 <b>모핑이 필요 없다</b>.',
+    pros: ['형태가 안 변하니 뭉개질 구석이 없다', '올라옴(R-2)과 짝이 맞는 단일 규칙'],
+    cons: ['“끝났다”는 신호가 약해 그냥 닫힌 것처럼 보일 수 있다'] },
+  { id: 'E2', label: 'E-2 제자리 접힘', badge: '이동 없음',
+    desc: '내용이 0.15s 먼저 사라지고, 표면 높이가 0 으로 접히며(0.4s) 그 자리에서 닫힌다. <b>위치는 끝까지 안 움직인다.</b>',
+    pros: ['시선이 한 곳에 머물러 가장 조용하다', '높이 트윈이라 모달이 열릴 때와 같은 언어'],
+    cons: ['접히는 동안 유리 표면이 얇게 남아 잠깐 선처럼 보인다'] },
+  { id: 'E3', label: 'E-3 마지막 답변에 자리 넘김', badge: '의미 전달',
+    desc: '모달이 내려가는 동시에 그 자리에 마지막 답변이 아래에서 올라와 <b>자리를 이어받는다</b>. 모핑 없이 “모달이 대화로 돌아갔다”가 읽힌다.',
+    pros: ['업무가 끝나고 대화로 복귀했다는 게 분명하다', '빈 화면이 생기는 순간이 없다'],
+    cons: ['두 요소가 동시에 움직여 E-1·E-2 보다 분주하다'] },
+]
+const Q = new URLSearchParams(location.search)
+let V = (Q.get('m') || 'M2').toUpperCase()
+if (!VARIANTS.some((v) => v.id === V)) V = 'M2'
+let E = (Q.get('e') || 'E1').toUpperCase()
+if (!ENDS.some((v) => v.id === E)) E = 'E1'
 
 const $ = (s) => document.querySelector(s)
-const seg = $('#seg'), modal = $('#modal'), box = $('#box'), chat = $('#chat'), pill = $('#pill')
+const seg = $('#seg'), seg2 = $('#seg2'), modal = $('#modal'), box = $('#box'), chat = $('#chat'), pill = $('#pill')
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 let run = 0   // 재생 세션 — 시안을 바꾸면 이전 재생을 버린다
 
 seg.innerHTML = VARIANTS.map((v) => `<button data-id="${v.id}">${v.label}</button>`).join('')
 seg.onclick = (e) => { const b = e.target.closest('button'); if (b) { V = b.dataset.id; sync(); play() } }
+seg2.innerHTML = ENDS.map((v) => `<button data-id="${v.id}">${v.label}</button>`).join('')
+seg2.onclick = (e) => { const b = e.target.closest('button'); if (b) { E = b.dataset.id; sync(); playEndOnly() } }
 
+const card = (v) => `<h4>${v.label}<em>${v.badge}</em></h4><p>${v.desc}</p>`
+  + `<ul>${v.pros.map((p) => `<li><span class="good">좋은 점</span> ${p}</li>`).join('')}`
+  + `${v.cons.map((c) => `<li><span class="bad">약한 점</span> ${c}</li>`).join('')}</ul>`
 function sync() {
   seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === V))
-  const v = VARIANTS.find((x) => x.id === V)
+  seg2.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === E))
   $('#kind').textContent = `정형 태스크 ${N}단계 → 다음 프로세스 없음`
-  $('#desc').innerHTML = `<h4>${v.label}<em>${v.badge}</em></h4><p>${v.desc}</p>`
-    + `<ul>${v.pros.map((p) => `<li><span class="good">좋은 점</span> ${p}</li>`).join('')}`
-    + `${v.cons.map((c) => `<li><span class="bad">약한 점</span> ${c}</li>`).join('')}</ul>`
-  const q = new URLSearchParams(location.search); q.set('m', V)
+  $('#desc').innerHTML = card(VARIANTS.find((x) => x.id === V))
+  $('#desc2').innerHTML = card(ENDS.find((x) => x.id === E))
+  const q = new URLSearchParams(location.search); q.set('m', V); q.set('e', E)
   history.replaceState(null, '', `?${q}`)
 }
 
@@ -252,15 +287,15 @@ function flow(i, phase) {
 }
 
 /* 표면 높이를 재서 트윈 — 옛 내용 0.15s 아웃 → 높이 0.42s → 새 내용 0.35s 페이드업 (본 프로토타입 M-3 두 박자와 같은 언어) */
-async function swap(html, first) {
+async function swap(html, first, alive = () => true) {
   const old = box.firstElementChild
-  if (old && !first) { old.classList.add('out'); await wait(150) }
+  if (old && !first) { old.classList.add('out'); await wait(150); if (!alive()) return }
   const from = box.offsetHeight
   box.innerHTML = html
   box.firstElementChild.classList.add('in')
   box.querySelectorAll('.spark').forEach((el) => { el.innerHTML = SPARK })
   const to = box.scrollHeight
-  if (!first) { box.style.height = `${from}px`; box.offsetHeight; box.style.height = `${to}px`; await wait(420) }
+  if (!first) { box.style.height = `${from}px`; box.offsetHeight; box.style.height = `${to}px`; await wait(420); if (!alive()) return }
   box.style.height = 'auto'
 }
 
@@ -293,14 +328,14 @@ async function play() {
   for (let i = 0; i < N; i++) {
     // 로딩: 답변 영역이 반짝인다
     flow(i, 'load')
-    await swap(loadPane(i), i === 0)
+    await swap(loadPane(i), i === 0, alive)
     if (i === 0) { modal.classList.add('on') }
     if (!alive()) return
     await wait(i === 0 ? 1500 : 1750); if (!alive()) return
 
     // 질문: 같은 표면이 옵션으로 바뀐다
     flow(i, 'ask')
-    await swap(askPane(i))
+    await swap(askPane(i), false, alive)
     if (!alive()) return
     await wait(1200); if (!alive()) return
 
@@ -313,14 +348,48 @@ async function play() {
     await wait(350); if (!alive()) return
   }
 
-  // 다음 프로세스 없음 → 모달이 입력창 자리로 줄어든다 (스마트 애니메이팅)
+  // 다음 프로세스 없음 → 끝맺음 시안
   flow(N, 'end')
-  chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">필요한 건 다 골랐어요. 신청서를 만들어 두었으니 확인만 해주세요.</div>`)
-  await wait(500); if (!alive()) return
-  modal.classList.add('shrink')
-  await wait(560); if (!alive()) return
+  await endNow(alive)
+}
+
+/* 끝맺음만 다시 보기 — 마지막 상태를 만들어 두고 그 전환만 재생한다 */
+async function playEndOnly() {
+  const my = ++run
+  const alive = () => my === run
+  chat.innerHTML = `<div class="msg-user">아이폰 17 프로 그라파이트 256G 로 개통할게</div>`
+    + `<div class="msg-ai dim">요청하신 조합으로 진행할게요. 몇 가지만 골라주시면 바로 신청서까지 만들어 드려요.</div>`
+    + TASKS.map((t) => `<div class="done-row"><span class="ck"></span>${t.load} <b>${t.done}</b></div>`).join('')
+  modal.className = 'modal'; box.style.height = 'auto'
+  await swap(askPane(N - 1), true, alive)
+  if (!alive()) return
+  box.querySelectorAll('.opt')[TASKS[N - 1].pick].classList.add('sel')
+  modal.classList.add('on')
+  pill.classList.remove('hl')
+  flow(N, 'end')
+  await wait(900); if (!alive()) return
+  await endNow(alive)
+}
+
+/* 끝맺음 = 모달을 보내고 마지막 답변을 남긴다. 알약으로 모핑하지 않는다 */
+async function endNow(alive) {
+  const last = `필요한 건 다 골랐어요. 신청서를 만들어 두었으니 확인만 해주세요.`
+  if (E === 'E3') {
+    // 모달이 내려가는 것과 같은 박자로 마지막 답변이 그 자리를 이어받는다
+    modal.classList.add('e3')
+    chat.insertAdjacentHTML('beforeend', `<div class="msg-ai handoff" style="margin-top:6px">${last}</div>`)
+    await wait(640); if (!alive()) return
+  } else {
+    chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">${last}</div>`)
+    await wait(420); if (!alive()) return
+    modal.classList.add(E === 'E2' ? 'e2' : 'e1')
+    await wait(E === 'E2' ? 700 : 660); if (!alive()) return
+  }
   pill.classList.add('hl')
 }
+
+$('#play').onclick = () => play()
+$('#playend').onclick = () => playEndOnly()
 
 sync(); play()
 </script>
