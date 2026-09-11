@@ -954,8 +954,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       // Figma T1mhl 10906:6356 → 4864: 시트만 닫히고 카드는 아직 선택 표시 없음(사용자 2026-09-07). 화면이 아래에 정착한 뒤에야 입력 시작 — 모션 교차 방지
       await ptr?.tap(applyRef.current, { move: 300, pause: 0 }); if (!alive()) return
       ptr?.hide(); hideSheet(); setOptK(OPT.disc)                  // 요금제 적용(전송) → 다음 옵션 = 할인 방법
-      await wait(600); if (!alive()) return
-      if (!await foldPlans()) return                                // 선택 플로우의 끝 = 카드 접힘 + 요약 줄 (§27)
+      if (!await syncFold()) return                                 // 팝업 하강과 박스 변환을 맞물리는 방식 (§27-3)
       await scrollTo(scroll, anchorBottom(planAnchorEl())); if (!alive()) return
       await wait(700); if (!alive()) return
       await ptr?.tap(searchRef.current, { move: 420, pause: 100 }); if (!alive()) return
@@ -1080,6 +1079,37 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       row.classList.remove('from-box')
       await wait(420)
       return alive()
+    }
+    /* ── 풀팝업이 내려가는 것과 카드 → 흰 박스 → [선택됨] 을 어떻게 맞물리게 하나 (html[data-foldsync], 사용자 2026-09-11
+       "5→6 넘어갈 때 팝업 내려가잖아, 그때 같이 B-1 로 떠야 하지 않나. 매끄럽게 떨어지게")
+       팝업 하강은 0.5s(.sheet transform). T1 동시 출발 / T2 팝업이 카드를 지나는 순간 시작 / T3 팝업이 앉은 직후 ── */
+    const SHEET_DOWN = 500
+    // 팝업은 위에서부터 걷힌다. 팝업 상단이 카드 상단을 지나는 시점을 하강 곡선에서 역산한다
+    const revealDelay = () => {
+      const card = usageCardRef.current, root = rootRef.current
+      if (!card || !root) return 0
+      const rr = root.getBoundingClientRect(), k = rr.width / 393 || 1
+      const top = (card.getBoundingClientRect().top - rr.top) / k
+      const target = clamp01(Math.max(0, top) / SCREEN_H)
+      for (let i = 1; i <= 50; i++) if (inOut(i / 50) >= target) return Math.round(SHEET_DOWN * (i / 50))
+      return SHEET_DOWN
+    }
+    const syncFold = async () => {
+      if ((variant('planfold') || 'off') === 'off' || reducedMotion()) { await wait(600); return alive() }
+      const S = variant('foldsync') || 'T3'
+      if (S === 'T1') {                                            // 팝업이 내려가기 시작하는 순간 함께 출발
+        const p = foldPlans()
+        await wait(SHEET_DOWN); if (!alive()) return false
+        return await p
+      }
+      if (S === 'T2') {                                            // 팝업 상단이 카드를 지나 드러나는 순간 출발
+        await wait(revealDelay()); if (!alive()) return false
+        const p = foldPlans()
+        await wait(Math.max(0, SHEET_DOWN - revealDelay())); if (!alive()) return false
+        return await p
+      }
+      await wait(SHEET_DOWN + 120); if (!alive()) return false      // T3: 팝업이 앉은 직후
+      return await foldPlans()
     }
     const foldPlans = async () => {
       const F = variant('planfold') || 'off'
