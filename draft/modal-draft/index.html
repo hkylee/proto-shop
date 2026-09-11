@@ -81,17 +81,39 @@ header p { margin-top: 7px; font-size: 13.5px; line-height: 20px; color: rgba(25
   backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); color: var(--fg-neutral-solid);
   transform: translateY(130%); transition: transform .9s var(--r2), bottom .9s var(--r2), border-radius .5s var(--ease); overflow: hidden; }
 .modal.on { transform: none; }
-/* ── 끝맺음(다음 프로세스 없음) 시안 ─────────────────────────────────
-   폐기: 모달이 입력창 알약으로 줄어드는 모핑(스마트 애니메이팅). 높이·모서리·투명도가 한꺼번에
-   움직여 형태가 뭉개졌다 (사용자 2026-09-11 "존나 어색해").
-   E-1 그냥 내려감 / E-2 제자리 접힘 / E-3 마지막 답변에 자리 넘김 */
+/* ── 끝맺음(다음 프로세스 없음) ─────────────────────────────────────
+   1차 폐기: 높이·모서리·투명도·위치가 한꺼번에 움직이는 모핑 (사용자 "존나 어색해").
+   2차(사용자 지정 안무): ① slot 내용이 다 사라지고 → ② 타이틀과 × 가 0.025s 간격으로 사라지고
+   → ③ 그렇게 줄어든 카드 박스가 점점 줄어들어 Agent(입력창) 형태로 간다.
+   ①②는 공통, ③의 수축 경로만 S-1/S-2/S-3 으로 비교한다. '없이'(E-1)는 모핑 없는 참고용. */
+/* ① slot 비우기 */
+.modal .rows { transition: opacity .18s linear; }
+.modal .rows.gone { opacity: 0; }
+/* ② 타이틀 → 0.025s 뒤 × */
+.modal .hd h3, .modal .hd .x { transition: opacity .18s linear, transform .18s var(--ease); }
+.modal .hd.gone h3 { opacity: 0; transform: translateY(-3px); }
+.modal .hd.gone .x { opacity: 0; transform: translateY(-3px); transition-delay: .025s; }
+/* ③ 빈 카드 → Agent 알약. 끝 자리는 입력창과 완전히 같은 값(left/right 20 · bottom 30 · h 52 · r 999) */
+.modal.morph { left: 20px; right: 20px; bottom: 30px; border-radius: 999px; background: rgba(255,255,255,.6); box-shadow: var(--shadow-ai); }
+.modal.morph .box { height: 52px !important; padding: 0 20px 0 22px; }
+.modal .pillface { position: absolute; inset: 0; display: flex; align-items: center; gap: 14px; padding: 0 20px 0 22px; color: var(--fg-neutral-subtle); font-size: 15px; font-weight: 500; opacity: 0; transition: opacity .22s ease; pointer-events: none; }
+.modal .pillface.on { opacity: 1; }
+.modal .pillface .spark { flex: none; width: 20px; height: 20px; color: var(--blue-600); }
+.modal .pillface .txt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal .pillface .wave { flex: none; display: flex; gap: 2px; align-items: flex-end; height: 14px; }
+.modal .pillface .wave i { width: 2px; border-radius: 1px; background: var(--fg-neutral-subtle); }
+/* S-1 납작해진 뒤 내려앉기 (두 박자) */
+.modal.s1 { transition: border-radius .3s var(--ease), background .3s ease, box-shadow .3s ease, left .36s .28s var(--r2), right .36s .28s var(--r2), bottom .36s .28s var(--r2); }
+.modal.s1 .box { transition: height .3s var(--ease), padding .3s var(--ease); }
+/* S-2 한 번에 (같은 곡선 하나) */
+.modal.s2 { transition: left .58s var(--r2), right .58s var(--r2), bottom .58s var(--r2), border-radius .58s var(--r2), background .45s ease, box-shadow .45s ease; }
+.modal.s2 .box { transition: height .58s var(--r2), padding .58s var(--r2); }
+/* S-3 아래가 먼저 붙고 위가 따라 내려옴 */
+.modal.s3 { transition: bottom .3s cubic-bezier(.3,0,.2,1), left .5s var(--r2), right .5s var(--r2), border-radius .5s var(--r2), background .45s ease, box-shadow .45s ease; }
+.modal.s3 .box { transition: height .56s var(--r2), padding .56s var(--r2); }
+/* 참고: 모핑 없이 그냥 내려감 */
 .modal.e1 { transform: translateY(130%); transition: transform .62s cubic-bezier(.4,0,.2,1); }
-.modal.e2 { transition: opacity .26s .3s ease; opacity: 0; }
-.modal.e2 .box { height: 0 !important; padding-top: 0; padding-bottom: 0; transition: height .4s var(--ease), padding .4s var(--ease); }
-.modal.e2 .pane { opacity: 0; transition: opacity .15s linear; }
-.modal.e3 { transform: translateY(130%); transition: transform .62s cubic-bezier(.4,0,.2,1); }
-.msg-ai.handoff { animation: handoff .5s var(--ease) both; }
-@keyframes handoff { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: none; } }
+
 .modal .box { padding: 22px 20px 20px; transition: height .42s var(--ease); overflow: hidden; }
 .modal .pane { display: flex; flex-direction: column; gap: 16px; }
 .modal .pane.out { opacity: 0; transition: opacity .15s linear; }
@@ -236,24 +258,28 @@ const VARIANTS = [
     cons: ['정확히 몇 개 남았는지는 알 수 없다', '레일이 얇아 작은 화면에서 눈에 덜 띈다'] },
 ]
 const ENDS = [
-  { id: 'E1', label: 'E-1 그냥 내려감', badge: '가장 단순',
-    desc: '모달이 올라온 길로 그대로 내려간다(0.62s). 모양은 하나도 바뀌지 않고, 입력창은 원래 자리에 이미 있으니 <b>모핑이 필요 없다</b>.',
-    pros: ['형태가 안 변하니 뭉개질 구석이 없다', '올라옴(R-2)과 짝이 맞는 단일 규칙'],
-    cons: ['“끝났다”는 신호가 약해 그냥 닫힌 것처럼 보일 수 있다'] },
-  { id: 'E2', label: 'E-2 제자리 접힘', badge: '이동 없음',
-    desc: '내용이 0.15s 먼저 사라지고, 표면 높이가 0 으로 접히며(0.4s) 그 자리에서 닫힌다. <b>위치는 끝까지 안 움직인다.</b>',
-    pros: ['시선이 한 곳에 머물러 가장 조용하다', '높이 트윈이라 모달이 열릴 때와 같은 언어'],
-    cons: ['접히는 동안 유리 표면이 얇게 남아 잠깐 선처럼 보인다'] },
-  { id: 'E3', label: 'E-3 마지막 답변에 자리 넘김', badge: '의미 전달',
-    desc: '모달이 내려가는 동시에 그 자리에 마지막 답변이 아래에서 올라와 <b>자리를 이어받는다</b>. 모핑 없이 “모달이 대화로 돌아갔다”가 읽힌다.',
-    pros: ['업무가 끝나고 대화로 복귀했다는 게 분명하다', '빈 화면이 생기는 순간이 없다'],
-    cons: ['두 요소가 동시에 움직여 E-1·E-2 보다 분주하다'] },
+  { id: 'S2', label: 'S-2 한 번에', badge: '기본',
+    desc: '빈 카드가 자리·폭·모서리·높이를 <b>같은 곡선 하나로</b> 0.58s 동안 옮겨 알약이 된다. 단계는 앞의 ①② 가 이미 나눠 줬으니 마지막 박자는 하나로 둔다.',
+    pros: ['마지막 한 동작이 깔끔해 군더더기가 없다', '②에서 비워진 뒤라 뭉개질 내용이 없다'],
+    cons: ['이동과 수축이 같이 일어나 경로가 살짝 사선으로 보인다'] },
+  { id: 'S1', label: 'S-1 납작해진 뒤 내려앉기', badge: '두 박자',
+    desc: '먼저 제자리에서 <b>높이만</b> 52 로 납작해지고(0.3s), 그 뒤 알약 자리로 내려앉는다(0.36s). 수축과 이동이 겹치지 않는다.',
+    pros: ['“줄어든다 → 자리로 간다” 가 또렷하게 읽힌다', '사용자가 말한 ①②③ 리듬이 끝까지 이어진다'],
+    cons: ['전체 0.64s 로 가장 길다'] },
+  { id: 'S3', label: 'S-3 아래가 먼저 붙음', badge: '무게감',
+    desc: '아래 모서리가 먼저 알약 선에 닿고(0.3s) 위쪽이 따라 내려온다(0.56s). 카드가 아래로 내려앉아 눌리는 느낌.',
+    pros: ['알약 자리가 먼저 확정돼 착지점이 흔들리지 않는다', '가장 물리적으로 느껴진다'],
+    cons: ['찌그러지는 순간이 잠깐 보인다'] },
+  { id: 'E1', label: '없이 (참고)', badge: '모핑 없음',
+    desc: '①②를 건너뛰고 모달이 올라온 길로 그대로 내려간다(0.62s). 모핑을 아예 쓰지 않는 경우와 비교용.',
+    pros: ['형태가 안 변하니 뭉개질 구석이 없다'],
+    cons: ['“Agent 형태로 돌아간다” 는 의미가 전달되지 않는다'] },
 ]
 const Q = new URLSearchParams(location.search)
 let V = (Q.get('m') || 'M2').toUpperCase()
 if (!VARIANTS.some((v) => v.id === V)) V = 'M2'
-let E = (Q.get('e') || 'E1').toUpperCase()
-if (!ENDS.some((v) => v.id === E)) E = 'E1'
+let E = (Q.get('e') || 'S2').toUpperCase()
+if (!ENDS.some((v) => v.id === E)) E = 'S2'
 
 const $ = (s) => document.querySelector(s)
 const seg = $('#seg'), seg2 = $('#seg2'), modal = $('#modal'), box = $('#box'), chat = $('#chat'), pill = $('#pill')
@@ -320,7 +346,7 @@ async function play() {
   const alive = () => my === run
   chat.innerHTML = `<div class="msg-user">아이폰 17 프로 그라파이트 256G 로 개통할게</div>`
     + `<div class="msg-ai dim">요청하신 조합으로 진행할게요. 몇 가지만 골라주시면 바로 신청서까지 만들어 드려요.</div>`
-  modal.className = 'modal'; modal.style.removeProperty('bottom'); box.style.height = 'auto'; box.innerHTML = ''
+  modal.className = 'modal'; modal.style.removeProperty('visibility'); box.style.removeProperty('transition'); box.style.height = 'auto'; box.innerHTML = ''
   pill.classList.remove('hl')
   flow(0, 'load')
   await wait(450); if (!alive()) return
@@ -360,7 +386,7 @@ async function playEndOnly() {
   chat.innerHTML = `<div class="msg-user">아이폰 17 프로 그라파이트 256G 로 개통할게</div>`
     + `<div class="msg-ai dim">요청하신 조합으로 진행할게요. 몇 가지만 골라주시면 바로 신청서까지 만들어 드려요.</div>`
     + TASKS.map((t) => `<div class="done-row"><span class="ck"></span>${t.load} <b>${t.done}</b></div>`).join('')
-  modal.className = 'modal'; box.style.height = 'auto'
+  modal.className = 'modal'; modal.style.removeProperty('visibility'); box.style.removeProperty('transition'); box.style.height = 'auto'
   await swap(askPane(N - 1), true, alive)
   if (!alive()) return
   box.querySelectorAll('.opt')[TASKS[N - 1].pick].classList.add('sel')
@@ -371,21 +397,50 @@ async function playEndOnly() {
   await endNow(alive)
 }
 
-/* 끝맺음 = 모달을 보내고 마지막 답변을 남긴다. 알약으로 모핑하지 않는다 */
+/* 끝맺음 (사용자 지정 안무 2026-09-11)
+   ① slot 내용이 다 사라진다 → 카드가 타이틀 줄만 남게 줄어든다
+   ② 타이틀과 × 가 0.025s 간격으로 사라진다
+   ③ 그렇게 줄어든 빈 카드가 점점 줄어들어 Agent(입력창) 형태로 간다 — 끝 자리는 입력창과 같은 값 */
+const LAST = '필요한 건 다 골랐어요. 신청서를 만들어 두었으니 확인만 해주세요.'
 async function endNow(alive) {
-  const last = `필요한 건 다 골랐어요. 신청서를 만들어 두었으니 확인만 해주세요.`
-  if (E === 'E3') {
-    // 모달이 내려가는 것과 같은 박자로 마지막 답변이 그 자리를 이어받는다
-    modal.classList.add('e3')
-    chat.insertAdjacentHTML('beforeend', `<div class="msg-ai handoff" style="margin-top:6px">${last}</div>`)
-    await wait(640); if (!alive()) return
-  } else {
-    chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">${last}</div>`)
+  if (E === 'E1') {   // 참고: 모핑 없이
+    chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">${LAST}</div>`)
     await wait(420); if (!alive()) return
-    modal.classList.add(E === 'E2' ? 'e2' : 'e1')
-    await wait(E === 'E2' ? 700 : 660); if (!alive()) return
+    modal.classList.add('e1')
+    await wait(660); if (!alive()) return
+    pill.classList.add('hl'); return
   }
-  pill.classList.add('hl')
+  const pane = box.firstElementChild
+  const rows = pane.querySelector('.rows'), hd = pane.querySelector('.hd')
+  box.style.height = `${box.offsetHeight}px`   // auto 였던 높이를 고정해 트윈 출발점을 잡는다
+  box.offsetHeight
+
+  // ① slot 비우기 — 행이 사라지고 그만큼 카드가 줄어든다
+  rows.classList.add('gone')
+  await wait(120); if (!alive()) return
+  box.style.transition = 'height .34s var(--ease)'
+  box.style.height = `${hd.offsetHeight + 42}px`    // 헤더 + .box 위아래 패딩(22+20)
+  await wait(360); if (!alive()) return
+
+  // ② 타이틀 → 0.025s 뒤 ×
+  hd.classList.add('gone')
+  await wait(230); if (!alive()) return
+  chat.insertAdjacentHTML('beforeend', `<div class="msg-ai" style="margin-top:6px">${LAST}</div>`)
+
+  // ③ 빈 카드 → Agent 알약. 알약 내용을 미리 넣어 두고 마지막에 켠다
+  box.style.removeProperty('transition')
+  box.insertAdjacentHTML('beforeend', `<div class="pillface"><span class="spark"></span><span class="txt">T에 대해 무엇이든 물어보세요.</span><span class="wave"><i style="height:6px"></i><i style="height:11px"></i><i style="height:14px"></i><i style="height:8px"></i></span></div>`)
+  box.querySelector('.pillface .spark').innerHTML = SPARK
+  pane.style.opacity = '0'
+  modal.classList.add(E.toLowerCase(), 'morph')
+  const late = E === 'S1' ? 420 : E === 'S3' ? 300 : 300
+  await wait(late); if (!alive()) return
+  box.querySelector('.pillface').classList.add('on')
+  await wait(E === 'S1' ? 300 : 320); if (!alive()) return
+
+  // 실제 입력창으로 바꿔 앉힌다 (완전히 같은 자리·모양이라 전환이 보이지 않는다)
+  pill.style.opacity = '1'
+  modal.style.visibility = 'hidden'
 }
 
 $('#play').onclick = () => play()
