@@ -755,7 +755,6 @@ html[data-fsh="H3"] .fs-body { animation: none; }
 .pay2 .p2-result { width: 353px; }
 .pay2 .p2-result .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; box-shadow: 0 0 20px rgba(35,55,155,.05); }
 .pay2 .p2-result:empty { display: none; }
-.ai-sheet.fs.p2 .fs-top span { flex: 1; }
 .input-field .p2-timer { margin-left: auto; font-style: normal; font-size: 14px; color: var(--fg-neutral-mute); font-variant-numeric: tabular-nums; }
 
 /* S-1 확정: 3안(및 2안 신청서·인증·납부)의 AI 바텀시트에도 같은 곡선 — 사용자 "시안 2, 3 다" (2026-09-08) */

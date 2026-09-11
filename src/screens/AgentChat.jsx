@@ -1713,8 +1713,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         {/* 2안 납부 시트 B: 사용 중인 번호로 인증 (90:98954 → 90:103732) — 번호 → [다음] → 인증번호 + 타이머 → [다음] */}
         <div className={`ai-sheet fs p2 ${p2sheet === 2 ? 'on' : ''} ${p2Out === 2 ? 'out' : ''} ${kbOpen && p2sheet === 2 ? 'kb' : ''}`}>
           <div className="fs-body" key={p2step}>
-            <div className="fs-top"><span /><i className="x" /></div>
-            <h3>{P2_SHEET_B}</h3>
+            {/* 타이틀과 × 는 같은 줄 (Figma ixGPs9 229:89619, 사용자 2026-09-11) — 신청서 시트 .fs-top.hd 와 같은 헤더 */}
+            <div className="fs-top hd"><h3>{P2_SHEET_B}</h3><i className="x" /></div>
             <div className="fs-slot">
               {p2step === 1 ? <FsField fv={fv} ffocus={ffocus} k="p2phone" ph={PHONE_PH} /> : (
                 <div className={`input-field fs-field ${fv.p2code ? 'filled on' : ''}`} data-f="p2code"><span className={fv.p2code ? 'val' : 'ph'}>{fv.p2code || '인증번호 6자리'}</span><em className="p2-timer">00:59</em></div>
