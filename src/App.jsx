@@ -105,7 +105,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: LAB ? (Q0.get('pf') || 'B1') : CONFIRMED.planfold, foldsync: LAB ? (Q0.get('fy') || 'T2') : CONFIRMED.foldsync })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: LAB ? (Q0.get('pf') || 'B1') : CONFIRMED.planfold, foldsync: LAB ? (Q0.get('fy') || 'T2A') : CONFIRMED.foldsync, boxland: LAB ? (Q0.get('bl') || 'E1') : CONFIRMED.boxland })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -268,9 +268,17 @@ const PLANFOLDS = [
 ]
 // 3안 스텝 5→6 · 풀팝업 하강과 카드 → 흰 박스 → [선택됨] 의 맞물림 (html[data-foldsync]) — 사용자 2026-09-11 "팝업 내려갈 때 같이 떠야 하지 않나, 매끄럽게 떨어지게"
 const FOLDSYNCS = [
+  { id: 'T2A', label: 'T-2A 카드가 드러나기 살짝 전 (T-2 보다 0.15s 앞)', desc: '사용자 2026-09-11 "T-2 보다 살짝 더 앞이었으면". T-2 의 역산 시점에서 0.15s 앞당겨 출발한다. 팝업이 카드를 완전히 걷어내기 직전에 이미 변환이 시작돼 있어, 걷히는 순간 변화가 진행 중인 상태로 이어진다' },
   { id: 'T2', label: 'T-2 팝업이 카드를 지나는 순간 시작', desc: '팝업은 위에서부터 걷힌다. 팝업 상단이 요금제 카드 위를 지나 카드가 드러나는 바로 그 순간 변환이 시작된다(하강 곡선에서 역산). 드러나는 것과 변하는 것이 같은 지점에서 만나 가장 매끄럽지만, 카드가 화면 아래쪽이면 시작이 늦다' },
   { id: 'T1', label: 'T-1 팝업과 동시 출발', desc: '팝업이 내려가기 시작하는 순간 카드도 함께 줄어들기 시작한다. 팝업이 다 내려갔을 때는 이미 흰 박스가 되어 있고 곧 "선택됨"으로 물든다. 가장 빠르고 한 동작이지만 변환의 앞부분이 팝업에 가려진다' },
   { id: 'T3', label: 'T-3 팝업이 앉은 직후', desc: '팝업이 완전히 내려간 뒤 0.12s 쉬고 시작한다(지금은 0.6s 대기). 두 동작이 겹치지 않아 각각 또렷하게 보이지만, 그만큼 전체가 길고 "따로따로"로 읽힐 수 있음' },
+]
+// 3안 스텝 6 · 흰 박스가 내려앉는 느낌 (html[data-boxland]) — 사용자 2026-09-11 "B-1 이 좋은데 좀 더 스무스하게 랜딩되는 경험"
+const BOXLANDS = [
+  { id: 'E1', label: 'E-1 긴 안착', desc: '축소 곡선을 expo-out 으로 바꿔 0.64s 동안 끝을 길게 감속하고, 흰 박스로 머무는 박자를 0.22 → 0.11s 로 줄였다. 바닥에 닿는 순간이 뚝 끊기지 않고 스르르 내려앉으며 곧바로 "선택됨"으로 이어짐' },
+  { id: 'E2', label: 'E-2 마지막 16px 을 따로 느리게', desc: '0.46s 로 요약 줄 높이 +16px 까지 내려온 뒤, 남은 16px 을 별도 0.26s(cubic-out)로 아주 느리게 마무리한다. 착지 직전에 속도가 한 번 더 꺾여 "눌러 앉는" 감각이 분명하다' },
+  { id: 'E3', label: 'E-3 그림자·라운드가 함께 안착', desc: 'E-1 의 긴 안착에 더해, 흰 박스의 그림자가 없는 상태에서 서서히 생기고 모서리가 24 → 18 로 좁혀진다(0.55s). 높이만 줄어드는 게 아니라 표면 자체가 내려앉는 것으로 읽힘' },
+  { id: 'off', label: '없음 (B-1 기본)', desc: '비교용. 0.5s cubic in-out 으로 줄고 0.22s 머문 뒤 물든다' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -737,8 +745,10 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.sheetlook = sheetlookV }, [sheetlookV])
   const [planfoldV, setPlanfoldV] = useState(() => (LAB ? (Q0.get('pf') || 'B1') : CONFIRMED.planfold))
   useEffect(() => { document.documentElement.dataset.planfold = planfoldV }, [planfoldV])
-  const [foldsyncV, setFoldsyncV] = useState(() => (LAB ? (Q0.get('fy') || 'T2') : CONFIRMED.foldsync))
+  const [foldsyncV, setFoldsyncV] = useState(() => (LAB ? (Q0.get('fy') || 'T2A') : CONFIRMED.foldsync))
   useEffect(() => { document.documentElement.dataset.foldsync = foldsyncV }, [foldsyncV])
+  const [boxlandV, setBoxlandV] = useState(() => (LAB ? (Q0.get('bl') || 'E1') : CONFIRMED.boxland))
+  useEffect(() => { document.documentElement.dataset.boxland = boxlandV }, [boxlandV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -1110,12 +1120,21 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           <div className="variants">
-            <b className="vtitle">3안 · 요금제 카드가 줄어들어 흰 박스가 되고 [선택됨] 으로 (스텝 5에서 → 스텝 6)</b>
+            <b className="vtitle">3안 · 흰 박스가 내려앉는 느낌 — 스무스한 랜딩 (스텝 5에서 → 스텝 6)</b>
+            {BOXLANDS.map((v) => (
+              <button key={v.id} aria-pressed={boxlandV === v.id} onClick={() => { setBoxlandV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{BOXLANDS.find((v) => v.id === boxlandV)?.desc}</span>
+          </div>
+          {SHOW_ALL && (
+          <div className="variants">
+            <b className="vtitle">3안 · 요금제 카드가 줄어들어 흰 박스가 되고 [선택됨] 으로 (스텝 5에서 → 스텝 6) — B-1</b>
             {PLANFOLDS.filter((v) => v.id[0] === 'B' || v.id === 'off').map((v) => (
               <button key={v.id} aria-pressed={planfoldV === v.id} onClick={() => { setPlanfoldV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{PLANFOLDS.find((v) => v.id === planfoldV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나) — L-2 확정</b>

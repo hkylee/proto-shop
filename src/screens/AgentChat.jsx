@@ -472,7 +472,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 접힘 해제 (요금제 선택 앞 스텝으로 되돌아올 때)
     const unfold = () => {
       const card = usageCardRef.current
-      if (card) { card.style.cssText = ''; card.classList.remove('boxing'); [...card.children].forEach((c) => { c.style.opacity = '' }) }
+      if (card) { card.style.cssText = ''; card.classList.remove('boxing', 'l3-start'); [...card.children].forEach((c) => { c.style.opacity = '' }) }
       for (const r of [foldCardRef.current, foldTailRef.current]) { if (r) { r.classList.remove('on', 'from-box', 'keep-box'); r.style.opacity = '' } }
     }
     const resetPen = () => {
@@ -1054,8 +1054,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     /* B-1 (사용자 2026-09-11 "카드가 줄어들면서 흰색 박스 형태가 되고 그게 다시 선택됨으로"):
        ① 내용만 흐려지고 카드가 흰 박스(.boxing)로 바뀌며 요약 줄 높이까지 줄어든다 → ② 빈 흰 박스로 잠깐 머문다
        → ③ 높이가 같아진 지점에서 갈아끼우고, 흰 박스가 '선택됨' 줄(뉴트럴 회색)로 물들며 글자가 떠오른다 */
+    // 안착 느낌 시안 (html[data-boxland], 사용자 2026-09-11 "좀 더 스무스하게 랜딩되는 경험"):
+    //   E1 긴 안착(끝을 길게 감속하고 머무는 박자를 줄임) / E2 마지막 16px 을 따로 아주 느리게 / E3 그림자·라운드가 함께 내려앉음 / off B-1 기본값
+    const EXPO_OUT = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -9 * t))
     const foldBox = async (mode) => {
-      const hold = mode === 'B2' ? 0 : 220                          // B2 는 머물지 않고 바로 물든다
+      const L = variant('boxland') || 'off'
+      const hold = mode === 'B2' ? 0 : (L === 'E1' ? 110 : L === 'E3' ? 100 : 220)   // B2 는 머물지 않고 바로 물든다
       const card = usageCardRef.current, row = foldCardRef.current
       const h0 = card.offsetHeight
       row.classList.add('on'); row.style.opacity = '0'
@@ -1064,14 +1068,21 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       row.classList.remove('on'); row.style.opacity = ''
       card.style.overflow = 'hidden'
       card.classList.add('boxing')                                  // 흰 박스 표면이 0.3s 로 켜짐 (agent.css)
+      if (L === 'E3') { card.classList.add('l3-start'); await new Promise(afterLayout); if (!alive()) return false; card.classList.remove('l3-start') }
       const inner = [...card.children]
-      await tween(500, (e) => {
-        card.style.height = `${h0 - (h0 - hRow) * e}px`
-        const o = String(Math.max(0, 1 - e * 1.8))                  // 내용은 앞쪽에서 먼저 사라진다
-        inner.forEach((c) => { c.style.opacity = o })
-      }, inOut); if (!alive()) return false
+      const shrink = (dur, from, to, ease) => tween(dur, (e) => {
+        card.style.height = `${from - (from - to) * e}px`
+        const p = (h0 - (from - (from - to) * e)) / (h0 - hRow)      // 전체 진행도로 내용 투명도를 맞춘다
+        inner.forEach((c) => { c.style.opacity = String(Math.max(0, 1 - p * 1.8)) })
+      }, ease)
+      if (L === 'E2') {                                             // 마지막 16px 만 따로, 아주 느리게 마무리
+        await shrink(460, h0, hRow + 16, inOut); if (!alive()) return false
+        await shrink(260, hRow + 16, hRow, cubicOut); if (!alive()) return false
+      } else {
+        await shrink(L === 'off' ? 500 : 640, h0, hRow, L === 'off' ? inOut : EXPO_OUT); if (!alive()) return false
+      }
       if (hold) { await wait(hold); if (!alive()) return false }      // ② 빈 흰 박스로 한 박자 (B2 는 생략)
-      card.style.display = 'none'; card.classList.remove('boxing')
+      card.style.display = 'none'; card.classList.remove('boxing', 'l3-start')
       inner.forEach((c) => { c.style.opacity = '' })
       row.classList.add('on', 'from-box')                            // ③ 흰 박스 → 선택됨 줄
       if (mode === 'B3') row.classList.add('keep-box')               // B3 은 흰 박스 그대로 남는다
@@ -1102,10 +1113,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         await wait(SHEET_DOWN); if (!alive()) return false
         return await p
       }
-      if (S === 'T2') {                                            // 팝업 상단이 카드를 지나 드러나는 순간 출발
-        await wait(revealDelay()); if (!alive()) return false
+      if (S === 'T2' || S === 'T2A') {                              // 팝업 상단이 카드를 지나 드러나는 순간 (T2A 는 그보다 0.15s 앞)
+        const d = Math.max(0, revealDelay() - (S === 'T2A' ? 150 : 0))
+        await wait(d); if (!alive()) return false
         const p = foldPlans()
-        await wait(Math.max(0, SHEET_DOWN - revealDelay())); if (!alive()) return false
+        await wait(Math.max(0, SHEET_DOWN - d)); if (!alive()) return false
         return await p
       }
       await wait(SHEET_DOWN + 120); if (!alive()) return false      // T3: 팝업이 앉은 직후
@@ -1132,7 +1144,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const F = variant('planfold') || 'off'
       const card = usageCardRef.current, r1 = foldCardRef.current, r2 = foldTailRef.current
       r1.classList.remove('on', 'from-box', 'keep-box'); r2.classList.remove('on', 'from-box', 'keep-box'); r1.style.opacity = ''; r2.style.opacity = ''
-      card.style.cssText = ''; card.classList.remove('boxing'); [...card.children].forEach((c) => { c.style.opacity = '' })
+      card.style.cssText = ''; card.classList.remove('boxing', 'l3-start'); [...card.children].forEach((c) => { c.style.opacity = '' })
       if (F === 'off' || reducedMotion()) return
       card.style.display = 'none'
       foldRow().classList.add('on')
