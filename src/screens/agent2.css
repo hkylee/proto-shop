@@ -102,3 +102,19 @@ html[data-simx="S2"] .ai2 .sheet2.fold .hd { cursor: pointer; }
 html[data-dimfx="G1"] .ai-sheet-dim, html[data-dimfx="G1"] .ai-sheet-dim.deep, html[data-dimfx="G1"] .ai2 .s2dim { background: none; }
 html[data-dimfx="G2"] .ai-sheet-dim, html[data-dimfx="G2"] .ai2 .s2dim { background: linear-gradient(to bottom, rgba(6,12,31,0) 38%, rgba(6,12,31,.05) 58%, rgba(6,12,31,.15) 78%, rgba(6,12,31,.28) 100%); }
 html[data-dimfx="G2"] .ai-sheet-dim.deep { background: linear-gradient(to bottom, rgba(6,12,31,0) 30%, rgba(6,12,31,.08) 54%, rgba(6,12,31,.22) 76%, rgba(6,12,31,.38) 100%); }
+
+/* ── 모달 안 행이 배경과 구분되지 않는 문제 (html[data-sheetlook], 2·3안 모든 바텀 모달, 2026-09-11) ──
+   원인 셋: (1) 시트 안에서 미선택 행 테두리를 transparent 로 덮어씀 (Figma RadioCard 는 2px #EBEEF6)
+            (2) 시트 배경이 흰색 92%(2안)·78%(3안) 로 Figma 40% 보다 훨씬 불투명해 흰 행과 같은 색이 됨
+            (3) 흑백 검토 모드가 배경 그라데이션의 색 기를 지워 마지막 대비까지 사라짐
+   L1 테두리만 복원 / L2 테두리 + 시트를 Figma 농도로 / L3 시트를 회색 판으로 + 행은 그림자로 띄움 */
+html[data-sheetlook="L1"] .ai2 .sheet2 .plan-row:not(.sel),
+html[data-sheetlook="L2"] .ai2 .sheet2 .plan-row:not(.sel),
+html[data-sheetlook="L1"] .ai-sheet .plan-row:not(.sel),
+html[data-sheetlook="L2"] .ai-sheet .plan-row:not(.sel) { border-color: #EBEEF6; }
+html[data-sheetlook="L2"] .ai2 .sheet2,
+html[data-sheetlook="L2"] .ai-sheet { background: rgba(255,255,255,.4); backdrop-filter: blur(50px); }
+html[data-sheetlook="L3"] .ai2 .sheet2,
+html[data-sheetlook="L3"] .ai-sheet { background: rgba(238,240,246,.94); backdrop-filter: blur(50px); }
+html[data-sheetlook="L3"] .ai2 .sheet2 .plan-row,
+html[data-sheetlook="L3"] .ai-sheet .plan-row { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }

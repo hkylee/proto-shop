@@ -104,7 +104,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: LAB ? (Q0.get('sl') || 'L2') : CONFIRMED.sheetlook })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -243,6 +243,13 @@ const PDENTERS = [
   { id: 'E2', label: 'E-2 조합 카드를 훑고 지나감', desc: 'AI 조합 카드에서 0.6s 멈춰 한 번 보여준 뒤 색상까지 내려간다. 추천을 보긴 했고 그래도 직접 고르기로 했다는 시간이 생김' },
   { id: 'E3', label: 'E-3 지나치며 조합 카드가 물러남', desc: '내려가는 동안 AI 조합 카드가 흐려지며(45%) 살짝 축소된다. 그 추천을 쓰지 않기로 했다는 것이 화면에 남지만, 시스템이 판단한 것처럼 보일 수도 있음' },
   { id: 'off', label: '없음 (기존)', desc: '비교용. [직접 둘러볼게요] 를 탭하고 들어간다' },
+]
+// 모달 안 행이 배경과 구분되지 않는 문제 (html[data-sheetlook]) — 사용자 2026-09-11 "미선택 라디오박스 회색 선이 왜 안 보이지 · 전반적으로 그런 룩"
+const SHEETLOOKS = [
+  { id: 'L2', label: 'L-2 테두리 + 시트를 Figma 농도로', desc: '미선택 행에 2px #EBEEF6 를 되돌리고, 시트 배경을 흰색 92%(2안)·78%(3안) → Figma 값인 흰색 40% + 블러 50 으로 낮춘다. 시트가 뒤 배경을 비쳐 흰 카드가 그 위에 올라앉는다 — Figma 컴포넌트 그대로' },
+  { id: 'L1', label: 'L-1 테두리만 복원', desc: '시트 안에서 transparent 로 덮어쓰던 미선택 테두리만 Figma 값(2px #EBEEF6)으로 되돌린다. 시트 농도는 지금 그대로 — 가장 적게 건드리지만 흑백 모드에서는 선이 여전히 옅다' },
+  { id: 'L3', label: 'L-3 회색 시트 + 행은 그림자로', desc: '테두리 대신 시트 자체를 옅은 회색 판(94%)으로 바꾸고 흰 행에 얕은 그림자를 준다. 뒤에 무엇이 있든·흑백이든 층이 확실히 갈리지만 유리 느낌은 약해진다' },
+  { id: 'off', label: '없음 (지금)', desc: '비교용. 미선택 테두리 없음 + 시트 흰색 92% — 행과 배경이 같은 흰색으로 붙어 보이는 현재 상태' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -429,23 +436,68 @@ function StepNav({ variant, cur, go, sc, head }) {
 }
 
 // 폰 화면을 뷰포트에 맞추는 배율. chrome = 셸이 위아래로 차지하는 높이
-// 레퍼런스(skt-scenario4) 방식의 반응형 (2026-09-10): ≤767px = 실제 폰, 화면이 100vw×100dvh 를 꽉 채움(폭 맞춤) / ≥768px = 상단 기기 프리셋 바 + 그 크기의 프레임
-const PRESETS = [{ n: 'iPhone 14', w: 375, h: 812 }, { n: 'iPhone 14 Pro', w: 390, h: 844 }, { n: 'iPhone 16 Pro', w: 393, h: 852 }]
+// 레퍼런스(skt-scenario4) 방식의 반응형 (2026-09-10): ≤767px = 실제 폰, ≥768px = 상단 기기 프리셋 바 + 그 크기의 프레임
+// 2026-09-11 모바일 맞춤 시안 (html[data-mfit], ?mf=) — iPhone 13 mini 375×812 기준. 사파리 툴바가 있으면 실제 높이는 ~660 뿐이라
+// 기존 F0(폭 맞춤 + 세로 스크롤)은 하단 CTA·입력창이 잘려 "제대로 안 보인다". 아래 세 가지로 비교한다.
+const PRESETS = [{ n: 'iPhone 13 mini', w: 375, h: 812 }, { n: 'iPhone 14 Pro', w: 390, h: 844 }, { n: 'iPhone 16 Pro', w: 393, h: 852 }]
+const MFITS = [
+  { id: 'F1', label: 'F-1 전체 맞춤', desc: '폰 화면 393×852 를 높이까지 맞춰 통째로 줄인다(min(vw/393, vh/852)). 잘림·스크롤이 절대 없고 375×812 어디서나 화면 전체가 한눈에. 대신 사파리 툴바가 있으면 좌우에 여백이 생긴다(배경색으로 이어 붙여 레터박스 티를 지움)' },
+  { id: 'F2', label: 'F-2 폭 맞춤 + 화면 높이 유동', desc: '폭은 꽉 채우고(vw/393), 폰 안쪽 화면 높이를 852 고정이 아니라 실제 뷰포트 높이로 준다. 바닥에 붙는 것(CTA·SearchAi·키패드·홈 인디케이터)은 진짜 바닥에, 스크롤 영역만 줄어든다. 진짜 앱에 가장 가까움' },
+  { id: 'F3', label: 'F-3 폭 맞춤 + 하단 고정', desc: '폭을 꽉 채우고 비율(393:852)은 그대로. 넘치는 만큼은 위쪽(상태바·장식)만 잘리고 하단은 항상 보인다. 포인터가 잘린 위쪽을 짚으면 화면이 부드럽게 따라 내려온다' },
+  { id: 'F0', label: 'F-0 기존', desc: '폭 맞춤 + 넘치면 스테이지 세로 스크롤 (2026-09-10 배포분)' },
+]
 const MOBILE_BP = 767
+const PHONE_W = 393, PHONE_H = 852
+const MAX_FILL_W = 430   // 폰보다 넓은 화면(≤767)에서도 화면이 무한정 늘어나지 않게 — 430 로 묶고 가운데 정렬
 const readFrame = () => { try { const f = JSON.parse(localStorage.getItem('asp.frame')); if (f && f.w >= 320 && f.h >= 480) return f } catch {} return { w: 375, h: 812 } }
-function useFit(chrome, widthFit, frame) {
-  const [fit, setFit] = useState({ ms: 1, fill: true, fw: 393, fh: 852 })
+function useFit(chrome, mfit, frame) {
+  const [fit, setFit] = useState({ ms: 1, sh: PHONE_H, fill: true, fw: PHONE_W, fh: PHONE_H })
   useEffect(() => {
     const f = () => {
       const fill = innerWidth <= MOBILE_BP
-      if (fill) { setFit({ ms: widthFit ? innerWidth / 393 : Math.min(innerWidth / 393, (innerHeight - chrome) / 852), fill, fw: innerWidth, fh: innerHeight }); return }
-      // 데스크톱: 프리셋 프레임(w×h)을 창에 들어가게 줄이고, 그 안에 393×852 화면을 맞춘다
+      // 화면(가로·세로)과 안전영역을 뺀 실제 가용 크기
+      const vw = fill ? Math.min(innerWidth, MAX_FILL_W) : frame.w
+      const vh = (fill ? innerHeight : frame.h) - chrome
+      let ms, sh = PHONE_H
+      if (mfit === 'F1') ms = Math.min(vw / PHONE_W, vh / PHONE_H)
+      else {
+        ms = vw / PHONE_W
+        if (mfit === 'F2') sh = Math.max(560, Math.round(vh / ms))       // 화면 자체가 짧아진다 (유동 높이)
+        else if (mfit === 'F0') ms = Math.min(ms, 1)
+      }
+      if (fill) { setFit({ ms, sh, fill, fw: innerWidth, fh: innerHeight }); return }
+      // 데스크톱: 프리셋 프레임(w×h)을 창에 들어가게 줄이고, 그 안에 폰 화면을 맞춘다
       const k = Math.min((innerHeight - 120) / frame.h, (innerWidth - 48) / frame.w, 1)
-      setFit({ ms: Math.min(frame.w / 393, frame.h / 852) * k, fill, fw: frame.w * k, fh: frame.h * k })
+      setFit({ ms: ms * k, sh, fill, fw: frame.w * k, fh: frame.h * k })
     }
-    f(); addEventListener('resize', f); return () => removeEventListener('resize', f)
-  }, [chrome, widthFit, frame.w, frame.h])
+    f(); addEventListener('resize', f)
+    const vv = window.visualViewport   // 사파리 툴바가 접히고 펴질 때 innerHeight 가 resize 없이 바뀐다
+    vv?.addEventListener('resize', f)
+    return () => { removeEventListener('resize', f); vv?.removeEventListener('resize', f) }
+  }, [chrome, mfit, frame.w, frame.h])
   return fit
+}
+// F-3 전용: 폰이 뷰포트보다 길 때 아래를 붙여 두고, 포인터가 잘린 위쪽을 짚으면 그 자리까지 부드럽게 따라 내려온다
+function usePanFollow(ref, on, ms, vh) {
+  useEffect(() => {
+    if (!on || !ref.current) return
+    const el = ref.current
+    const over = Math.max(0, PHONE_H * ms - vh)
+    let pan = -over
+    const set = (v) => { pan = v; el.style.setProperty('--mpan', `${v}px`) }
+    set(-over)
+    if (!over) return
+    const t = setInterval(() => {
+      const layer = el.querySelector('.ptr-layer.on')
+      if (!layer) return
+      const y = parseFloat(getComputedStyle(layer).getPropertyValue('--y')) || 0
+      const sy = y * ms + pan            // 뷰포트 기준 포인터 높이
+      if (sy > 72 && sy < vh - 96) return
+      const want = Math.max(-over, Math.min(0, vh / 2 - y * ms))
+      if (Math.abs(want - pan) > 8) set(want)
+    }, 260)
+    return () => clearInterval(t)
+  }, [ref, on, ms, vh])
 }
 function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest, replay }) {
   const steps = sc.steps, n = steps.length
@@ -655,6 +707,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.dimfx = dimfxV }, [dimfxV])
   const [pdenterV, setPdenterV] = useState(() => (LAB ? (Q0.get('pe') || CONFIRMED.pdenter) : CONFIRMED.pdenter))
   useEffect(() => { document.documentElement.dataset.pdenter = pdenterV }, [pdenterV])
+  const [sheetlookV, setSheetlookV] = useState(() => (LAB ? (Q0.get('sl') || 'L2') : CONFIRMED.sheetlook))
+  useEffect(() => { document.documentElement.dataset.sheetlook = sheetlookV }, [sheetlookV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -1015,6 +1069,13 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나)</b>
+            {SHEETLOOKS.map((v) => (
+              <button key={v.id} aria-pressed={sheetlookV === v.id} onClick={() => { setSheetlookV(v.id); userNav() }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{SHEETLOOKS.find((v) => v.id === sheetlookV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2·3안 · 상품 상세에서 옵션으로 들어가는 방식 (스텝 1에서 → 스텝 2) — E-1 확정</b>
