@@ -6,6 +6,7 @@ import { useSheetOut } from '../lib/sheet.js'
 import { wait, tween, scrollTo, panTo, inOut, inOutSine, inOutQuart, outExpo, cubicOut, clamp01, linear, afterLayout, reducedMotion } from '../lib/motion.js'
 import { variant } from '../lib/variants.js'
 import { PRE_MSG, PRE_MSG2, PRE_ROWS, PRE_CHIP, LAST_Q, LAST_A } from '../data/an2.js'
+import { SCREEN_H as SH } from '../lib/screen.js'
 
 const SHEET_TABS = ['베스트', '라이트', '전용', '스마트기기', '다이렉트', '전체']
 // '라이트' 탭 임시 데이터 (B-2 탭 둘러보기용)
@@ -92,7 +93,7 @@ const MONTHS = ['3월', '4월', '5월', '6월', '7월', '8월']
 const BARS = [11.5, 55.4, 41.8, 101.9, 79, 84.6]
 
 /* ── 레이아웃 상수 (393×852, Figma 498px 프레임 환산) ── */
-const SCREEN_H = 852
+const SCREEN_H = SH   // 기본 852. F-2(화면 높이 유동)에서는 실제 뷰포트 높이 — src/lib/screen.js
 const CHAT_TOP = 199          // 고정 헤더 아래 채팅 시작선 = 두 번째 오프닝 앵커 위치 (.chat-scroll padding-top)
 const SEARCH_H = 52
 const SEARCH_TOP = SCREEN_H - SEARCH_BOTTOM - SEARCH_H       // SearchAi 상단 = 776

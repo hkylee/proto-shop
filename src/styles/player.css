@@ -273,18 +273,32 @@ html[data-nav="R3"] .stage .round { display: none; }
 html.m, html.m body { background: #0B0F1E; overscroll-behavior: none; }
 .m-root { position: fixed; inset: 0; height: 100dvh; display: flex; flex-direction: column; background: #0B0F1E; color: var(--fg-neutral-solid); overflow: hidden; touch-action: pan-y; }
 .m-stage { flex: 1; position: relative; display: grid; place-items: center; overflow: hidden; min-height: 0; }
-html[data-mshell="M0"] .m-root.fill .m-stage, html[data-mshell="M1"] .m-root.fill .m-stage { overflow-y: auto; overflow-x: hidden; align-items: start; -webkit-overflow-scrolling: touch; }   /* 폭 맞춤이라 높이가 넘치면 세로 스크롤 */
+html[data-mfit="F0"] .m-root.fill .m-stage { overflow-y: auto; overflow-x: hidden; align-items: start; -webkit-overflow-scrolling: touch; }   /* F-0 기존: 폭 맞춤이라 높이가 넘치면 세로 스크롤 */
 .m-root.fill .m-stage .phone { pointer-events: none; }   /* 실제 폰: 화면 안쪽 터치 스크롤 막음 — 스와이프·가장자리 탭이 셸로 간다 */
 /* 사용자 탭 모드 안내 알약: 탭할 곳이 없을 때(스텝 끝·자동 구간) 상단에 '옆으로 밀어 다음' */
 .m-hint { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%) translateY(-6px); z-index: 16; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(6,12,31,.7); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -.02em; display: flex; align-items: center; gap: 6px; opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap; }
 .m-hint.on { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
 .m-tap-top { position: absolute; top: 0; left: 25%; right: 25%; height: 56px; z-index: 15; -webkit-tap-highlight-color: transparent; }
-.m-stage .phone-wrap { position: relative; width: calc(393px * var(--ms)); height: calc(852px * var(--ms)); flex: none; }
-.m-stage .phone { position: absolute; left: 0; top: 0; width: 393px; height: 852px; transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.m-stage .phone-wrap { position: relative; width: calc(393px * var(--ms)); height: calc(var(--sh, 852px) * var(--ms)); flex: none; max-width: 100%; }
+.m-stage .phone { position: absolute; left: 0; top: 0; width: 393px; height: var(--sh, 852px); transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
 .m-stage .phone .screen { inset: 0; border-radius: 40px; }
 .m-stage .phone .island { display: none; }
 .m-root.fill .m-stage .phone, .m-root.fill .m-stage .phone .screen { border-radius: 0; box-shadow: none; }   /* 실제 폰: 화면이 곧 기기 */
 .m-stage .done-toast { bottom: calc(46px * var(--ms) + 72px); }
+
+/* ── 모바일 맞춤 시안 html[data-mfit] (?mf=) — 2026-09-11, iPhone 13 mini 375×812 기준 ──────────────
+   F-1 전체 맞춤: 높이까지 맞춰 통째로 축소. 잘림·스크롤 없음. 남는 좌우는 화면과 같은 배경으로 이어 붙여 레터박스 티를 지운다
+   F-2 폭 맞춤 + 화면 높이 유동: 폰 안쪽 화면 높이(--sh)가 실제 뷰포트 높이. 바닥에 붙는 요소가 진짜 바닥에 온다
+   F-3 폭 맞춤 + 하단 고정: 비율 유지, 넘치는 만큼 위쪽만 잘림. 하단(CTA·입력창)은 항상 보이고 포인터가 위를 짚으면 따라 내려온다 */
+html[data-mfit="F1"] .m-root.fill { background: var(--bg-basement, #E2E6F1); }   /* 좌우 여백 = 화면 배경 */
+html[data-mfit="F1"] .m-root.fill .m-stage { overflow: hidden; place-items: center; }
+html[data-mfit="F2"] .m-root.fill, html[data-mfit="F3"] .m-root.fill { background: var(--bg-basement, #E2E6F1); }
+html[data-mfit="F2"] .m-root.fill .m-stage, html[data-mfit="F3"] .m-root.fill .m-stage { overflow: hidden; }
+html[data-mfit="F2"] .m-root.fill .m-stage { align-items: start; }   /* 툴바가 접혀 뷰포트가 커지면 아래에 배경색 여백 */
+html[data-mfit="F3"] .m-root.fill .m-stage { align-items: start; }
+html[data-mfit="F3"] .m-root.fill .m-stage .phone-wrap { transform: translateY(var(--mpan, 0px)); transition: transform .55s cubic-bezier(.4,0,.15,1); will-change: transform; }
+/* F-3 잘린 위쪽 경계를 부드럽게 */
+html[data-mfit="F3"] .m-root.fill .m-stage::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 28px; z-index: 14; pointer-events: none; background: linear-gradient(180deg, rgba(11,15,30,.28), rgba(11,15,30,0)); }
 /* 공통 컨트롤 */
 .m-pill { position: absolute; z-index: 20; display: flex; align-items: center; gap: 8px; background: rgba(6,12,31,.72); color: #fff; border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 999px; font-size: 13px; font-weight: 600; letter-spacing: -.02em; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 .m-pill.top { top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; transform: translateX(-50%); height: 34px; padding: 0 14px; }
@@ -365,3 +379,29 @@ html.m .ptr-ring { width: 84px; height: 84px; margin: -42px 0 0 -42px; border-wi
 html.m .ptr-layer.hover .ptr-dot { animation: ptrBreath 1.2s ease-in-out infinite; }
 @keyframes ptrBreath { 50% { transform: scale(1.12); box-shadow: 0 4px 16px rgba(6,12,31,.35), 0 0 0 12px rgba(75,89,255,.1); } }
 html.m[data-pointer="P2"] .ptr-hovered { outline-width: 3px; outline-offset: 4px; }
+
+
+/* ── 375×812 방어 (사용자 프롬프트 2026-09-11): 유동 레이아웃 · 줄바꿈 · 44px 터치 타깃 · 안전영역 ── */
+html.m, html.m body { width: 100%; max-width: 100%; overflow-x: hidden; }
+.m-root { width: 100%; max-width: 100%; padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); box-sizing: border-box; }
+.m-root .m-stage { width: 100%; }
+/* 시트 본문: 좁은 폭에서 글이 컨테이너를 넘거나 겹치지 않게 */
+.m-sheet { box-sizing: border-box; max-width: 430px; margin: 0 auto; word-break: keep-all; overflow-wrap: anywhere; }
+.m-sheet .m-concept p, .m-sheet .m-cur .bubble, .m-sheet .req li { word-break: keep-all; overflow-wrap: anywhere; }
+.m-sheet .m-cur .bubble { line-height: 20px; }
+.m-sheet .req { gap: 6px; line-height: 20px; }
+/* 터치 타깃 44px 이상 */
+.m-seg button { min-height: 36px; min-width: 52px; padding: 0 12px; }
+.m-sheet .m-seg { padding: 4px; }
+.m-sheet .m-seg button { min-height: 40px; }
+.m-tap-top { min-height: 56px; }
+.m-pill.top { min-height: 34px; padding: 0 16px; }
+.m-bot .arr, .m-bot .mid { min-height: 48px; }
+/* 상·하단 셸 크롬은 안전영역 안쪽으로 */
+.m-bot.m3 { padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px); }
+/* 좁은 폭에서 셸 알약 글자가 찌그러지지 않게 */
+@media (max-width: 380px) {
+  .m-pill .mid { min-width: 0; max-width: 180px; padding: 0 8px; }
+  .m-pill .mid b { max-width: 160px; }
+  .m-controls { font-size: 11px; }
+}

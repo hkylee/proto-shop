@@ -835,3 +835,12 @@ html[data-zippop="Z2"] .sheet.zip { transform: translateX(100%); box-shadow: -20
 html[data-zippop="Z2"] .sheet.zip.on { transform: none; }
 html[data-zippop="Z3"] .sheet.zip { transform: translateY(46%) scale(.92); transform-origin: 50% 100%; opacity: 0; border-radius: 28px 28px 0 0; transition: transform .5s var(--kb-ease), opacity .3s, border-radius .5s var(--kb-ease); }
 html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radius: 0; }
+
+
+/* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 기준으로 찍힌 고정 좌표를 실제 화면 높이(--sh)에 비례시킨다 ──
+   그 밖의 요소는 이미 위(top)·아래(bottom) 어느 한쪽에 붙어 있어 높이가 줄어도 겹치지 않는다. */
+html[data-mfit="F2"] .greeting { top: calc(var(--sh, 852px) * 0.2477); }        /* 211/852 */
+html[data-mfit="F2"] .suggest-stack,
+html[data-mfit="F2"] .launch-ov .stack { bottom: calc(var(--sh, 852px) * 0.4507); }   /* 384/852 */
+html[data-mfit="F2"] .scroll-ind { height: calc(var(--sh, 852px) - 291px); }    /* 776 − 199 − 16 = 852 − 291 */
+html[data-mfit="F2"] .toss { padding-top: calc(var(--sh, 852px) * 0.1408); gap: calc(var(--sh, 852px) * 0.0704); }

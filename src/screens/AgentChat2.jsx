@@ -7,6 +7,7 @@ import { variant } from '../lib/variants.js'
 import { PRE_MSG, PRE_MSG2, PRE_ROWS, PRE_CHIP } from '../data/an2.js'
 import { useSheetOut, SHEET_KEEP_MS } from '../lib/sheet.js'
 import './agent2.css'
+import { SCREEN_H as SH } from '../lib/screen.js'
 
 /* 2안 · AI Agent 중심 + Bottom Sheet 선택 (Figma ixGPs9IrNB0e2VD2OFEZlB 96:47398, 22장)
    전체 흐름과 등장 리듬은 3안(AgentChat)과 같다. 다른 점 하나: 선택이 필요한 모듈은 대화 안에 깔지 않고 **바텀 모달(시트)** 로 올려 고르고,
@@ -50,7 +51,7 @@ const turnsUpTo = (stage) => { const all = []; if (!STAGE_TURNS[stage]) return a
 const SHEET_MS = 900       // 시트 상승 (R-2 0.9s)
 const SHEET_OUT_MS = SHEET_KEEP_MS - 100   // 시트 하강 뒤 다음 요소까지 (내용 유지 시간과 같은 곳에서)
 const SHEET_HOLD = 650     // 시트가 올라온 뒤 첫 탭까지
-const SCREEN_H = 852
+const SCREEN_H = SH   // 기본 852. F-2(화면 높이 유동)에서는 실제 뷰포트 높이 — src/lib/screen.js
 const CHAT_TOP = 199       // 고정 헤더 아래 채팅 시작선 (.chat-scroll padding-top). 2안 상단 앵커링 기준 (Figma 90:86712 채팅 열 top 202)
 const SHEET_BOTTOM = 86    // .sheet2 bottom (agent2.css) — 기존(SearchAi 위) 모드
 // 대화창을 덮는 모달 (Figma 90:86712 / 155:88000): 시트(높이 그대로)가 화면 아래 20px 에 앉아 SearchAi 를 덮는다. ∨ 플로팅 버튼은 사용자 요청으로 제거 (2026-09-09)

@@ -3,6 +3,7 @@ import data from './data/steps.json'
 import proposalsData from './data/proposals.json'
 import Phone from './components/Phone.jsx'
 import { CONFIRMED } from './lib/variants.js'
+import { SCREEN_H, PHONE_W as PW, BASE_H, MAX_FILL_W as MAX_W, MFIT } from './lib/screen.js'
 
 const { zones, persona } = data
 /* 1·2·3안 (prompt 파일, 2026-09-07): 3안 = 현재 구현(steps.json). 1·2안은 UI 준비 중 → 자리표시 스텝(placeholder 뷰)으로 구조만 보여준다.
@@ -104,7 +105,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: LAB ? (Q0.get('sl') || 'L2') : CONFIRMED.sheetlook })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -447,8 +448,7 @@ const MFITS = [
   { id: 'F0', label: 'F-0 기존', desc: '폭 맞춤 + 넘치면 스테이지 세로 스크롤 (2026-09-10 배포분)' },
 ]
 const MOBILE_BP = 767
-const PHONE_W = 393, PHONE_H = 852
-const MAX_FILL_W = 430   // 폰보다 넓은 화면(≤767)에서도 화면이 무한정 늘어나지 않게 — 430 로 묶고 가운데 정렬
+const PHONE_W = PW, PHONE_H = BASE_H
 const readFrame = () => { try { const f = JSON.parse(localStorage.getItem('asp.frame')); if (f && f.w >= 320 && f.h >= 480) return f } catch {} return { w: 375, h: 812 } }
 function useFit(chrome, mfit, frame) {
   const [fit, setFit] = useState({ ms: 1, sh: PHONE_H, fill: true, fw: PHONE_W, fh: PHONE_H })
@@ -456,13 +456,13 @@ function useFit(chrome, mfit, frame) {
     const f = () => {
       const fill = innerWidth <= MOBILE_BP
       // 화면(가로·세로)과 안전영역을 뺀 실제 가용 크기
-      const vw = fill ? Math.min(innerWidth, MAX_FILL_W) : frame.w
+      const vw = fill ? Math.min(innerWidth, MAX_W) : frame.w
       const vh = (fill ? innerHeight : frame.h) - chrome
       let ms, sh = PHONE_H
       if (mfit === 'F1') ms = Math.min(vw / PHONE_W, vh / PHONE_H)
       else {
         ms = vw / PHONE_W
-        if (mfit === 'F2') sh = Math.max(560, Math.round(vh / ms))       // 화면 자체가 짧아진다 (유동 높이)
+        if (mfit === 'F2') sh = SCREEN_H                                  // 화면 자체가 짧아진다 (유동 높이, 로드 시점 고정 — screen.js)
         else if (mfit === 'F0') ms = Math.min(ms, 1)
       }
       if (fill) { setFit({ ms, sh, fill, fw: innerWidth, fh: innerHeight }); return }
@@ -499,7 +499,7 @@ function usePanFollow(ref, on, ms, vh) {
     return () => clearInterval(t)
   }, [ref, on, ms, vh])
 }
-function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest, replay }) {
+function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, nextTest, replay }) {
   const steps = sc.steps, n = steps.length
   const [sheet, setSheet] = useState(false)
   // 사용자 탭 모드: 스텝 끝 대기 자리를 탭하면 다음 스텝. 탭할 곳이 없는 채 4초가 지나면 '옆으로 밀어 다음' 안내
@@ -528,7 +528,9 @@ function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest
   const [frame, setFrame] = useState(readFrame)
   const [draft, setDraft] = useState(frame)
   const applyFrame = (f) => { const nf = { w: Math.max(320, Math.min(600, Number(f.w) || 375)), h: Math.max(480, Math.min(1200, Number(f.h) || 812)) }; setFrame(nf); setDraft(nf); try { localStorage.setItem('asp.frame', JSON.stringify(nf)) } catch {} }
-  const { ms, fill, fw, fh } = useFit(chrome, mshell === 'M0' || mshell === 'M1', frame)
+  const { ms, sh, fill, fw, fh } = useFit(chrome, mfit, frame)
+  const wrapRef = useRef(null)
+  usePanFollow(wrapRef, fill && mfit === 'F3', ms, fh - chrome)
   useEffect(() => { setSheet(false) }, [cur, pid])
   // 옆으로 밀어 스텝 이동 (모든 셸 공통)
   const tx = useRef(null)
@@ -538,7 +540,7 @@ function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest
   const label = `${pid}안 · ${cur + 1}/${n}`
   const Seg = () => <div className="m-seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{q.id}안</button>)}</div>
   return (
-    <div className={`m-root ${fill ? 'fill' : 'desk'} ${sheet ? 'sheet-on' : ''}`} style={{ '--ms': ms, '--fw': `${fw}px`, '--fh': `${fh}px` }}>
+    <div className={`m-root ${fill ? 'fill' : 'desk'} ${sheet ? 'sheet-on' : ''}`} style={{ '--ms': ms, '--sh': `${sh}px`, '--fw': `${fw}px`, '--fh': `${fh}px` }}>
       {!fill && (
         <div className="m-controls">
           <span className="lbl">화면 크기</span>
@@ -547,6 +549,8 @@ function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest
           <label>W <input type="number" value={draft.w} onChange={(e) => setDraft({ ...draft, w: e.target.value })} /></label>
           <label>H <input type="number" value={draft.h} onChange={(e) => setDraft({ ...draft, h: e.target.value })} /></label>
           <button className="apply" onClick={() => applyFrame(draft)}>적용</button>
+          <span className="div" />
+          <div className="m-seg">{MFITS.map((v) => <button key={v.id} className={v.id === mfit ? 'on' : ''} onClick={() => { const q = new URLSearchParams(location.search); q.set('mf', v.id); location.search = q }} title={v.desc}>{v.id}</button>)}</div>
           <span className="div" />
           <Seg />
           <span className="cnt num">STEP {cur + 1} / {n}</span>
@@ -559,7 +563,7 @@ function MobileShell({ mshell, pid, pick, sc, cur, go, step, doneToast, nextTest
         </header>
       )}
       <main className="m-stage" onTouchStart={onTS} onTouchEnd={onTE}>
-        <div className="phone-wrap" ref={stageRef}><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
+        <div className="phone-wrap" ref={(n) => { stageRef.current = n; wrapRef.current = n }}><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
         {(mshell === 'M1' || mshell === 'M0') && (<>
           <button className="m-zone l" onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="이전" />
           <button className="m-zone r" onClick={() => go(cur + 1)} disabled={cur === n - 1} aria-label="다음" />
@@ -707,11 +711,14 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.dimfx = dimfxV }, [dimfxV])
   const [pdenterV, setPdenterV] = useState(() => (LAB ? (Q0.get('pe') || CONFIRMED.pdenter) : CONFIRMED.pdenter))
   useEffect(() => { document.documentElement.dataset.pdenter = pdenterV }, [pdenterV])
-  const [sheetlookV, setSheetlookV] = useState(() => (LAB ? (Q0.get('sl') || 'L2') : CONFIRMED.sheetlook))
+  const [sheetlookV, setSheetlookV] = useState(() => (LAB ? (Q0.get('sl') || CONFIRMED.sheetlook) : CONFIRMED.sheetlook))
   useEffect(() => { document.documentElement.dataset.sheetlook = sheetlookV }, [sheetlookV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
+  // 모바일 맞춤 시안 (?mf=F1|F2|F3|F0) — 폰 도메인에서도 바로 비교할 수 있게 LAB 게이트 없음
+  const [mfitV] = useState(() => MFIT)
+  useEffect(() => { document.documentElement.dataset.mfit = mfitV }, [mfitV])
   useEffect(() => { document.documentElement.dataset.mshell = mshellV; document.documentElement.classList.toggle('m', mobile) }, [mshellV, mobile])
 
   const scRef = useRef(sc); scRef.current = sc
@@ -750,7 +757,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [go])
 
-  if (mobile) return <MobileShell mshell={mshellV} pid={pid} pick={pick} sc={sc} cur={cur} go={go} step={step} doneToast={doneToast} nextTest={nextTest} replay={replay} />
+  if (mobile) return <MobileShell mshell={mshellV} mfit={mfitV} pid={pid} pick={pick} sc={sc} cur={cur} go={go} step={step} doneToast={doneToast} nextTest={nextTest} replay={replay} />
   return (
     <>
       <header className="topbar">
@@ -1069,13 +1076,15 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나)</b>
+            <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나) — L-2 확정</b>
             {SHEETLOOKS.map((v) => (
               <button key={v.id} aria-pressed={sheetlookV === v.id} onClick={() => { setSheetlookV(v.id); userNav() }}>{v.label}</button>
             ))}
             <span className="vdesc">{SHEETLOOKS.find((v) => v.id === sheetlookV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2·3안 · 상품 상세에서 옵션으로 들어가는 방식 (스텝 1에서 → 스텝 2) — E-1 확정</b>
