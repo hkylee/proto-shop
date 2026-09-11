@@ -129,6 +129,7 @@ export function ComboRows() {
 export default function ProductDetail2({ stage = 'top' }) {
   const rootRef = useRef(null), scrollRef = useRef(null), ptrLayerRef = useRef(null), ptrRef = useRef(null)
   const aiBtnRef = useRef(null), goBtnRef = useRef(null), browseRef = useRef(null), accRef = useRef(null), accGoRef = useRef(null)
+  const comboRef = useRef(null)   // E-3: 지나칠 때 물러나는 AI 조합 카드
   const secs = { color: useRef(null), storage: useRef(null), delivery: useRef(null), term: useRef(null), acc: useRef(null), user: useRef(null), join: useRef(null), plan: useRef(null) }
   const picked = stage === 'options'
   const [sel, setSel] = useState(() => (picked ? PICKED : NONE))
@@ -161,6 +162,25 @@ export default function ProductDetail2({ stage = 'top' }) {
     const finish = async () => {
       await scrollTo(el, anchorSec(secs.plan.current), 800, inOut); if (!alive()) return
       parkAi()
+    }
+    /* 옵션 영역으로 들어가는 방식 (html[data-pdenter], 사용자 2026-09-11 "버튼 선택 안 하고 그냥 스크롤 내려서 컬러 영역으로")
+       off 기존([직접 둘러볼게요] 탭) / E1 바로 지나쳐 색상까지 / E2 조합 카드를 한 번 훑고 지나감 / E3 지나치며 조합 카드가 물러남 */
+    const enterOptions = async () => {
+      const E = variant('pdenter') || 'off'
+      comboRef.current?.classList.remove('passed')
+      if (E === 'off') {
+        await scrollTo(el, browseRef.current.offsetTop - 500, 500, inOut); if (!alive()) return false
+        await ptr?.tap(browseRef.current, { move: 350, pause: 60 }); return alive()
+      }
+      const to = anchorSec(secs.color.current)
+      ptr?.hide()
+      if (E === 'E2') {
+        await scrollTo(el, Math.max(0, comboRef.current.offsetTop - 240), 700, inOut); if (!alive()) return false
+        await wait(600); if (!alive()) return false
+        await scrollTo(el, to, 900, inOut); return alive()
+      }
+      if (E === 'E3') comboRef.current?.classList.add('passed')
+      await scrollTo(el, to, 1400, inOut); return alive()
     }
     const tapIn = async (secRef, selector, key, opts) => {
       await scrollTo(el, anchorSec(secRef.current), 600, inOut); if (!alive()) return false
@@ -201,8 +221,7 @@ export default function ProductDetail2({ stage = 'top' }) {
         parkAi(); return
       }
       // P1 직접 둘러보기 (기존 흐름): 링크 탭 → 섹션마다 탭
-      await scrollTo(el, browseRef.current.offsetTop - 500, 500, inOut); if (!alive()) return
-      await ptr?.tap(browseRef.current, { move: 350, pause: 60 }); if (!alive()) return
+      if (!await enterOptions()) return
       if (!await tapIn(secs.color, '.swatch:nth-child(3)', 'color')) return
       if (!await tapIn(secs.storage, '.radio-card:nth-child(2)', 'storage')) return
       if (!await tapIn(secs.delivery, '.radio-card:nth-child(1)', 'delivery')) return
@@ -234,7 +253,7 @@ export default function ProductDetail2({ stage = 'top' }) {
         <div className="pd2-tabs"><span className="on">상품 주문</span><span>구매 혜택</span><span>상품 정보</span><span>구매 후기</span></div>
 
         {/* AI 조합 카드 (ListProductHorizontal, Figma 10547:16632) */}
-        <div className="combo-card">
+        <div className="combo-card" ref={comboRef}>
           <div className="combo-title">{NAME}님의 평소 이용 패턴을<br />바탕으로 최적의 조합을 적용할 수 있어요.</div>
           <div className="ai-note"><span>✦ AI 분석</span><p>{AI_TEXT}</p></div>
           <ComboRows />

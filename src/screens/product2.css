@@ -132,3 +132,7 @@
 .pd2 .cb-note p { margin: 0; }
 /* 요금제 카드 fill = 흰색 (사용자 요청, Figma ixGPs9 23:13194) */
 .pd2 .plan-carousel .plan-card { background: #fff; border-color: var(--line); }
+
+/* E-3 (html[data-pdenter]): [직접 둘러볼게요] 를 누르지 않고 지나칠 때 AI 조합 카드가 뒤로 물러난다 — 고르지 않았다는 것이 화면에 남는다 */
+.pd2 .combo-card { transition: opacity .8s cubic-bezier(.4,0,.2,1), transform .8s cubic-bezier(.4,0,.2,1), filter .8s cubic-bezier(.4,0,.2,1); }
+.pd2 .combo-card.passed { opacity: .45; transform: scale(.985); filter: saturate(.6); }

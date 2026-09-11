@@ -104,7 +104,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: LAB ? (Q0.get('pe') || 'E1') : CONFIRMED.pdenter })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -236,6 +236,13 @@ const DIMFXS = [
   { id: 'G2', label: 'G-2 모달 영역만 그라디언트', desc: '화면 위쪽은 딤이 전혀 없고 아래로 갈수록 진해져(38% 지점부터 0 → 28%) 모달 주변만 가라앉는다. 대화 윗부분은 그대로 읽히면서 모달이 앞에 있다는 것만 전달됨' },
   { id: 'G1', label: 'G-1 딤 없음', desc: '모달 뒤를 전혀 어둡게 하지 않는다. 시트의 흰 유리와 그림자만으로 층을 구분 — 가장 가볍지만 뒤 내용과 섞여 보일 수 있음' },
   { id: 'G0', label: 'G-0 기존 전면 (지금)', desc: '화면 전체에 균일한 딤. 2안 모달 20% · 3안 22% · 신청서 시트 38%. 모달에 확실히 집중되지만 대화가 통째로 어두워짐' },
+]
+// 2·3안 상품 상세 → 옵션 영역 진입 (html[data-pdenter]) — 사용자 2026-09-11 "그 버튼 선택 안 하구 그냥 스크롤 쭉 내려서 컬러 영역으로"
+const PDENTERS = [
+  { id: 'E1', label: 'E-1 바로 지나쳐 색상까지', desc: '[직접 둘러볼게요] 를 누르지 않고 AI 조합 카드를 지나 색상 섹션까지 한 번에 내려간다(1.4s). 버튼은 화면에 그대로 있고 "안 눌러도 그냥 내려가면 된다"가 가장 분명하게 읽힘' },
+  { id: 'E2', label: 'E-2 조합 카드를 훑고 지나감', desc: 'AI 조합 카드에서 0.6s 멈춰 한 번 보여준 뒤 색상까지 내려간다. 추천을 보긴 했고 그래도 직접 고르기로 했다는 시간이 생김' },
+  { id: 'E3', label: 'E-3 지나치며 조합 카드가 물러남', desc: '내려가는 동안 AI 조합 카드가 흐려지며(45%) 살짝 축소된다. 그 추천을 쓰지 않기로 했다는 것이 화면에 남지만, 시스템이 판단한 것처럼 보일 수도 있음' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. [직접 둘러볼게요] 를 탭하고 들어간다' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -646,6 +653,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.simx = simxV }, [simxV])
   const [dimfxV, setDimfxV] = useState(() => (LAB ? (Q0.get('df') || CONFIRMED.dimfx) : CONFIRMED.dimfx))
   useEffect(() => { document.documentElement.dataset.dimfx = dimfxV }, [dimfxV])
+  const [pdenterV, setPdenterV] = useState(() => (LAB ? (Q0.get('pe') || 'E1') : CONFIRMED.pdenter))
+  useEffect(() => { document.documentElement.dataset.pdenter = pdenterV }, [pdenterV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -1006,6 +1015,13 @@ export default function App() {
             <span className="vdesc">{RECFLOWS.find((v) => v.id === recflowV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">2·3안 · 상품 상세에서 옵션으로 들어가는 방식 (스텝 1에서 → 스텝 2)</b>
+            {PDENTERS.map((v) => (
+              <button key={v.id} aria-pressed={pdenterV === v.id} onClick={() => { setPdenterV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{PDENTERS.find((v) => v.id === pdenterV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">2·3안 · 모달 뒤 딤 (아무 모달 스텝에서나) — G-1 확정</b>
