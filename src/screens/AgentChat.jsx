@@ -1070,10 +1070,20 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       card.classList.add('boxing')                                  // 흰 박스 표면이 0.3s 로 켜짐 (agent.css)
       if (L === 'E3') { card.classList.add('l3-start'); await new Promise(afterLayout); if (!alive()) return false; card.classList.remove('l3-start') }
       const inner = [...card.children]
+      /* 내용이 사라지는 방식 (html[data-boxfade], 사용자 2026-09-11 "E-3 도 T-1 시점처럼 서서히 오파시티 되었으면"):
+         기존은 1.8배로 앞당겨 진행 55% 에 이미 0 이었다 → 축소 전 구간에 걸쳐 서서히 사라지게.
+         O1 전 구간 균일 / O2 착지까지 옅게 남기고 마지막에 0 / O3 처음 15% 는 버티다 그 뒤 균일 */
+      const FADE = variant('boxfade') || 'O1'
+      const fadeAt = (p) => {
+        if (FADE === 'O2') return Math.max(0, 1 - p * .85)
+        if (FADE === 'O3') return p < .15 ? 1 : Math.max(0, 1 - (p - .15) / .85)
+        if (FADE === 'old') return Math.max(0, 1 - p * 1.8)
+        return Math.max(0, 1 - p)
+      }
       const shrink = (dur, from, to, ease) => tween(dur, (e) => {
         card.style.height = `${from - (from - to) * e}px`
         const p = (h0 - (from - (from - to) * e)) / (h0 - hRow)      // 전체 진행도로 내용 투명도를 맞춘다
-        inner.forEach((c) => { c.style.opacity = String(Math.max(0, 1 - p * 1.8)) })
+        inner.forEach((c) => { c.style.opacity = String(fadeAt(p)) })
       }, ease)
       if (L === 'E2') {                                             // 마지막 16px 만 따로, 아주 느리게 마무리
         await shrink(460, h0, hRow + 16, inOut); if (!alive()) return false
@@ -1081,6 +1091,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       } else {
         await shrink(L === 'off' ? 500 : 640, h0, hRow, L === 'off' ? inOut : EXPO_OUT); if (!alive()) return false
       }
+      if (FADE === 'O2') { await tween(140, (e) => { inner.forEach((c) => { c.style.opacity = String(.15 * (1 - e)) }) }, cubicOut); if (!alive()) return false }
       if (hold) { await wait(hold); if (!alive()) return false }      // ② 빈 흰 박스로 한 박자 (B2 는 생략)
       card.style.display = 'none'; card.classList.remove('boxing', 'l3-start')
       inner.forEach((c) => { c.style.opacity = '' })
