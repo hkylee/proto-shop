@@ -1095,11 +1095,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (hold) { await wait(hold); if (!alive()) return false }      // ② 빈 흰 박스로 한 박자 (B2 는 생략)
       card.style.display = 'none'; card.classList.remove('boxing', 'l3-start')
       inner.forEach((c) => { c.style.opacity = '' })
+      row.style.transition = ''                                      // showNow(altItems) 가 남긴 인라인 transition:none 해제 — 없으면 배경이 순간 전환된다
       row.classList.add('on', 'from-box')                            // ③ 흰 박스 → 선택됨 줄
       if (mode === 'B3') row.classList.add('keep-box')               // B3 은 흰 박스 그대로 남는다
       await new Promise(afterLayout); if (!alive()) return false
       row.classList.remove('from-box')
-      await wait(420)
+      await wait(variant('selfade') === 'N2' ? 820 : 780)          // 배경·글자 트랜지션이 끝날 때까지 (agent.css html[data-selfade])
       return alive()
     }
     /* ── 풀팝업이 내려가는 것과 카드 → 흰 박스 → [선택됨] 을 어떻게 맞물리게 하나 (html[data-foldsync], 사용자 2026-09-11
