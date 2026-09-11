@@ -894,3 +894,22 @@ html[data-selfade="N2"] .plan-fold { transition: opacity .4s cubic-bezier(.65,0,
 html[data-selfade="N2"] .plan-fold > * { transition: opacity .45s cubic-bezier(.4,0,.2,1) .25s; }
 html[data-selfade="N3"] .plan-fold { transition: opacity .4s cubic-bezier(.65,0,.35,1), background .7s cubic-bezier(.4,0,.2,1) .12s, box-shadow .7s cubic-bezier(.4,0,.2,1) .12s; }
 html[data-selfade="N3"] .plan-fold > * { transition: opacity .4s cubic-bezier(.4,0,.2,1); }
+
+/* ── 스텝 7 요금제 재선택 (Figma ixGPs9 271:126019) ── */
+.sheet .warn-bar { flex: none; padding: 14px 24px; background: rgba(39,59,157,.05); color: var(--fg-neutral-mute); font-size: 13px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; }
+.sheet .confirm-pop { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 0 32px; background: rgba(6,12,31,.28); opacity: 0; pointer-events: none; transition: opacity .35s cubic-bezier(.65,0,.35,1); }
+.sheet .confirm-pop.on { opacity: 1; pointer-events: auto; }
+.sheet .cp-box { width: 100%; max-width: 313px; box-sizing: border-box; background: #fff; border-radius: 24px; padding: 28px 24px 20px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 10px 40px rgba(6,12,31,.14); transform: translateY(8px) scale(.98); transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.sheet .confirm-pop.on .cp-box { transform: none; }
+.sheet .cp-box h4 { margin: 0; font-size: 17px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.sheet .cp-box p { margin: 0 0 12px; font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: -.04em; color: var(--fg-neutral-mute); word-break: keep-all; }
+.sheet .cp-btns { display: flex; gap: 8px; }
+.sheet .cp-btns span { flex: 1; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 15px; font-weight: 600; letter-spacing: -.04em; }
+.sheet .cp-btns .no { background: rgba(39,59,157,.06); color: var(--fg-neutral-mute); }
+.sheet .cp-btns .yes { background: var(--fg-neutral-solid); color: #fff; }
+.sheet .cp-btns span.pressing { opacity: .72; }
+/* 재선택 결과 (Figma ixGPs9 271:124668): 이전 블록은 흐려져 비활성으로 남고, 아래에 변경 안내 + 새 요약 줄 */
+.replan-out { display: none; flex-direction: column; gap: 8px; }
+.replan-out.on { display: flex; }
+.plan-fold.stale, .opts.stale { opacity: .45; pointer-events: none; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+.plan-fold.stale em { color: var(--fg-neutral-subtle); text-decoration-color: transparent; }

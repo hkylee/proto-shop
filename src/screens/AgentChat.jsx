@@ -103,7 +103,7 @@ const TAIL = SCREEN_H - SEARCH_TOP + GAP                      // 채팅 끝 여�
 const PEN_TAIL = SCREEN_H - CHAT_TOP - 44 + 30               // 말풍선 아래 답변 자리 여백 → 말풍선을 시작선까지 올릴 수 있는 tail
 const OPENING_MT = 23, TURN_GAP = 8                          // .opening margin-top · 턴 컨테이너 flex gap (agent.css 와 동일)
 const OPENING_OUTER = OPENING_MT + TURN_GAP
-const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'reselect', 'opts2', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
+const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'replan', 'reselect', 'opts2', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
 /* 15 [결제하기] 탭 → 결제(외부) 화면으로 이동해 마무리 (T1mhl 10906:6338: 흰 화면 · 닫기 · '외부이동'). 돌아오지 않는다 = 플로우 끝 */
 /* 14 [실물 신분증 촬영] 탭 → 밖(신분증 촬영)으로 → 복귀 → '신원 인증 완료' 선 → 요금 납부 방식(기존 수단 유지 추천 → 탭) → 요금안내서(Bill Letter 추천 → 탭) → 결제 안내 + 시트 [결제하기] (T1mhl 10906:5737)
    업무처리 결과 선(txt_complete)은 왼쪽 → 오른쪽으로 그려진다: 시안 html[data-line] D1 선만 / D2 순차(체크 → 글 → 선) / D3 한 붓 */
@@ -167,6 +167,7 @@ const OPTS = [
   { msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
   { msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
 ]
+const REPLAN_PICK = 2   // 스텝 8 에서 바꿔 고르는 요금제 (Figma 는 0 청년 107)
 const OPT_RESELECT = { sec: 1, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
 const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
 
@@ -381,14 +382,16 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const prevRef = useRef(null)       // null = 첫 마운트. from: 다른 화면(2안 AgentChat2)에서 넘어와 첫 마운트인데도 재생해야 할 때 이전 스테이지를 알려준다
   const allRef = useRef(null)
   const sheetRef = useRef(null)
-  const applyRef = useRef(null)
+  const applyRef = useRef(null), confirmRef = useRef(null)
   const [selPlan, setSelPlan] = useState(-1)
+  // 스텝 7 요금제 재선택 (Figma ixGPs9 271:126019): 팝업 상단 초기화 안내 띠 · 변경 확인 모달 · 대화 줄의 요금제명 교체
+  const [warnBar, setWarnBar] = useState(false), [confirmPop, setConfirmPop] = useState(false), [replanIdx, setReplanIdx] = useState(-1)
   const [sheetTab, setSheetTab] = useState(0)
   const [zipPop, setZipPop] = useState(false), [zipQ, setZipQ] = useState(''), [zipList, setZipList] = useState(false)   // 주소 검색 풀페이지 팝업 (시트 2/4 [검색])
   const [applied, setApplied] = useState(false)
   const usageCardRef = useRef(null)             // 4번: 요금제 카드 캐러셀 (전체보기 포함)
   const plansCardRef = useRef(null)             // 6번: 위약금 답변 뒤 재제시 캐러셀 (할인 탭 대상)
-  const foldCardRef = useRef(null), foldTailRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
+  const foldCardRef = useRef(null), foldTailRef = useRef(null), foldNewRef = useRef(null), replanOutRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
   const [discPick, setDiscPick] = useState(-1)  // 적용된 요금제 카드의 할인 선택 (-1 없음 → 스텝 6에서 고객이 24개월 탭)
   const penRef = useRef(null)                   // 6번: 위약금 질문 말풍선 + 답변 턴 컨테이너
   const penVarRef = useRef(null)
@@ -427,12 +430,14 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [recalc, setRecalc] = useState(false)              // 스텝 9 R-3: 아래 턴 안내문 재계산 중 표시
   const [msgPlanIdx, setMsgPlanIdx] = useState(PLAN_DEFAULT) // 안내문에 쓰이는 요금제 (선택보다 늦게, 앵커링 뒤 교체 연출)
   const planName = ALT_PLANS[msgPlanIdx][0]
-  const foldLbl = /^[BDS]/.test(variant('planfold') || '') ? '선택됨' : '선택한 요금제'   // D·S 시안은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
+  const foldLbl = /^[BDS]/.test(variant('planfold') || '') ? '선택됨' : '선택한 요금제'
+  const foldPlanName = replanIdx >= 0 ? POP_PLANS[replanIdx].name : planName   // 재선택 뒤에는 바뀐 요금제명   // D·S 시안은 사용자 표현('머 선택됨 뜨게'), F 시안은 Figma 표기
   const scrollIndRef = useRef(null)
   const jumpChipRef = useRef(null)
   const tailRef = useRef(null)
   const sheet = stage === 'sheet'
   const penalty = stage === 'penalty'
+  const replan = stage === 'replan'
   const opts1 = stage === 'opts1'
   const reselect = stage === 'reselect'
   const opts2 = stage === 'opts2'
@@ -518,7 +523,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const openSheet = () => { sheetRef.current.classList.add('on') }                 // 풀페이지 팝업이 아래에서 올라온다 (딤 없음)
     const hideSheet = () => { sheetRef.current?.classList.remove('on') }             // 선택값은 유지한 채 팝업만 내림
     const closeSheet = () => { hideSheet(); setSelPlan(-1); setSheetTab(0) }
-    const resetApply = () => { setApplied(false); setDiscPick(-1); setOptK(OPT.plan); resetPen(); resetOpts(); resetReselect(); unfold() }
+    const resetApply = () => { setApplied(false); setDiscPick(-1); setOptK(OPT.plan); resetPen(); resetOpts(); resetReselect(); unfold(); setReplanIdx(-1); setWarnBar(false); setConfirmPop(false); unstale() }
     const parkOnAll = () => ptr?.park(allRef.current)
     const snapBottom = (el) => requestAnimationFrame(() => { scroll.scrollTop = anchorBottom(el) })
     // 아래로만 진행하는 팬: 목표가 현재보다 위면 움직이지 않는다 (재선택 외에는 위아래 요동 금지 — 사용자 2026-09-07)
@@ -1430,6 +1435,49 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       ptr?.park(authEl.ownerDocument.querySelector('.ai-sheet.on .ai-sheet-item'))
     }
     const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); reviewChipWrap.style.display = 'none'; authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems[3]) }) }
+    /* ── 7번: 요금제 재선택 (Figma ixGPs9 271:126019). 대화에 남은 [다시 선택하기] → 전체 요금제 팝업(초기화 안내 띠, 현재 요금제 선택됨·적용 비활성)
+       → 다른 요금제 탭 → [적용하기] 활성 → 탭 → '요금제를 변경하시겠어요?' 확인 모달 → [네] → 팝업 내려가고 줄의 요금제명이 바뀐다 */
+    const playReplan = async () => {
+      const row = foldRow()
+      if (!row || !row.classList.contains('on')) { await wait(200) }
+      await follow(row); if (!alive()) return
+      await wait(500); if (!alive()) return
+      await ptr?.tap(row.querySelector('em'), { move: 420, pause: 120 }); if (!alive()) return
+      ptr?.hide()
+      setWarnBar(true); setSelPlan(0); setSheetTab(0); openSheet()   // 현재 요금제가 선택된 채로 열린다 → [적용하기] 비활성
+      await wait(900); if (!alive()) return
+      const rows = () => sheetRef.current.querySelectorAll('.plan-mini')
+      const target = rows()[REPLAN_PICK], list = sheetRef.current.querySelector('.list')
+      const over = target.offsetTop + target.offsetHeight - (list.scrollTop + list.clientHeight) + 24
+      if (over > 0) { await scrollTo(list, list.scrollTop + over, 600); if (!alive()) return; await wait(200) }
+      await ptr?.tap(target, { move: 420, pause: 120 }); if (!alive()) return
+      setSelPlan(REPLAN_PICK); await wait(650); if (!alive()) return  // [적용하기] 활성
+      await ptr?.tap(applyRef.current, { move: 380, pause: 120 }); if (!alive()) return
+      ptr?.hide(); setConfirmPop(true); await wait(900); if (!alive()) return
+      await ptr?.tap(confirmRef.current, { move: 420, pause: 140 }); if (!alive()) return
+      ptr?.hide(); setConfirmPop(false); await wait(220); if (!alive()) return
+      hideSheet(); setWarnBar(false)
+      await wait(500); if (!alive()) return
+      staleAbove()                                                 // 위 블록(요약 줄 + 고른 옵션들)은 비활성으로 남는다
+      await wait(450); if (!alive()) return
+      const outEl = replanOutRef.current, [notice, newRow] = [...outEl.children]
+      outEl.classList.add('on'); void outEl.offsetHeight
+      setTail(TAIL)
+      reveal(notice); await follow(notice); if (!alive()) return
+      await wait(rv().text); if (!alive()) return
+      reveal(newRow); await follow(newRow); if (!alive()) return
+      setReplanIdx(REPLAN_PICK)
+      await wait(400); if (!alive()) return
+      ptr?.park(optRow(OPT_RESELECT.sec, OPT_RESELECT.row), 450, '탭')   // 다음 스텝(쿠폰 재선택)의 첫 탭 자리
+    }
+    // 위 블록을 비활성으로 (Figma 271:124668: 이전 요약 줄과 그때 고른 옵션들이 흐려지고 [다시 선택하기] 도 꺼진다)
+    const staleAbove = () => { foldCardRef.current?.classList.add('stale'); optsRef.current?.classList.add('stale') }
+    const unstale = () => { foldCardRef.current?.classList.remove('stale'); optsRef.current?.classList.remove('stale'); replanOutRef.current?.classList.remove('on'); unreveal([...(replanOutRef.current?.children || [])]) }
+    const finalReplan = () => {
+      setReplanIdx(REPLAN_PICK); setWarnBar(false); setConfirmPop(false); hideSheet()
+      staleAbove()
+      const outEl = replanOutRef.current; outEl.classList.add('on'); showNow([...outEl.children])
+    }
     /* ── 14번: 실물 신분증 촬영(밖으로, X-1) → 복귀 → 신원 인증 완료 선 → 납부 방식 → 요금안내서 → 결제 시트 */
     // 14·15번 공통 앞부분: 실물 신분증 촬영(밖) → 복귀 → 신원 인증 완료 선 → 생각 점 → 첫 안내
     const afterIdVerify = async (line, m1) => {
@@ -1541,7 +1589,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     let finalsOnly = true
     const run = (fn) => { finalsOnly = false; return fn() }
     const PARK_FOR = {
-      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(3, OPTS[3].rec), opts2: () => doneChipRef.current,
+      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(3, OPTS[3].rec), opts2: () => doneChipRef.current,
       form: () => fsEl('next'), addr: () => fsEl('next'), contact: () => fsEl('next'), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'),
     }
@@ -1549,7 +1597,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
     const dispatch = () => {
       const upToPenalty = () => { finalUsage(); finalPenalty(); foldFinal() }
-      const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalReselect(); finalOpts2() }
+      const upToReplan = () => { upToPenalty(); finalOpts1(); finalReplan() }
+      const upToOpts2 = () => { upToReplan(); finalReselect(); finalOpts2() }
       const upToForm = () => { upToOpts2(); finalForm() }
       if (payout) {
         if (prevRef.current === 'pay' && !reduced) run(playPayout)
@@ -1594,13 +1643,18 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         prevRef.current = 'opts2'; return
       }
       if (reselect) {
-        if (prevRef.current === 'opts1' && !reduced) run(playReselect)
-        else { resetOpts(3); upToPenalty(); finalOpts1(); finalReselect() }
+        if (prevRef.current === 'replan' && !reduced) run(playReselect)
+        else { resetOpts(3); upToReplan(); finalReselect() }
         prevRef.current = 'reselect'; return
+      }
+      if (replan) {
+        if (prevRef.current === 'opts1' && !reduced) run(playReplan)
+        else { resetReselect(); resetOpts(3); upToPenalty(); finalOpts1(); finalReplan() }
+        prevRef.current = 'replan'; return
       }
       if (opts1) {
         if (prevRef.current === 'penalty' && !reduced) run(playOpts1)
-        else { resetReselect(); resetOpts(3); upToPenalty(); finalOpts1() }
+        else { resetReselect(); resetOpts(3); unstale(); upToPenalty(); finalOpts1() }
         prevRef.current = 'opts1'; return
       }
       if (penalty) {
@@ -1687,8 +1741,13 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             </Card>
           </div>
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
-          <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{planName}</b><em>다시 선택하기</em></div>
+          <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>다시 선택하기</em></div>
 
+          {/* 스텝 8 재선택 결과 (Figma ixGPs9 271:124668): 위 블록은 비활성으로 남고 아래에 변경 안내 + 새 요약 줄이 붙는다 */}
+          <div className="replan-out" ref={replanOutRef}>
+            <AiMessage>요금제가 {planName}에서 {POP_PLANS[REPLAN_PICK].name}으로 변경되었어요.</AiMessage>
+            <div className="plan-fold at-new" ref={foldNewRef}><span className="lbl">{foldLbl}</span><b>{POP_PLANS[REPLAN_PICK].name}</b><em>다시 선택하기</em></div>
+          </div>
           {/* 7~9번: 옵션 순차 선택 (Figma 26:31995 → 26:33289). 추천은 안내문 + '추천' 배지로만, 선택은 포인터 탭 */}
           <div className="opts" ref={optsRef}>
             {OPTS.map((o, i) => (
@@ -1793,6 +1852,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       <div className="sheet" ref={sheetRef}>
         <StatusBar className="pop-status" />
         <div className="appbar"><h3>요금제를 선택해주세요</h3><i className="x" /></div>
+        {/* 재선택(스텝 7) 에서만: 요금제를 바꾸면 뒤 선택이 초기화된다는 안내 띠 (Figma 271:126019) */}
+        {warnBar && <div className="warn-bar">요금제를 변경하면 이후 선택한 항목이 모두 초기화돼요</div>}
         <div className="tabs">{SHEET_TABS.map((t, i) => <span className={i === sheetTab ? 'on' : ''} key={t}>{t}</span>)}</div>
         <div className="list" key={sheetTab}>
           {(sheetTab === 1 ? POP_PLANS_LIGHT : POP_PLANS).map((pl, i) => (
@@ -1811,7 +1872,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         </div>
         <div className="ft">
           <div className="row"><span>선택한 요금제</span><b>{selPlan >= 0 ? POP_PLANS[selPlan].name : ''}</b></div>
-          <div className={`apply ${selPlan >= 0 ? 'ready' : ''}`} ref={applyRef}>적용하기</div>
+          <div className={`apply ${selPlan >= 0 && !(warnBar && selPlan === 0) ? 'ready' : ''}`} ref={applyRef}>적용하기</div>
+        </div>
+        {/* 변경 확인 모달 (Figma 271:126019 마지막 프레임) */}
+        <div className={`confirm-pop ${confirmPop ? 'on' : ''}`} aria-hidden={!confirmPop}>
+          <div className="cp-box">
+            <h4>요금제를 변경하시겠어요?</h4>
+            <p>요금제를 변경하면 이후 Agent와 대화하며 선택한 항목이 모두 초기화돼요.</p>
+            <div className="cp-btns"><span className="no">아니오</span><span className="yes" ref={confirmRef}>네</span></div>
+          </div>
         </div>
       </div>
       {/* 13번: AI 바텀시트 (AiAgentBottomSheet · 글라스) — 1 본인인증 6개 / 2 신원인증 3개. X-2 에서는 시트 안이 토스 화면으로 */}
