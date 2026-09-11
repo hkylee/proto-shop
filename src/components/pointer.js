@@ -4,6 +4,7 @@
 //  P2   : 터치 포인트 — 반투명 손가락 원이 이동, 탭 시 눌리며 링
 //  P3   : 스포트라이트 — 화면이 어두워지고 대상만 밝게, "탭" 라벨, 탭 시 링
 import { wait, restart, scrollTo } from '../lib/motion.js'
+import { SCREEN_W } from '../lib/screen.js'
 
 // 사용자 탭 모드 (html[data-tapmode="user"], 폰 도메인 기본 · 2026-09-10): 시나리오의 모든 탭 지점에서 멈춰 대상 위에 '탭' 안내를 띄우고
 // 사용자가 그 자리를 실제로 탭해야 이어진다. 스텝 끝 대기(park)도 사용자가 탭하면 'ptr-park-tap' 이벤트 → 셸이 다음 스텝으로.
@@ -65,7 +66,7 @@ export default class Pointer {
   }
   waitTap(el) { return new Promise((r) => this._startWait(el, r)) }
   rectOf(el) {
-    const r = el.getBoundingClientRect(), b = this.root.getBoundingClientRect(), k = b.width / 393 || 1
+    const r = el.getBoundingClientRect(), b = this.root.getBoundingClientRect(), k = b.width / SCREEN_W || 1
     return { x: (r.left - b.left) / k, y: (r.top - b.top) / k, w: r.width / k, h: r.height / k }
   }
   setVars(r) {
@@ -106,7 +107,7 @@ export default class Pointer {
     if (!el) return
     if (!userTap()) { this.moveTo(el, dur, label); this.hover(); emit('ptr-park'); return }   // 자동 재생 셸(폰 도메인)은 이 신호로 다음 스텝을 이어간다
     // 사용자 탭 모드: 대상을 화면 안으로 끌어온 뒤 그 자리에서 기다린다. 탭하면 장전 + 셸이 다음 스텝으로
-    const b = this.root.getBoundingClientRect(), k = b.width / 393 || 1
+    const b = this.root.getBoundingClientRect(), k = b.width / SCREEN_W || 1
     revealInto(el, k).then(() => {
       if (!el.isConnected) return
       this.moveTo(el, 0, label); this.hover()

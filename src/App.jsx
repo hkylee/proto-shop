@@ -3,7 +3,7 @@ import data from './data/steps.json'
 import proposalsData from './data/proposals.json'
 import Phone from './components/Phone.jsx'
 import { CONFIRMED } from './lib/variants.js'
-import { SCREEN_H, PHONE_W as PW, BASE_H, MAX_FILL_W as MAX_W, MFIT } from './lib/screen.js'
+import { SCREEN_H, SCREEN_W, BASE_W, BASE_H, MAX_FILL_W as MAX_W, MFIT, MWIDTH, MS as MS0 } from './lib/screen.js'
 
 const { zones, persona } = data
 /* 1·2·3안 (prompt 파일, 2026-09-07): 3안 = 현재 구현(steps.json). 1·2안은 UI 준비 중 → 자리표시 스텝(placeholder 뷰)으로 구조만 보여준다.
@@ -447,28 +447,29 @@ const MFITS = [
   { id: 'F3', label: 'F-3 폭 맞춤 + 하단 고정', desc: '폭을 꽉 채우고 비율(393:852)은 그대로. 넘치는 만큼은 위쪽(상태바·장식)만 잘리고 하단은 항상 보인다. 포인터가 잘린 위쪽을 짚으면 화면이 부드럽게 따라 내려온다' },
   { id: 'F0', label: 'F-0 기존', desc: '폭 맞춤 + 넘치면 스테이지 세로 스크롤 (2026-09-10 배포분)' },
 ]
+const MWIDTHS = [
+  { id: 'W2', label: 'W-2 기기 폭 1:1 유동', desc: '배율 없이 캔버스 폭 = 기기 폭. 좌우 여백 20px 은 그대로 두고 카드·입력창·버튼이 폭에 맞춰 늘고 줄어든다. 글자 크기가 어느 폰에서나 같아 실제 앱과 가장 비슷하다' },
+  { id: 'W1', label: 'W-1 비례 확대·축소', desc: '캔버스는 393 그대로 두고 기기 폭에 맞춰 통째로 확대·축소. 375 에서 0.954 배 — 디자인 비율은 완벽하지만 글자·여백도 함께 4.6% 작아진다' },
+  { id: 'W3', label: 'W-3 1:1 유동 + 393 상한', desc: '작은 폰(≤393)은 W-2 처럼 폭을 다 쓰고, 393 보다 넓은 폰에서는 393 에서 멈추고 가운데 정렬. 디자인이 의도한 최대 폭을 넘지 않는다' },
+]
 const MOBILE_BP = 767
-const PHONE_W = PW, PHONE_H = BASE_H
+const PHONE_W = BASE_W, PHONE_H = BASE_H
 const readFrame = () => { try { const f = JSON.parse(localStorage.getItem('asp.frame')); if (f && f.w >= 320 && f.h >= 480) return f } catch {} return { w: 375, h: 812 } }
 function useFit(chrome, mfit, frame) {
-  const [fit, setFit] = useState({ ms: 1, sh: PHONE_H, fill: true, fw: PHONE_W, fh: PHONE_H })
+  const [fit, setFit] = useState({ ms: 1, sw: SCREEN_W, sh: SCREEN_H, fill: true, fw: PHONE_W, fh: PHONE_H })
   useEffect(() => {
     const f = () => {
       const fill = innerWidth <= MOBILE_BP
-      // 화면(가로·세로)과 안전영역을 뺀 실제 가용 크기
       const vw = fill ? Math.min(innerWidth, MAX_W) : frame.w
       const vh = (fill ? innerHeight : frame.h) - chrome
-      let ms, sh = PHONE_H
+      let ms, sw = PHONE_W, sh = PHONE_H
       if (mfit === 'F1') ms = Math.min(vw / PHONE_W, vh / PHONE_H)
-      else {
-        ms = vw / PHONE_W
-        if (mfit === 'F2') sh = SCREEN_H                                  // 화면 자체가 짧아진다 (유동 높이, 로드 시점 고정 — screen.js)
-        else if (mfit === 'F0') ms = Math.min(ms, 1)
-      }
-      if (fill) { setFit({ ms, sh, fill, fw: innerWidth, fh: innerHeight }); return }
+      else if (mfit === 'F2') { sw = SCREEN_W; sh = SCREEN_H; ms = fill ? MS0 : Math.min(vw / sw, vh / sh) }   // 폭·높이·배율 모두 screen.js 가 로드 시점에 정한 값
+      else { ms = vw / PHONE_W; if (mfit === 'F0') ms = Math.min(ms, 1) }
+      if (fill) { setFit({ ms, sw, sh, fill, fw: innerWidth, fh: innerHeight }); return }
       // 데스크톱: 프리셋 프레임(w×h)을 창에 들어가게 줄이고, 그 안에 폰 화면을 맞춘다
       const k = Math.min((innerHeight - 120) / frame.h, (innerWidth - 48) / frame.w, 1)
-      setFit({ ms: ms * k, sh, fill, fw: frame.w * k, fh: frame.h * k })
+      setFit({ ms: ms * k, sw, sh, fill, fw: frame.w * k, fh: frame.h * k })
     }
     f(); addEventListener('resize', f)
     const vv = window.visualViewport   // 사파리 툴바가 접히고 펴질 때 innerHeight 가 resize 없이 바뀐다
@@ -528,7 +529,7 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
   const [frame, setFrame] = useState(readFrame)
   const [draft, setDraft] = useState(frame)
   const applyFrame = (f) => { const nf = { w: Math.max(320, Math.min(600, Number(f.w) || 375)), h: Math.max(480, Math.min(1200, Number(f.h) || 812)) }; setFrame(nf); setDraft(nf); try { localStorage.setItem('asp.frame', JSON.stringify(nf)) } catch {} }
-  const { ms, sh, fill, fw, fh } = useFit(chrome, mfit, frame)
+  const { ms, sw, sh, fill, fw, fh } = useFit(chrome, mfit, frame)
   const wrapRef = useRef(null)
   usePanFollow(wrapRef, fill && mfit === 'F3', ms, fh - chrome)
   useEffect(() => { setSheet(false) }, [cur, pid])
@@ -540,7 +541,7 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
   const label = `${pid}안 · ${cur + 1}/${n}`
   const Seg = () => <div className="m-seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{q.id}안</button>)}</div>
   return (
-    <div className={`m-root ${fill ? 'fill' : 'desk'} ${sheet ? 'sheet-on' : ''}`} style={{ '--ms': ms, '--sh': `${sh}px`, '--fw': `${fw}px`, '--fh': `${fh}px` }}>
+    <div className={`m-root ${fill ? 'fill' : 'desk'} ${sheet ? 'sheet-on' : ''}`} style={{ '--ms': ms, '--cw': `${sw}px`, '--ch': `${sh}px`, '--fw': `${fw}px`, '--fh': `${fh}px` }}>
       {!fill && (
         <div className="m-controls">
           <span className="lbl">화면 크기</span>
@@ -551,6 +552,7 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
           <button className="apply" onClick={() => applyFrame(draft)}>적용</button>
           <span className="div" />
           <div className="m-seg">{MFITS.map((v) => <button key={v.id} className={v.id === mfit ? 'on' : ''} onClick={() => { const q = new URLSearchParams(location.search); q.set('mf', v.id); location.search = q }} title={v.desc}>{v.id}</button>)}</div>
+          <div className="m-seg">{MWIDTHS.map((v) => <button key={v.id} className={v.id === MWIDTH ? 'on' : ''} onClick={() => { const q = new URLSearchParams(location.search); q.set('mw', v.id); location.search = q }} title={v.desc}>{v.id}</button>)}</div>
           <span className="div" />
           <Seg />
           <span className="cnt num">STEP {cur + 1} / {n}</span>
@@ -718,7 +720,7 @@ export default function App() {
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
   // 모바일 맞춤 시안 (?mf=F1|F2|F3|F0) — 폰 도메인에서도 바로 비교할 수 있게 LAB 게이트 없음
   const [mfitV] = useState(() => MFIT)
-  useEffect(() => { document.documentElement.dataset.mfit = mfitV }, [mfitV])
+  useEffect(() => { document.documentElement.dataset.mfit = mfitV; document.documentElement.dataset.mwidth = MWIDTH }, [mfitV])
   useEffect(() => { document.documentElement.dataset.mshell = mshellV; document.documentElement.classList.toggle('m', mobile) }, [mshellV, mobile])
 
   const scRef = useRef(sc); scRef.current = sc

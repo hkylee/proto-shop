@@ -7,7 +7,7 @@ import { variant } from '../lib/variants.js'
 import { PRE_MSG, PRE_MSG2, PRE_ROWS, PRE_CHIP } from '../data/an2.js'
 import { useSheetOut, SHEET_KEEP_MS } from '../lib/sheet.js'
 import './agent2.css'
-import { SCREEN_H as SH } from '../lib/screen.js'
+import { SCREEN_H as SH, SCREEN_W } from '../lib/screen.js'
 
 /* 2안 · AI Agent 중심 + Bottom Sheet 선택 (Figma ixGPs9IrNB0e2VD2OFEZlB 96:47398, 22장)
    전체 흐름과 등장 리듬은 3안(AgentChat)과 같다. 다른 점 하나: 선택이 필요한 모듈은 대화 안에 깔지 않고 **바텀 모달(시트)** 로 올려 고르고,
@@ -240,7 +240,7 @@ export default function AgentChat2({ stage = 'usage' }) {
     // T0 (사용자 2026-09-10 "5GX 컴포가 바닥에 뜰 때부터 ∨ 가 뜨다가, 모달이 뜨면 그게 올라가는 식"): 응답이 화면 아래쪽(SearchAi 위 12px 선) 아래로 걸치면 그 순간 SearchAi 위 88px 에 ∨ 가 뜬다
     const armKnobEarly = (el) => {
       const K = variant('knob'); if (!el || !K || K === 'off' || variant('knobtime') !== 'T0') return
-      const root = rootRef.current.getBoundingClientRect(), k = root.width / 393 || 1
+      const root = rootRef.current.getBoundingClientRect(), k = root.width / SCREEN_W || 1
       const elBottom = (el.getBoundingClientRect().bottom - root.top) / k
       if (elBottom > SCREEN_H - SEARCH_BOTTOM - 52 - 12) { setKnobBase('search'); setKnobUp(false); setKnob(true) }
     }
@@ -248,7 +248,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       knobOverRef.current = 0
       const K = variant('knob'); if (!el || !K || K === 'off' || !sheetRef.current) return false
       await new Promise(afterLayout); if (!alive()) return false          // 시트 내용이 그려진 뒤 높이를 잰다 (아직 화면 밖)
-      const root = rootRef.current.getBoundingClientRect(), k = root.width / 393 || 1
+      const root = rootRef.current.getBoundingClientRect(), k = root.width / SCREEN_W || 1
       const h = sheetRef.current.offsetHeight, finalTop = SCREEN_H - 20 - h
       const elBottom = (el.getBoundingClientRect().bottom - root.top) / k
       const over = elBottom - finalTop + 8                                 // 응답 하단이 시트(최종 자리) 상단 아래로 들어갈 만큼

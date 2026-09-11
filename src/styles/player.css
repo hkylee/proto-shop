@@ -279,8 +279,8 @@ html[data-mfit="F0"] .m-root.fill .m-stage { overflow-y: auto; overflow-x: hidde
 .m-hint { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%) translateY(-6px); z-index: 16; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(6,12,31,.7); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -.02em; display: flex; align-items: center; gap: 6px; opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap; }
 .m-hint.on { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
 .m-tap-top { position: absolute; top: 0; left: 25%; right: 25%; height: 56px; z-index: 15; -webkit-tap-highlight-color: transparent; }
-.m-stage .phone-wrap { position: relative; width: calc(393px * var(--ms)); height: calc(var(--sh, 852px) * var(--ms)); flex: none; max-width: 100%; }
-.m-stage .phone { position: absolute; left: 0; top: 0; width: 393px; height: var(--sh, 852px); transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.m-stage .phone-wrap { position: relative; width: calc(var(--cw, 393px) * var(--ms)); height: calc(var(--ch, 852px) * var(--ms)); flex: none; max-width: 100%; }
+.m-stage .phone { position: absolute; left: 0; top: 0; width: var(--cw, 393px); height: var(--ch, 852px); transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
 .m-stage .phone .screen { inset: 0; border-radius: 40px; }
 .m-stage .phone .island { display: none; }
 .m-root.fill .m-stage .phone, .m-root.fill .m-stage .phone .screen { border-radius: 0; box-shadow: none; }   /* 실제 폰: 화면이 곧 기기 */
@@ -368,7 +368,7 @@ html[data-mfit="F3"] .m-root.fill .m-stage::before { content: ""; position: abso
 .m-controls .cnt { font-weight: 600; color: #555; }
 .m-root.desk .m-stage { align-items: center; }
 .m-root.desk .m-stage .phone-wrap { width: var(--fw); height: var(--fh); background: #0B0F1E; border-radius: 40px; box-shadow: 0 24px 48px rgba(0,0,0,.25), 0 8px 16px rgba(0,0,0,.12); overflow: hidden; }
-.m-root.desk .m-stage .phone { left: calc((var(--fw) - 393px * var(--ms)) / 2); top: calc((var(--fh) - 852px * var(--ms)) / 2); border-radius: 0; box-shadow: none; }
+.m-root.desk .m-stage .phone { left: calc((var(--fw) - var(--cw, 393px) * var(--ms)) / 2); top: calc((var(--fh) - var(--ch, 852px) * var(--ms)) / 2); border-radius: 0; box-shadow: none; }
 .m-root.desk .m-stage .phone .screen { border-radius: 0; }
 .m-root.desk .m-stage .done-toast { bottom: calc(46px * var(--ms)); }
 

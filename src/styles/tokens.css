@@ -1,6 +1,7 @@
 /* NEXT Platform DS tokens — values read from Figma AiChat frame (oWim7Vh2m7pYSq0NiKHWAM / 11855:96463) */
 :root {
-  --sh: 852px;   /* 폰 화면 높이. 모바일 맞춤 F-2 에서 App 이 실제 뷰포트 높이로 덮어쓴다 */
+  --cw: 393px;  /* 폰 화면 폭. 폭 시안 W-2/W-3 에서 App 이 기기 폭으로 덮어쓴다 */
+  --ch: 852px;   /* 폰 화면 높이. 모바일 맞춤 F-2 에서 App 이 실제 뷰포트 높이로 덮어쓴다 */
   /* bg */
   --bg-basement: #E2E6F1;            /* bg/layer/basement */
   --bg-neutral-subtle: rgba(0, 38, 140, 0.08);

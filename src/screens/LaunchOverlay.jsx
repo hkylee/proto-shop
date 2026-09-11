@@ -4,6 +4,7 @@ import { SearchAi, Keyboard, SEARCH_BOTTOM_KB, useTyped } from './AgentShell.jsx
 import { IcoWon } from '../components/Icons.jsx'
 import { variant } from '../lib/variants.js'
 import { afterLayout } from '../lib/motion.js'
+import { SCREEN_W } from '../lib/screen.js'
 
 // 스텝 3 Agent 실행 = 상품 상세 위에 딤 + 추천 발화 칩 + SearchAi + 키패드 오버레이 (Figma 12769:43212)
 // 페이지 전환 없이 상품 상세(ProductDetail)가 그대로 남고, 그 위에 이 레이어가 올라온다. html[data-launch]
@@ -24,7 +25,7 @@ export default function LaunchOverlay({ typed = '' }) {
     if (v === 'L3' && root) {
       const btn = root.parentElement?.querySelector('.ai-btn')
       if (btn) {
-        const r = btn.getBoundingClientRect(), b = root.getBoundingClientRect(), k = b.width / 393 || 1
+        const r = btn.getBoundingClientRect(), b = root.getBoundingClientRect(), k = b.width / SCREEN_W || 1
         setFrom({ left: (r.left - b.left) / k, bottom: (b.bottom - r.bottom) / k, w: r.width / k, h: r.height / k })
       }
     }

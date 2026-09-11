@@ -8,6 +8,7 @@ import { variant } from '../lib/variants.js'
 import { wait, scrollTo, tween, inOut, inOutSine, inOutQuart, cubicOut, outExpo, reducedMotion } from '../lib/motion.js'
 import './product2.css'
 import './product1.css'
+import { SCREEN_W } from '../lib/screen.js'
 
 /* 1안 · Static 중심 + AI 일시 호출 — 상품 상세 (3안 v2 화면 구조 그대로, Figma T1mhl… 10547:16625)
    E-1 배지 + 팬: T+ 버튼이 입력창으로 모핑 → 질의 → 입력창 위 답변 스트립 → 페이지의 추천 항목에 [AI 추천] 배지 →
@@ -201,7 +202,7 @@ export default function ProductDetail1({ stage = 'top' }) {
     }
     // 대상이 스트립에 가리면 그만큼만 위로 (E 고도화 공통 규칙). 섹션 상단 정렬을 깨지 않는 범위에서
     const panForStrip = async (targetEl) => {
-      const root = rootRef.current.getBoundingClientRect(), k = root.width / 393 || 1
+      const root = rootRef.current.getBoundingClientRect(), k = root.width / SCREEN_W || 1
       const t = targetEl.getBoundingClientRect(), s = stripRef.current.getBoundingClientRect()
       const over = (t.bottom - (s.top - 16)) / k
       if (over > 4) { await scrollTo(el, el.scrollTop + over, 500, inOut) }

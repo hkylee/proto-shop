@@ -837,7 +837,33 @@ html[data-zippop="Z3"] .sheet.zip { transform: translateY(46%) scale(.92); trans
 html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radius: 0; }
 
 
-/* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 높이를 그대로 쓰던 자리만 실제 화면 높이(--sh)로 ──
+/* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 높이를 그대로 쓰던 자리만 실제 화면 높이(--ch)로 ──
    나머지는 위(top)·아래(bottom) 한쪽에 붙어 있어 높이가 줄어도 자리가 맞는다.
    특히 .suggest-stack / .launch-ov .stack 의 bottom 384 는 키패드(310)+SearchAi(52)+13 이라 비례시키면 안 된다(고정 유지). */
-html[data-mfit="F2"] .scroll-ind { height: calc(var(--sh, 852px) - 291px); }    /* 776 − 199 − 16 = 852 − 291 */
+html[data-mfit="F2"] .scroll-ind { height: calc(var(--ch, 852px) - 291px); }    /* 776 − 199 − 16 = 852 − 291 */
+
+
+/* ── 폭 유동 (html[data-mwidth="W2"] · "W3", 2026-09-11): 캔버스 폭이 393 이 아닐 때 ──────────────
+   393 캔버스를 전제로 찍힌 353px(= 393 − 좌우 20) 폭을 컨테이너 기준으로 바꾼다.
+   .chat-scroll 은 이미 좌우 20 패딩이라 그 안에서는 width:100%, 캔버스에 직접 붙은 것은 calc(100% − 40px). */
+html[data-mwidth="W2"] .ai-card, html[data-mwidth="W3"] .ai-card,
+html[data-mwidth="W2"] .ai2 .t2-result, html[data-mwidth="W3"] .ai2 .t2-result,
+html[data-mwidth="W2"] .ai2 .turn2.plan-res, html[data-mwidth="W3"] .ai2 .turn2.plan-res,
+html[data-mwidth="W2"] .ai-screen.an2 .alt > .an2-hist, html[data-mwidth="W3"] .ai-screen.an2 .alt > .an2-hist,
+html[data-mwidth="W2"] .ai-screen.an2 .an2-hist .t2-bubble, html[data-mwidth="W3"] .ai-screen.an2 .an2-hist .t2-bubble,
+html[data-mwidth="W2"] .ai2 .rec-wrap, html[data-mwidth="W3"] .ai2 .rec-wrap,
+html[data-mwidth="W2"] .pay2 .p2-result, html[data-mwidth="W3"] .pay2 .p2-result,
+html[data-mwidth="W2"] html:not([data-flat="C0"]) .ai-card.flatable .plan-card,
+html[data-mwidth="W2"] .ai-card.flatable .plan-card, html[data-mwidth="W3"] .ai-card.flatable .plan-card { width: 100%; box-sizing: border-box; }
+/* 캔버스에 직접 붙은 것 — 폭이 애니메이션되므로 auto 가 아니라 calc 로 */
+html[data-mwidth="W2"] .search-ai, html[data-mwidth="W3"] .search-ai { width: calc(100% - 40px); }
+html[data-mwidth="W2"] .pd1.dock-open .dock, html[data-mwidth="W2"] .pd1.dock-sent .dock,
+html[data-mwidth="W3"] .pd1.dock-open .dock, html[data-mwidth="W3"] .pd1.dock-sent .dock { width: calc(100% - 40px); }
+html[data-mwidth="W2"] .pd1 .amb-chip, html[data-mwidth="W3"] .pd1 .amb-chip { max-width: 100%; }
+/* A-1 가로 캐러셀: 좌우 20 여백 밖으로 흘리는 폭 = 컨테이너 + 40 */
+html[data-mwidth="W2"] .altcard-A1 .alt-cards, html[data-mwidth="W3"] .altcard-A1 .alt-cards { width: calc(100% + 40px); }
+/* 좁은 기기에서 캐러셀 카드가 화면을 넘지 않게 (300 고정 → 화면 폭 − 93) */
+@media (max-width: 380px) {
+  html[data-mwidth="W2"] .ai-card.flatable.altcard-A1 .plan-card,
+  html[data-mwidth="W2"] .pd2 .plan-carousel .plan-card { width: min(300px, calc(100vw - 93px)); }
+}
