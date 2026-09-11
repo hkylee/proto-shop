@@ -1,0 +1,838 @@
+/* ── AI 화면 (393×852 기준, Figma AiChat 프레임 값) ─────────────────────── */
+.ai-screen { position: absolute; inset: 0; background: var(--bg-basement); color: var(--fg-neutral-solid); overflow: hidden; font-family: var(--font); }
+
+/* background glow anchors (Figma: 3 × 400px, top -250/-180/-220) */
+.ai-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.ai-bg .anchor { position: absolute; width: 560px; height: 560px; }
+.ai-bg .a1 { left: calc(50% + 3.5px - 280px); top: -330px; }
+.ai-bg .a2 { left: calc(50% - 208.5px - 280px); top: -260px; }
+.ai-bg .a3 { left: calc(50% + 223.5px - 280px); top: -300px; }
+
+/* Figma 11996:22260 (498px 프레임 → 393 환산): status 59 · appbar 48 (top 59) · con top 124 · 채팅 시작 199 · SearchAi 353×52 bottom 24 */
+.ai-status { position: relative; z-index: 2; height: 59px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 18px; font: 600 17px/21px -apple-system, "SF Pro Text", var(--font); letter-spacing: -.4px; }
+.ai-status img { height: 13px; }
+
+.appbar-ai { position: relative; z-index: 2; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.appbar-ai .left { display: flex; align-items: center; gap: 6px; }
+.btn-icon-ai { width: 44px; height: 44px; border-radius: 999px; background: var(--bg-ai-subtle); box-shadow: var(--shadow-ai); display: grid; place-items: center; backdrop-filter: blur(20px); }
+.contextual-chip { height: 42px; padding: 0 18px; border-radius: 999px; background: var(--bg-ai-subtle); border: 1px solid var(--border-ai-subtle); box-shadow: var(--shadow-ai); display: flex; align-items: center; font-size: 14px; font-weight: 500; letter-spacing: -.04em; backdrop-filter: blur(20px); }
+
+.ctx-header { position: relative; z-index: 2; margin-top: 17px; padding: 12px 30px; display: flex; align-items: center; gap: 12px; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.05)); }
+.ctx-header .ico { padding: 4px; }
+.ctx-header .ico img { width: 28px; height: 28px; display: block; }
+.ctx-header .main { font-size: 14px; font-weight: 600; letter-spacing: -.02em; color: rgba(16,16,16,.8); line-height: 1.3; }
+.ctx-header .sub { display: flex; gap: 4px; font-size: 12px; font-weight: 500; color: rgba(16,16,16,.6); letter-spacing: -.02em; line-height: 1.3; margin-top: 2px; }
+
+/* Agent home */
+.greeting { position: absolute; left: 20px; top: 211px; width: 270px; font-size: 19px; font-weight: 500; line-height: 30px; letter-spacing: -.05em; color: rgba(6,12,31,.5); z-index: 2; }
+.suggest-stack { position: absolute; left: 20px; bottom: 384px; display: flex; flex-direction: column; gap: 8px; z-index: 2; }
+.button-ai { display: inline-flex; align-items: center; gap: 4px; padding: 12px 20px 12px 18px; border-radius: 999px; background: var(--bg-ai-subtle); border: 1px solid var(--border-ai-subtle); box-shadow: var(--shadow-chip); font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; white-space: nowrap; backdrop-filter: blur(20px); width: fit-content; }
+
+/* SearchAi (Figma 12349:37312): 353×52 · pl 24 pr 20 · 입력영역[AI 16 · gap 8 · 텍스트] · gap 16 · 음성 24. 가운데 정렬은 margin auto (포인터 눌림과 충돌 없음) */
+.search-ai { position: absolute; left: 0; right: 0; margin: 0 auto; width: 353px; height: 52px; padding: 0 20px 0 24px; border-radius: 999px; background: rgba(255,255,255,.5); box-shadow: var(--shadow-ai); display: flex; align-items: center; gap: 16px; z-index: 3; backdrop-filter: blur(20px); box-sizing: border-box; }
+.search-ai .input { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.search-ai .spark, .search-ai .voice { flex: none; display: inline-block; }
+.search-ai .field { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-ai .field.filled { color: var(--fg-neutral-solid); }
+.search-ai .caret { display: inline-block; width: 1.5px; height: 18px; background: var(--blue-600); vertical-align: -3px; margin-left: 1px; animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+
+.keyboard { position: absolute; left: 0; right: 0; bottom: 0; height: 310px; background: rgba(233,235,251,.9); border-radius: 26px 26px 0 0; padding: 12px 3px 0; display: flex; flex-direction: column; gap: 10px; z-index: 2; backdrop-filter: blur(20px); }
+.krow { display: flex; justify-content: center; gap: 6px; }
+.key { width: 33px; height: 42px; border-radius: 6px; background: #fff; box-shadow: 0 1px 0 rgba(0,0,0,.3); display: grid; place-items: center; font: 400 22px/1 -apple-system, "SF Pro Text", var(--font); color: #000; }
+.key.wide { width: 42px; background: #ADB3BE; font-size: 18px; }
+.krow.r2 .key.wide:first-child { margin-right: 6px; }
+.krow.r2 .key.wide:last-child { margin-left: 6px; }
+.key.abc { width: 87px; background: #ADB3BE; font-size: 16px; }
+.key.space { width: 182px; }
+.key.ret { width: 87px; background: var(--blue-600); color: #fff; font-size: 18px; }
+.kfoot { display: flex; justify-content: space-between; padding: 14px 38px 0 35px; }
+.kfoot img { height: 27px; }
+
+.home-ind { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; justify-content: center; z-index: 4; }
+.home-ind i { width: 134px; height: 5px; border-radius: 100px; background: #000; display: block; }
+
+/* Agent chat */
+/* 고정 헤더: 59+48+17+60 = 184. 완전 불투명(basement + 글로우 복제)이라 올라오는 본문은 184 에서 완벽히 가려짐. 채팅 시작 199 */
+.ai-header-fixed { position: absolute; left: 0; right: 0; top: 0; z-index: 3; background: var(--bg-basement); overflow: hidden; }
+.ai-header-fixed .ai-bg { z-index: 0; }
+.ai-header-fixed > :not(.ai-bg) { position: relative; }
+.bottom-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(226,230,241,0), rgba(226,230,241,.9) 60%); }
+.chat-scroll { position: absolute; inset: 0; padding: 199px 20px 0; overflow-y: auto; scrollbar-width: none; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+.chat-scroll::-webkit-scrollbar { display: none; }
+
+.msg-user { display: flex; justify-content: flex-end; width: 100%; }
+.msg-user span { max-width: 276px; padding: 12px 18px; border-radius: 20px; background: var(--bg-neutral-subtle); font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; word-break: keep-all; }
+.msg-ai { margin: 12px 0 15px; padding: 0 24px 0 12px; font-size: 15px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
+
+.opening { margin-top: 23px; padding: 0 24px 0 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; flex: none; }
+
+/* ── 공통 등장 규칙: 말풍선 → 타이틀 → 타이틀 접힘 → 텍스트 → 컴포넌트 순차 ──
+   질감은 html[data-reveal="S1|S2|S3"] 로 바뀜 (시안 비교용). 타이밍은 AgentChat.jsx REVEAL 표 */
+:root { --rv-dur: .7s; --rv-y: 4px; --rv-blur: 0px; --rv-scale: 1; --rv-ease: cubic-bezier(.65,0,.35,1); }
+html[data-reveal="S2"] { --rv-dur: .6s; --rv-y: 6px; --rv-blur: 0px; --rv-scale: .985; --rv-ease: cubic-bezier(.22,1,.36,1); }
+html[data-reveal="S3"] { --rv-dur: .55s; --rv-y: 16px; --rv-blur: 6px; --rv-scale: 1; --rv-ease: cubic-bezier(.16,1,.3,1); }
+.chat-scroll > .s5, .ai-screen .rec > *, .alt > *, .ben > *, .dis > * {
+  opacity: 0; transform: translateY(var(--rv-y)) scale(var(--rv-scale)); filter: blur(var(--rv-blur));
+  transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease), filter var(--rv-dur) var(--rv-ease);
+}
+.chat-scroll > .s5.in, .ai-screen .rec > .in, .alt > .in, .ben > .in, .dis > .in { opacity: 1; transform: none; filter: none; }
+/* 7번 후반(추가혜택) · 8번(할인방법) 턴 컨테이너 (자식이 개별 등장) */
+.alt > .ben, .alt > .dis, .alt > .pen, .alt > .stream, .stream > .strm-turn, .alt > .opts, .opts > .opt-turn, .alt > .form, .alt > .addr, .alt > .review, .alt > .auth, .alt > .pay { opacity: 1; transform: none; filter: none; transition: none; display: none; flex-direction: column; gap: 8px; }
+.alt > .ben.on, .alt > .dis.on, .alt > .pen.on, .alt > .stream.on, .stream > .strm-turn.on, .alt > .opts.on, .opts > .opt-turn.on, .alt > .form.on, .alt > .addr.on, .alt > .review.on, .alt > .auth.on, .alt > .pay.on { display: flex; }
+.pen > *, .strm-turn > *, .opt-turn > *, .form > *, .addr > *, .review > *, .auth > *, .pay > * { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+.pen > .in, .strm-turn > .in, .opt-turn > .in, .form > .in, .addr > .in, .review > .in, .auth > .in, .pay > .in { opacity: 1; transform: none; }
+.pen .msg-user { margin-top: 16px; }
+/* 위약금 답변 카드 (Figma 12370:42010): CellRightTable 3행(15reg) · DividerInset · 예상 할인 반환금(18Semi) */
+.ai-card.kvcard { gap: 14px; }
+.ai-card.kvcard .kv { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 15px; line-height: 20px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.ai-card.kvcard .kv b { font-weight: 400; color: var(--fg-neutral-mute); }
+.ai-card.kvcard .divider { margin: 2px 0; }
+.ai-card.kvcard .kv.total { font-size: 16px; font-weight: 600; color: var(--fg-neutral-solid); }
+.ai-card.kvcard .kv.total b { font-size: 18px; font-weight: 600; color: var(--fg-neutral-solid); }
+/* Y-2 표 행 순차: 행이 60ms 간격으로 맺히고 결론 행이 살짝 튀어오름 */
+.ai-card.kvcard.rows-seq > * { opacity: 0; transform: translateY(4px); }
+.ai-card.kvcard.rows-seq.in > * { animation: kvIn .32s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(.25s + var(--i) * 60ms); }
+.ai-card.kvcard.rows-seq.in > .kv.total { animation: kvPop .5s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(.25s + 4 * 60ms + .12s); }
+@keyframes kvPop { 0% { opacity: 0; transform: translateY(6px) scale(.98); } 60% { opacity: 1; transform: translateY(-2px) scale(1.02); } 100% { opacity: 1; transform: none; } }
+/* Y-3 복귀: 원래 할인 카드가 한 번 빛남 */
+.ai-card.hl-card { animation: cardHl 1.2s cubic-bezier(.65,0,.35,1) both; }
+@keyframes cardHl { 0% { box-shadow: 0 0 0 0 rgba(75,89,255,0); } 30% { box-shadow: 0 0 0 4px rgba(75,89,255,.35); } 100% { box-shadow: 0 0 0 0 rgba(75,89,255,0); } }
+/* 10번 키패드: 아래에서 0.35s 상승/하강. SearchAi 는 bottom 전환으로 키보드 위로 올라간다 */
+/* 키패드 상승/하강: iOS 키보드처럼 빠르게 출발해 길게 감속 (0.5s quint-out). 입력창 이동·스크림도 같은 곡선으로 묶어 한 동작으로 */
+:root { --kb-ms: .5s; --kb-ease: cubic-bezier(.22,1,.36,1); }
+.keyboard.slide { transform: translateY(100%); transition: transform var(--kb-ms) var(--kb-ease); z-index: 3; will-change: transform; }
+.keyboard.slide.on { transform: none; }
+.ai-screen .search-ai { transition: bottom var(--kb-ms) var(--kb-ease), height .3s cubic-bezier(.65,0,.35,1), border-radius .3s cubic-bezier(.65,0,.35,1); }
+/* 대화 중 키패드 열림 — 기존 채팅과의 연속성 시안 (html[data-kbfx]) */
+/* K-1 밀어올리기: 채팅 영역 자체가 키보드 높이만큼 줄어들어(inset-bottom 0→310) 마지막 카드가 SearchAi 위로 그대로 따라 올라옴. 하단 페이드도 함께 이동 */
+.chat-scroll, .bottom-fade { transition: bottom var(--kb-ms) var(--kb-ease); }
+html[data-kbfx="K1"] .ai-screen.kb .chat-scroll { bottom: 310px; }
+html[data-kbfx="K1"] .ai-screen.kb .bottom-fade { bottom: 310px; }
+/* K-2 살짝 물러남: 채팅은 제자리에 두고 헤더 아래에 옅은 스크림(18%)이 깔려 입력에 집중. 보내면 스크림이 걷힘 */
+/* 전체 딤: 헤더(앱바·컨텍스트 헤더)까지 함께 가린다. 입력창과 키패드만 딤 위에 남음 */
+.kb-scrim { position: absolute; inset: 0; z-index: 4; background: rgba(6,12,31,.18); opacity: 0; pointer-events: none; transition: opacity var(--kb-ms) var(--kb-ease); }
+html[data-kbfx="K2"] .ai-screen.kb .kb-scrim { opacity: 1; }
+.ai-screen.kb .search-ai, .ai-screen.kb .keyboard.slide { z-index: 5; }
+/* K-3 입력창 확장: 탭하면 알약이 2줄 컴포저(높이 52→88, radius 28)로 자라고 'T에게 질문' 라벨이 위에 붙음. 보내면 다시 알약으로 */
+html[data-kbfx="K3"] .ai-screen.kb .search-ai { height: 88px; border-radius: 28px; align-items: flex-start; padding-top: 14px; }
+html[data-kbfx="K3"] .ai-screen.kb .search-ai .input { flex-direction: column; align-items: flex-start; gap: 6px; }
+html[data-kbfx="K3"] .ai-screen.kb .search-ai .input::before { content: "T에게 질문"; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--fg-neutral-subtle); }
+html[data-kbfx="K3"] .ai-screen.kb .search-ai .spark { display: none !important; } /* 아이콘 박스의 인라인 display 를 덮어씀 */
+html[data-kbfx="K3"] .ai-screen.kb .search-ai .field { white-space: normal; line-height: 22px; max-height: 44px; }
+html[data-kbfx="K3"] .ai-screen.kb .search-ai .voice { margin-top: 2px; }
+/* 9번 재선택: 아래 턴 안내문 갱신 표현 (R-2 하이라이트 · R-3 재계산) */
+.msg-ai.recalc { opacity: .25 !important; filter: blur(2px) !important; transition: opacity .3s cubic-bezier(.65,0,.35,1), filter .3s cubic-bezier(.65,0,.35,1); }
+.msg-ai.hl { animation: msgHl 1.4s cubic-bezier(.65,0,.35,1) both; border-radius: 12px; }
+@keyframes msgHl { 0% { background: var(--blue-100); } 35% { background: var(--blue-100); } 100% { background: transparent; } }
+
+/* 9번 세부 시안 — ① 제스처: G-2 스크롤 인디케이터 · G-3 앵커 칩 */
+.scroll-ind { position: absolute; right: 4px; top: 207px; width: 3px; height: calc(776px - 199px - 16px); z-index: 4; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.scroll-ind.on { opacity: 1; }
+.scroll-ind i { display: block; width: 3px; border-radius: 2px; background: rgba(6,12,31,.35); }
+/* 등장은 transform, 눌림은 개별 속성(translate/scale)으로 — 서로 덮어쓰지 않아 어느 위치 방식이든 안전 */
+.jump-chip { position: absolute; left: 0; right: 0; width: fit-content; margin: 0 auto; top: 212px; transform: translateY(-8px); z-index: 4; padding: 10px 16px; border-radius: 999px; background: var(--fg-neutral-solid); color: #fff; font-size: 13px; font-weight: 500; letter-spacing: -.03em; box-shadow: 0 6px 20px rgba(6,12,31,.18); opacity: 0; pointer-events: none; transition: opacity .3s cubic-bezier(.65,0,.35,1), transform .3s cubic-bezier(.65,0,.35,1), translate .16s cubic-bezier(.2,.8,.2,1), scale .16s cubic-bezier(.2,.8,.2,1), box-shadow .16s cubic-bezier(.2,.8,.2,1), background .18s; }
+.jump-chip.on { opacity: 1; transform: none; }
+.jump-chip.down { top: auto; bottom: 96px; transform: translateY(8px); }
+.jump-chip.down.on { transform: none; }
+.jump-chip.near { transform: translateY(-6px); }                 /* K-1: 탭한 row 바로 아래 (top 은 JS) */
+.jump-chip.near.on { transform: none; }
+/* 칩 눌림 반응 시안 (html[data-chipfx]) — E-1 은 공통 .pressing(scale .97) 그대로 */
+/* E-2 (확정) 꾹 눌림: 아래로 3px 내려앉고 0.96, 그림자가 짧아져 표면에 눌린 느낌 → 떼면 살짝 튀어 올라오며 페이드 */
+html[data-chipfx="E2"] .jump-chip.pressing { translate: 0 3px; scale: .96; box-shadow: 0 2px 6px rgba(6,12,31,.22); background: #1a2140; }
+html[data-chipfx="E2"] .jump-chip.release { translate: 0 -2px; scale: 1.01; }
+html[data-chipfx="E3"] .jump-chip.pressing { translate: 0 2px; scale: .94; }
+html[data-chipfx="E3"] .jump-chip.absorb { opacity: 0; translate: 0 14px; scale: .9; transition: opacity .28s cubic-bezier(.65,0,.35,1), translate .28s cubic-bezier(.65,0,.35,1), scale .28s cubic-bezier(.65,0,.35,1); } /* E-3 아래로 흡수 */
+.row-link { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: var(--fg-neutral-solid); color: #fff; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: -.03em; white-space: nowrap; opacity: 0; transform: translateX(6px); transition: opacity .25s cubic-bezier(.65,0,.35,1), transform .25s cubic-bezier(.65,0,.35,1); }
+.row-link.on { opacity: 1; transform: none; }
+/* ③ V-1 고도화: 문장 나머지의 움직임 */
+.msg-ai.morph-blur { filter: blur(1.6px); transform: scale(.985); transform-origin: left center; transition: filter .25s cubic-bezier(.65,0,.35,1), transform .25s cubic-bezier(.65,0,.35,1); }
+.msg-ai .ripple { display: inline-block; animation: ripple .55s cubic-bezier(.22,1,.36,1) both; }
+@keyframes ripple { 0% { transform: translateY(0); opacity: 1; } 35% { transform: translateY(-3px); opacity: .55; } 100% { transform: translateY(0); opacity: 1; } }
+/* ③ 가변 텍스트 {요금제명} 교체 */
+.plan-var { display: inline-block; vertical-align: bottom; transition: opacity .25s cubic-bezier(.65,0,.35,1), transform .35s cubic-bezier(.22,1,.36,1); }
+.plan-var.fade-out { opacity: 0; transform: translateY(-4px); }
+.plan-var.fade-in { animation: varIn .35s cubic-bezier(.22,1,.36,1) both; }
+@keyframes varIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.plan-var.typing::after { content: ""; display: inline-block; width: 1.5px; height: 1em; margin-left: 1px; background: var(--fg-neutral-solid); vertical-align: -2px; animation: caret 1s steps(1) infinite; }
+.plan-var.roll { position: relative; height: 24px; overflow: hidden; vertical-align: bottom; }
+.plan-var.roll i { display: block; font-style: normal; line-height: 24px; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.plan-var.roll i.new { position: absolute; left: 0; top: 0; transform: translateY(100%); }
+.plan-var.roll.go i.old { transform: translateY(-100%); }
+.plan-var.roll.go i.new { transform: none; }
+.plan-var.mark { box-shadow: inset 0 -2px 0 var(--fg-neutral-solid); animation: markOut .9s cubic-bezier(.65,0,.35,1) .3s both; }
+@keyframes markOut { to { box-shadow: inset 0 -2px 0 transparent; } }
+
+/* 8번 할인방법 RadioCard: 우측 총액(medium) + '자세히 보기 ⌄' (Figma 12132:34343) */
+.plan-row .price.total { font-weight: 500; }
+.plan-row .more { display: flex; align-items: center; gap: 2px; font-size: 14px; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.plan-row .more img { width: 24px; height: 24px; transition: transform .3s cubic-bezier(.65,0,.35,1); }
+.plan-row.open .more img { transform: rotate(180deg); }
+/* 아코디언 상세 (Figma 12132:39475) — 공통: grid-template-rows 0fr→1fr 로 높이가 접히고 펼쳐짐(0.35s) */
+.plan-row .acc-badge { display: inline-block; width: fit-content; padding: 3px 7px; border-radius: 5px; background: var(--blue-50); color: var(--blue-600); font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.03em; margin-bottom: 6px; }
+.plan-row .detail { display: grid; grid-template-rows: 0fr; overflow: hidden; transition: grid-template-rows .35s cubic-bezier(.65,0,.35,1); width: 100%; }
+.plan-row.open .detail { grid-template-rows: 1fr; }
+.plan-row .detail-in { min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+.plan-row .detail-in .divider { height: 1px; background: var(--border-neutral-weak); margin: 12px 0 2px; }
+.plan-row .kv { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.plan-row .kv b { font-weight: 600; color: var(--fg-neutral-solid); white-space: nowrap; }
+.plan-row .kv-group { display: none; }
+/* X-1 인라인 펼침(기본): 상세 행이 한 덩어리로 페이드 */
+.plan-row .detail-in > * { opacity: 0; transition: opacity .25s cubic-bezier(.65,0,.35,1) .1s; }
+.plan-row.open .detail-in > * { opacity: 1; }
+/* X-2 묶음 순차: 소제목 2개가 붙고, 행이 위→아래 40ms 간격으로 차례로 맺힘 */
+html[data-acc="X2"] .plan-row .kv-group { display: block; font-size: 12px; font-weight: 600; letter-spacing: -.02em; color: var(--fg-neutral-subtle); margin: 4px 0 -6px; }
+html[data-acc="X2"] .plan-row .detail-in > * { transition: none; transform: translateY(4px); }
+html[data-acc="X2"] .plan-row.open .detail-in > .kv { animation: kvIn .32s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(.12s + var(--i) * 40ms); }
+html[data-acc="X2"] .plan-row.open .detail-in > .divider, html[data-acc="X2"] .plan-row.open .detail-in > .kv-group { animation: kvIn .3s cubic-bezier(.22,1,.36,1) .1s both; }
+@keyframes kvIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+/* X-3 집중: 하나가 펼쳐지면 나머지 항목은 한 줄로 얇아지고 살짝 옅어져, 펼친 항목이 카드의 주인공이 됨 */
+html[data-acc="X3"] .plan-row.acc { transition: padding .35s cubic-bezier(.65,0,.35,1), opacity .35s cubic-bezier(.65,0,.35,1), border-color .35s; }
+html[data-acc="X3"] .plan-row.acc .more { transition: opacity .25s, max-height .35s cubic-bezier(.65,0,.35,1); max-height: 24px; overflow: hidden; }
+html[data-acc="X3"] .ai-card.benefits:has(.plan-row.open) .plan-row.acc:not(.open) { padding-top: 12px; padding-bottom: 12px; opacity: .55; }
+html[data-acc="X3"] .ai-card.benefits:has(.plan-row.open) .plan-row.acc:not(.open) .more { max-height: 0; opacity: 0; }
+html[data-acc="X3"] .plan-row.acc.open { border-color: var(--fg-neutral-solid); box-shadow: 0 10px 28px rgba(6,12,31,.08); }
+.ai-card.benefits { gap: 5px; }
+.ai-card.benefits .plan-row + .plan-row { margin-top: 0; }
+/* 카드 상단 CellTitle(22.8 semibold) + CellDescription(17.7 mute) — Figma 12120:34071 · 12132:37495. 아래 리스트와 16px */
+.card-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 11px; width: 100%; }
+.card-head h3 { margin: 0; font-size: 22.8px; font-weight: 600; line-height: 30px; letter-spacing: -.05em; color: var(--fg-neutral-solid); word-break: keep-all; } /* '5GX 프라임 플러스'처럼 긴 요금제명은 줄바꿈 (Figma 는 1줄 말줄임이지만 이름이 잘리면 안 됨) */
+.card-head p { margin: 0; font-size: 17.7px; font-weight: 400; line-height: 23px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+/* S-2: 본문 텍스트는 생성되듯 왼쪽에서 오른쪽으로 드러남 */
+html[data-reveal="S2"] .msg-ai { clip-path: inset(-4px 100% -4px -4px); transition: opacity .3s var(--rv-ease), transform var(--rv-dur) var(--rv-ease), clip-path .9s var(--rv-ease); }
+html[data-reveal="S2"] .msg-ai.in { clip-path: inset(-4px -4px -4px -4px); }
+.ai-screen .rec { display: none; flex-direction: column; gap: 8px; }   /* 3안 채팅 전용 — 전역 .rec 이 다른 화면(1안 .ai-rec 사건)과 부딪히지 않게 스코프 */
+.ai-screen .rec.on { display: flex; }
+.ai-title { margin: 0; font-size: 22px; font-weight: 400; line-height: 28px; letter-spacing: -.04em; text-wrap: balance; }
+
+.ai-card { width: 353px; padding: 28px; border-radius: 28px; background: var(--cardhome-bg); display: flex; flex-direction: column; gap: 4px; }
+.ai-card .badge { display: inline-block; width: fit-content; padding: 2px 6px; border-radius: 4px; background: var(--bg-neutral-subtle); color: var(--fg-neutral-mute); font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; }
+.ai-card .cell-desc { font-size: 14px; line-height: 18px; letter-spacing: -.04em; }
+.ai-card .cell-title { font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; }
+.badge-icon-group { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.badge-icon { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px 6px 8px; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+
+/* usage graph card */
+.graph { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+.graph .insight { display: flex; gap: 4px; align-items: flex-start; }
+.graph .insight img { margin-top: 1px; }
+.graph .insight p { margin: 0; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; background: linear-gradient(90deg, var(--blue-500), var(--blue-600)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.graph .bars { position: relative; display: flex; justify-content: center; margin-top: 4px; }
+.bar-col { width: 42px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar-area { position: relative; width: 100%; height: 152px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--gray-200); }
+.bar { width: 25px; border-radius: 6px 6px 0 0; background: var(--gray-100); }
+.bar-col.cur .bar { background: linear-gradient(180deg, var(--blue-600) 0%, var(--blue-200) 150%); }
+.bar-col .label { padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 500; line-height: 12.5px; color: var(--gray-500); letter-spacing: -.04em; }
+.bar-col.cur .label { background: var(--blue-100); color: var(--blue-600); font-weight: 600; }
+.bubble-val { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); padding: 4px 8px; border-radius: 5px; background: #4E5DFF; color: #fff; font-size: 9.7px; font-weight: 500; line-height: 13px; white-space: nowrap; }
+.bubble-val i { position: absolute; left: 50%; top: 100%; width: 0; height: 15px; border-left: 1px dashed #4E5DFF; }
+.avg-line { position: absolute; left: 0; right: 0; display: flex; align-items: center; gap: 6px; z-index: 1; }
+.avg-tag { padding: 1px 4px; border-radius: 3px; background: var(--gray-500); color: #fff; font-size: 9px; font-weight: 500; line-height: 11px; }
+.avg-line i { flex: 1; height: 0; border-top: 1px dashed var(--gray-500); opacity: .6; }
+.cell-text { display: flex; justify-content: space-between; font-size: 12px; line-height: 16px; letter-spacing: -.04em; color: var(--fg-neutral-secondary); }
+.cell-text + .cell-text { margin-top: -8px; }
+
+/* compare card */
+.ai-card.compare { gap: 8px; }
+.ai-card.compare h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.ai-card .divider { height: 1px; background: var(--border-neutral-weak); margin: 2px -28px; }
+.products { display: flex; justify-content: space-between; margin-top: 4px; }
+.product { width: 140px; padding: 12px; border-radius: 20px; display: flex; flex-direction: column; gap: 2px; }
+.product.after { background: var(--blue-50); }
+.product .lbl { font-size: 13px; font-weight: 500; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.product .name { font-size: 15px; font-weight: 500; line-height: 20px; letter-spacing: -.05em; }
+.product .price { font-size: 15px; font-weight: 600; line-height: 20px; letter-spacing: -.05em; margin-top: 4px; }
+.product .sub { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); }
+.product.after .name, .product.after .price, .product.after .sub { color: var(--fg-brand-solid); }
+
+.cta-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; transition: opacity .3s cubic-bezier(.65,0,.35,1); }
+.cta-stack.gone { opacity: 0; }
+
+/* 6번: 다른 요금제 살펴보기 (Figma 11996:22476) */
+/* .rec > * 의 '등장 전 투명' 규칙에서 .alt 컨테이너는 제외 (자식이 개별로 등장) */
+.ai-screen .rec > .alt { opacity: 1; transform: none; filter: none; transition: none; }
+.alt { display: none; flex-direction: column; gap: 8px; }
+.alt.on { display: flex; }
+.alt .msg-user { margin-top: 16px; margin-bottom: 8px; }  /* 말풍선 ↔ 안내문 24 (Figma gap 30/1.27) */
+.ai-card.plans { gap: 16px; }
+.ai-card.plans .plan-row + .plan-row { margin-top: -11px; }  /* 리스트 간격 5 */
+.ai-card.plans h3 { margin: 0 0 4px; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.plan-row { display: flex; flex-direction: column; gap: 2px; padding: 18px 20px; border-radius: 16px; border: 2px solid #EBEEF6; background: #fff; }  /* Figma RadioCard: border 2 #EBEEF6 */
+.plan-row .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.plan-row .name { font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; }
+.plan-row .price { font-size: 15px; font-weight: 600; line-height: 20px; letter-spacing: -.04em; white-space: nowrap; }
+.plan-row .desc { font-size: 13px; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.plan-all { height: 44px; border-radius: 14px; background: rgba(39,59,157,.05); display: grid; place-items: center; font-size: 14px; font-weight: 600; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+
+/* 7번: 전체 요금제 바텀시트 (Figma 12067:30027) */
+/* 5번: 전체 요금제 = 풀페이지 팝업 (Figma ixGPs9 88:83221 → 88:83232, 2026-09-08. 이전 바텀시트 12067:30027 대체) — 아래에서 올라와 화면 전체를 덮는다 */
+.sheet { position: absolute; inset: 0; z-index: 10; background: #fff; color: var(--fg-neutral-solid); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .5s var(--kb-ease); }
+.sheet.on { transform: none; }
+.sheet .pop-status { height: 59px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 18px; box-sizing: border-box; font: 600 17px/21px -apple-system, "SF Pro Text", var(--font); letter-spacing: -.4px; flex: none; }
+.sheet .pop-status img { height: 13px; }
+.sheet .appbar { height: 48px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: none; }
+.sheet .appbar h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.sheet .appbar .x { width: 24px; height: 24px; position: relative; flex: none; }
+.sheet .appbar .x::before, .sheet .appbar .x::after { content: ""; position: absolute; left: 3px; right: 3px; top: 11px; height: 1.8px; background: var(--fg-neutral-solid); transform: rotate(45deg); }
+.sheet .appbar .x::after { transform: rotate(-45deg); }
+/* TabScroll 46h: 탭 사이 24, 선택 = 검정 글자 + 2px 밑줄 */
+.sheet .tabs { display: flex; gap: 24px; height: 46px; padding: 0 20px; border-bottom: 1px solid var(--border-neutral-weak); overflow: hidden; white-space: nowrap; flex: none; box-sizing: border-box; }
+.sheet .tabs span { padding: 13px 0 11px; font-size: 15px; font-weight: 500; line-height: 20px; color: var(--fg-neutral-subtle); letter-spacing: -.04em; border-bottom: 2px solid transparent; transition: color .25s, border-color .25s; }
+.sheet .tabs span.on { color: var(--fg-neutral-solid); font-weight: 600; border-bottom-color: var(--fg-neutral-solid); }
+.sheet .list { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 8px; animation: listIn .3s cubic-bezier(.65,0,.35,1); }
+.sheet .list::-webkit-scrollbar { display: none; }
+/* ListProductHorizontal 컴팩트 (353×166): 회색 카드 → 선택 시 흰 카드 + 2px 검정 테두리 */
+.plan-mini { flex: none; min-height: 166px; box-sizing: border-box; border-radius: 20px; padding: 24px 20px; background: rgba(39,59,157,.05); border: 2px solid transparent; display: flex; flex-direction: column; gap: 12px; transition: border-color .35s cubic-bezier(.65,0,.35,1), background .35s cubic-bezier(.65,0,.35,1); }
+.plan-mini.sel { border-color: var(--fg-neutral-solid); background: #fff; }
+.plan-mini .pc-price b { font-size: 16px; line-height: 22px; }
+.plan-mini .pc-thumb { width: 72px; height: 72px; position: relative; }
+.plan-mini .pc-thumb em { position: absolute; left: 6px; bottom: 6px; font-style: normal; font-size: 10px; font-weight: 600; line-height: 14px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }
+/* BottomGroup: 선택한 요금제(14) + 적용하기 56h radius 20 brand-solid. 미선택은 30% */
+.sheet .ft { padding: 16px 20px 34px; display: flex; flex-direction: column; gap: 16px; flex: none; background: #fff; box-shadow: 0 -8px 24px rgba(255,255,255,.9); }
+.sheet .ft .row { display: flex; justify-content: space-between; align-items: center; height: 18px; font-size: 14px; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.sheet .ft .row b { font-size: 14px; font-weight: 600; color: var(--fg-neutral-solid); }
+.sheet .apply { height: 56px; border-radius: 20px; background: #3A38EC; color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: 600; letter-spacing: -.04em; opacity: .3; transition: opacity .3s; }
+.sheet .apply.ready { opacity: 1; }
+
+/* 7번: 적용하기 → 요금제 선택 카드는 유지, 고른 row 만 RadioCard selected (Figma 12113:31378: border 2px neutral-solid) */
+.ai-card.plans .plan-row { transition: border-color .35s cubic-bezier(.65,0,.35,1); }
+.ai-card.plans .plan-row.sel { border-color: var(--fg-neutral-solid); }
+
+/* ── 스텝 3 Agent 실행 오버레이 (LaunchOverlay.jsx · Figma 12769:43212 · html[data-launch]) ──
+   상품 상세 위에 딤 + 칩 스택(bottom 384) + SearchAi(bottom 319) + 키패드(310). 상승 곡선은 키패드 공통 --kb-ms/--kb-ease */
+.launch-ov { position: absolute; inset: 0; z-index: 6; overflow: hidden; font-family: var(--font); color: var(--fg-neutral-solid); letter-spacing: -.03em; }
+.launch-scrim { position: absolute; inset: 0; background: rgba(6,12,31,.55); opacity: 0; transition: opacity .4s cubic-bezier(.65,0,.35,1); }
+.launch-ov.on .launch-scrim { opacity: 1; }
+.launch-ov .rise { position: absolute; inset: 0; }
+.launch-ov .stack { position: absolute; left: 20px; bottom: 384px; display: flex; flex-direction: column; gap: 8px; z-index: 2; }
+.launch-ov .button-ai { background: rgba(255,255,255,.92); }
+.launch-ov .search-ai { background: rgba(255,255,255,.92); z-index: 3; }
+.launch-ov .keyboard.slide { z-index: 2; }
+
+/* L1: 칩·입력창·키패드가 한 덩어리로 아래에서 올라옴 (딤은 함께 페이드) */
+.launch-ov.L1 .rise { transform: translateY(480px); transition: transform var(--kb-ms) var(--kb-ease); will-change: transform; }
+.launch-ov.L1.on .rise { transform: none; }
+.launch-ov.L1 .keyboard.slide { transition: none; transform: none; }   /* 덩어리 안에서는 개별 슬라이드 없음 */
+
+/* L2: 상품 상세 블러 + 키패드·입력창 먼저 → 칩 아래에서 위로 순차 */
+.launch-ov.L2 .launch-scrim { background: rgba(6,12,31,.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+.launch-ov.L2 .search-ai { transform: translateY(380px); transition: transform var(--kb-ms) var(--kb-ease); }
+.launch-ov.L2.on .search-ai { transform: none; }
+.launch-ov.L2 .button-ai { opacity: 0; transform: translateY(14px); transition: opacity .45s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.22,1,.36,1); transition-delay: calc(.38s + var(--ri) * .1s); }
+.launch-ov.L2.on .button-ai { opacity: 1; transform: none; }
+
+/* L3: AI 버튼 자리(인라인 style)에서 입력창이 353×52 로 커지며 bottom 319 로 이동, 칩은 입력창에서 위로 튀어나옴, 키패드 0.1s 뒤따름 */
+.launch-ov.L3 .search-ai { margin: 0; right: auto; box-sizing: border-box; transition: left .55s var(--kb-ease), bottom .55s var(--kb-ease), width .55s var(--kb-ease), height .55s var(--kb-ease); }
+.launch-ov.L3 .search-ai .input, .launch-ov.L3 .search-ai .voice { opacity: 0; transition: opacity .3s ease .25s; }
+.launch-ov.L3.on .search-ai .input, .launch-ov.L3.on .search-ai .voice { opacity: 1; }
+.launch-ov.L3 .keyboard.slide { transition-delay: .1s; }
+.launch-ov.L3 .stack { transform-origin: 50% 100%; }
+.launch-ov.L3 .button-ai { opacity: 0; transform: translateY(28px) scale(.92); transition: opacity .45s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.22,1,.36,1); transition-delay: calc(.42s + var(--ri) * .09s); }
+.launch-ov.L3.on .button-ai { opacity: 1; transform: none; }
+
+/* ── 전시 턴(추가혜택·할인방법) 타이틀 없음 시안 N-2 생각 점 (html[data-disp]) — 텍스트(.msg-ai)와 같은 여백, 한 줄 높이 */
+.thinking { order: -1; margin: 12px 0 15px; padding: 0 12px; height: 24px; display: flex; align-items: center; gap: 5px; }
+.thinking i { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-neutral-subtle); animation: thinkDot 1.1s cubic-bezier(.65,0,.35,1) infinite; }
+.thinking i:nth-child(2) { animation-delay: .15s; }
+.thinking i:nth-child(3) { animation-delay: .3s; }
+.thinking.out { opacity: 0 !important; transition-duration: .18s !important; }
+@keyframes thinkDot { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+/* ── 카드 → 바닥 (html[data-flat], Figma ixGPs9IrNB0e2VD2OFEZlB 15:9564 요금제 선택 · 15:10217 추가혜택) ──
+   .flatable 카드는 C0(기존) 외에서 패딩·배경·제목을 잃고 흰 RadioCard 행(353 폭 · 간격 4 · radius 18)만 배경 위에 남는다 */
+html:not([data-flat="C0"]) .ai-card.flatable { padding: 0; background: none; border-radius: 0; gap: 4px; }
+html:not([data-flat="C0"]) .ai-card.flatable > h3, html:not([data-flat="C0"]) .ai-card.flatable > .card-head { display: none; }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-row { border-color: transparent; border-radius: 18px; padding: 20px 20px; background: #fff; }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-row + .plan-row { margin-top: 0; }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-row.sel { border-color: var(--fg-neutral-solid); }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-all { height: 36px; border-radius: 12px; margin-top: 4px; background: rgba(255,255,255,.55); font-size: 13px; }
+/* 추가혜택 행 좌측 아이콘 자리 (Figma 15:10217: 40px 체커 플레이스홀더). 기존 카드(C0)에서는 숨김 */
+.plan-row.with-ico { flex-direction: row; align-items: center; gap: 14px; }
+.plan-row.with-ico .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-ico { flex: none; width: 40px; height: 40px; border-radius: 8px; background-color: #F1F3F9;
+  background-image: linear-gradient(45deg, #E4E7F0 25%, transparent 25%, transparent 75%, #E4E7F0 75%), linear-gradient(45deg, #E4E7F0 25%, transparent 25%, transparent 75%, #E4E7F0 75%);
+  background-size: 8px 8px; background-position: 0 0, 4px 4px; }
+html[data-flat="C0"] .row-ico { display: none; }
+html[data-flat="C0"] .plan-row.with-ico { gap: 0; }
+/* 등장 리듬: F2 행 80ms 스태거 · F3 행마다 개별 등장(.in) — 재생 중(.seq)에만 자식이 숨겨진다 (최종 상태는 그대로 보임) */
+html[data-flat="F2"] .ai-card.flatable.seq > * { opacity: 0; transform: translateY(6px); transition: opacity .5s var(--rv-ease), transform .5s var(--rv-ease); transition-delay: calc(var(--i, 0) * 80ms); }
+html[data-flat="F2"] .ai-card.flatable.seq.in > * { opacity: 1; transform: none; }
+html[data-flat="F3"] .ai-card.flatable.seq > * { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+html[data-flat="F3"] .ai-card.flatable.seq > .in { opacity: 1; transform: none; }
+
+/* ── [다른 요금제 살펴보기] 결과 = ListProductHorizontal 카드 (Figma ixGPs9 23:11234 ÷1.21, html[data-altcard]) ──
+   카드 bg neutral-weak · radius 20 · padding 24 · gap 20. 루트는 .plan-row 도 겸하므로 flatable 행 규칙을 되돌린다 */
+.alt-cards { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-card { background: #fff;   /* fill 흰색 (사용자 요청 2026-09-07, Figma ixGPs9 23:13194) */ border: 2px solid transparent; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; width: 353px; box-sizing: border-box; flex: none; transition: border-color .35s cubic-bezier(.65,0,.35,1); }
+html:not([data-flat="C0"]) .ai-card.flatable .plan-card.sel { border-color: var(--fg-neutral-solid); }
+.pc-badge { display: inline-block; width: fit-content; padding: 2px 6px; border-radius: 4px; background: var(--bg-neutral-subtle); color: var(--fg-neutral-mute); font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; }
+.pc-badge.pick { background: var(--blue-600); color: #fff; }
+.pc-head { display: flex; gap: 16px; align-items: flex-start; }
+.pc-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pc-name { font-size: 15px; font-weight: 500; line-height: 20px; letter-spacing: -.05em; }
+.pc-price { display: flex; align-items: baseline; gap: 2px; }
+.pc-price b { font-size: 15px; font-weight: 600; line-height: 20px; letter-spacing: -.05em; }
+.pc-price span { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; }
+.pc-caps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); }
+.pc-caps span { display: inline-flex; align-items: center; gap: 4px; }
+.pc-caps i { display: inline-block; width: 1px; height: 8px; background: rgba(0,29,104,.28); }
+.pc-thumb { flex: none; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: #DDE3F5; }
+.pc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pc-discounts { display: flex; flex-direction: column; gap: 12px; }
+.pc-rc { border: 1.5px solid rgba(0,38,140,.08); border-radius: 16px; padding: 20px 24px; background: transparent; display: flex; flex-direction: column; gap: 2px; }
+.pc-rc.on { border-color: var(--fg-neutral-solid); }
+.pc-rc .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; }
+.pc-rc:not(.on) .top b { font-weight: 500; }
+.pc-rc .desc { font-size: 14px; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+/* A-1 가로 캐러셀: 카드 300 폭, 다음 카드가 살짝 보이도록 화면 끝까지 흘림 (353 컬럼 밖 20px 여백 사용) */
+.altcard-A1 .alt-cards { flex-direction: row; gap: 8px; width: 393px; margin: 0 -20px; padding: 0 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 20px;   /* 스냅이 좌측 20px 패딩을 무시하고 카드를 가장자리에 붙이던 문제 */ scrollbar-width: none; box-sizing: border-box; }
+.altcard-A1 .alt-cards::-webkit-scrollbar { display: none; }
+html:not([data-flat="C0"]) .ai-card.flatable.altcard-A1 .plan-card { width: 300px; scroll-snap-align: start; }
+/* A-3 할인 접힘: 선택된 카드만 할인 3종 노출 */
+.plan-card.collapsed .pc-discounts { display: none; }   /* A-3: 열린 카드(AI PICK 또는 적용된 요금제)만 할인 노출 */
+/* F-2 스태거는 .alt-cards 한 덩어리(--i 0) 로 들어오되 카드 자체가 다시 80ms 씩 */
+html[data-flat="F2"] .ai-card.flatable.seq .alt-cards > * { opacity: 0; transform: translateY(6px); transition: opacity .5s var(--rv-ease), transform .5s var(--rv-ease); transition-delay: calc(var(--i, 0) * 80ms); }
+html[data-flat="F2"] .ai-card.flatable.seq.in .alt-cards > * { opacity: 1; transform: none; }
+
+/* ── 요금제 카드 '선택됨' 표현 시안 (html[data-cardsel], Figma ixGPs9 28:18482) ── */
+.pc-badge.chosen { background: var(--fg-neutral-solid); color: #fff; }
+html[data-cardsel="S2"]:not([data-flat="C0"]) .ai-card.flatable .plan-card.sel { border-color: transparent; background: #F1F3F9; }
+html[data-cardsel="S2"] .plan-card { transition: border-color .35s cubic-bezier(.65,0,.35,1), background .35s cubic-bezier(.65,0,.35,1); }
+html[data-cardsel="S3"]:not([data-flat="C0"]) .ai-card.flatable .plan-card.sel { border-color: transparent; box-shadow: 0 10px 28px rgba(6,12,31,.10); }
+html[data-cardsel="S3"] .plan-card { transition: opacity .45s cubic-bezier(.65,0,.35,1), transform .45s cubic-bezier(.65,0,.35,1), box-shadow .45s cubic-bezier(.65,0,.35,1); }
+html[data-cardsel="S3"] .alt-cards:has(.plan-card.sel) .plan-card:not(.sel) { opacity: .45; transform: scale(.98); }
+
+/* ── 이어서 옵션 안내 (스텝 9·11, html[data-stream]) — 섹션 제목 + 바닥 행, AI PICK 행 선택(S-1 테두리) ── */
+.strm-title { margin: 6px 0 0; padding: 0 12px; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.strm-turn .msg-ai.none { display: none; }
+html[data-stream="Z1"] .strm-title { display: none; }                       /* Z1: 안내문이 섹션 질문을 대신한다 */
+html:not([data-stream="Z1"]) .strm-turn .thinking { display: none; }        /* 생각 점은 턴 단위(Z1)에서만 */
+.plan-row .pick-badge { align-self: flex-start; margin-top: 6px; padding: 2px 6px; border-radius: 4px; background: var(--blue-600); color: #fff; font-size: 10.5px; font-weight: 600; line-height: 14px; letter-spacing: -.02em; }
+
+/* ── 옵션 순차 선택 (스텝 7~9): 추천 배지(연한 브랜드, Figma BadgeItem 추천) + 탭으로 선택(S-1) ── */
+.opt-turn .msg-ai.none { display: none; }
+.plan-row .rec-badge { display: none; } /* 추천 배지는 사용자 요청으로 표시하지 않음 (2026-09-07) */
+.plan-row .rec-badge-x { align-self: flex-start; margin-bottom: 4px; padding: 2px 6px; border-radius: 4px; background: #F0F4FF; color: #4B59FF; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; }
+.opts .cta-stack { margin-top: 4px; }
+
+/* 생각 점 → 본문 시안 (html[data-think]) — W2 단어 스트리밍 */
+.msg-ai .sw { opacity: 0; transition: opacity .22s cubic-bezier(.65,0,.35,1); }
+.msg-ai .sw.on { opacity: 1; }
+
+/* ── 여백 정리 (Figma ixGPs9 26:31995 기준, 사용자 "붕붕 떠 있다" 피드백 2026-09-07): 안내문 ↔ 행 12 · 행 사이 8 · 섹션 사이 12 ── */
+.alt > .pen, .alt > .opts, .opts > .opt-turn { gap: 12px; }
+.opt-turn .msg-ai, .pen .msg-ai, .opt-turn .thinking, .pen .thinking { margin: 0; }
+html:not([data-flat="C0"]) .ai-card.flatable.opt-card { gap: 8px; }
+.alt > .opts { margin-top: 8px; }
+.opts .cta-stack { margin-top: 0; }
+
+/* ── 10·11번 신청서 입력 카드 (Figma 26:36595): AiAgentCard 안 제목 18 medium + Input 48 · radius 14 · border 1 ── */
+.alt > .form { gap: 12px; }
+.form .msg-user { margin-top: 0; }
+.form .msg-ai { margin: 0; }
+.ai-card.form-card { gap: 16px; }
+.ai-card.form-card h3 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
+.input-field { position: relative; width: 100%; height: 48px; border: 1px solid var(--fg-neutral-solid); border-radius: 14px; padding: 0 16px 0 20px; display: flex; align-items: center; gap: 2px; background: #fff; font-size: 16px; font-weight: 500; line-height: 22px; letter-spacing: -.04em; box-sizing: border-box; transition: box-shadow .25s, border-color .25s; }
+.input-field.on { box-shadow: 0 0 0 3px rgba(75,89,255,.18); }
+.input-field.done { border-color: var(--fg-neutral-solid); }
+.input-field .ph { color: var(--fg-neutral-subtle); }
+.input-field .val { color: var(--fg-neutral-solid); font-variant-numeric: tabular-nums; }
+.input-field .caret { display: inline-block; width: 1px; height: 20px; border-radius: 999px; background: var(--fg-neutral-solid); animation: caret 1s steps(1) infinite; }
+.input-field .tag { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-style: normal; padding: 2px 6px; border-radius: 4px; background: #F0F4FF; color: #4B59FF; font-size: 11px; font-weight: 500; line-height: 14px; }
+.fill-chip { align-self: flex-start; padding: 10px 14px; border-radius: 999px; background: var(--bg-ai-subtle); border: 1px solid var(--border-ai-subtle); box-shadow: var(--shadow-chip); font-size: 13px; font-weight: 500; letter-spacing: -.04em; }
+.button-ai.gone { opacity: 0; pointer-events: none; transition: opacity .25s; }
+
+/* ── 카드 필드 타이핑 중 (.kbf): SearchAi 숨김 · 스크림 없음(카드가 읽혀야 함) · html[data-kbfield] K1/K2 는 스크롤 정렬, K3 는 키패드 위 입력 바 ── */
+.ai-screen.kbf .search-ai { opacity: 0; pointer-events: none; transition: opacity .2s; }
+.ai-screen.kbf .kb-scrim { opacity: 0 !important; }
+.kb-field-bar { position: absolute; left: 0; right: 0; bottom: 310px; height: 60px; padding: 0 20px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line-weak); display: flex; align-items: center; gap: 12px; z-index: 5; font-size: 16px; font-weight: 500; letter-spacing: -.04em; transform: translateY(100%); opacity: 0; transition: transform var(--kb-ms) var(--kb-ease), opacity .25s; }
+.kb-field-bar.on { transform: none; opacity: 1; }
+.kb-field-bar .lbl { font-size: 13px; color: var(--fg-neutral-subtle); flex: none; }
+.kb-field-bar .ph { color: var(--fg-neutral-subtle); }
+.kb-field-bar .val { color: var(--fg-neutral-solid); font-variant-numeric: tabular-nums; }
+.kb-field-bar .caret { display: inline-block; width: 1px; height: 20px; background: var(--fg-neutral-solid); animation: caret 1s steps(1) infinite; }
+html[data-kbfield="K3"] .ai-screen.kbf .kb-scrim { opacity: 1 !important; }   /* K3 는 바가 위에 있으니 뒤는 살짝 물러남 */
+
+/* ── 11번 주소 카드: 우편번호(비활성 배경) + [검색] · 상세 주소 2줄 (10906:5390) ── */
+.alt > .addr, .alt > .review, .alt > .pay { gap: 12px; }
+.alt > .auth, .alt > .form { gap: 16px; }   /* 칩 탭 → 말풍선 → 안내: 16 씩 (Figma 26:41946) */
+.review .msg-ai, .auth .msg-ai, .pay .msg-ai, .review .thinking, .auth .thinking, .pay .thinking { margin: 0; }
+.auth .msg-user { margin-top: 0; }
+.input-row { display: flex; gap: 8px; width: 100%; }
+.input-row .input-field { flex: 1; }
+.input-field.zip { border-color: transparent; background: rgba(39,59,157,.05); }
+.input-field.zip.on, .input-field.zip.filled { border-color: var(--fg-neutral-solid); background: #fff; }
+.input-field.sub { border-color: rgba(0,38,140,.08); }
+.input-field.sub.on, .input-field.sub.filled { border-color: var(--fg-neutral-solid); }
+.input-btn { flex: none; height: 48px; padding: 0 16px; border-radius: 14px; background: rgba(39,59,157,.05); display: grid; place-items: center; font-size: 15px; font-weight: 600; color: var(--fg-neutral-mute); letter-spacing: -.05em; }
+/* 12번 신청서 확인 카드 (CellLeftTable 5행) */
+.ai-card.review-card { gap: 16px; }
+.ai-card.review-card h3 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
+.review-card .kv-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.review-card .kv { display: flex; gap: 16px; align-items: flex-start; font-size: 15px; line-height: 20px; letter-spacing: -.05em; }
+.review-card .kv span { flex: none; width: 84px; color: var(--fg-neutral-solid); }
+.review-card .kv b { flex: 1; min-width: 0; font-weight: 400; word-break: keep-all; }
+/* 13번 완료 선 (txt_complete): 체크 + 텍스트 + 가는 선 */
+.done-line { display: flex; align-items: center; gap: 6px; padding: 12px 10px; font-size: 14px; font-weight: 500; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.done-line .chk { width: 18px; height: 18px; border-radius: 50%; border: 1.6px solid var(--fg-neutral-mute); position: relative; flex: none; }
+.done-line .chk::before { content: ""; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border-right: 1.6px solid var(--fg-neutral-mute); border-bottom: 1.6px solid var(--fg-neutral-mute); transform: rotate(45deg); }
+.done-line em { flex: 1; height: 1px; background: rgba(6,12,31,.18); margin-left: 10px; }
+/* AI 바텀시트 (AiAgentBottomSheet · 글라스 · radius 28 · padding 28) */
+.ai-sheet-dim { position: absolute; inset: 0; z-index: 6; background: rgba(6,12,31,.22); opacity: 0; pointer-events: none; transition: opacity .5s var(--kb-ease); }
+.ai-sheet-dim.on { opacity: 1; }
+.ai-sheet { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 7; padding: 28px; border-radius: 28px; background: rgba(255,255,255,.78); border: 1px solid rgba(255,255,255,.3); box-shadow: 0 0 80px rgba(16,49,140,.12); backdrop-filter: blur(30px); display: flex; flex-direction: column; gap: 24px; transform: translateY(110%); transition: transform .5s var(--kb-ease); }
+.ai-sheet.on { transform: none; }
+.ai-sheet .hd { display: flex; gap: 16px; align-items: flex-start; }
+.ai-sheet .hd div { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.ai-sheet h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.ai-sheet p { margin: 0; font-size: 13px; font-weight: 500; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.ai-sheet .x { width: 16px; height: 16px; position: relative; flex: none; margin-top: 4px; }
+.ai-sheet .x::before, .ai-sheet .x::after { content: ""; position: absolute; left: 7px; top: -1px; width: 1.6px; height: 18px; background: var(--fg-neutral-solid); transform: rotate(45deg); }
+.ai-sheet .x::after { transform: rotate(-45deg); }
+.ai-sheet .items { display: flex; flex-direction: column; gap: 12px; }
+.ai-sheet-item { font-size: 16px; font-weight: 500; line-height: 22px; letter-spacing: -.04em; padding: 2px 0; }
+.ai-sheet .alert { background: rgba(39,59,157,.05); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.ai-sheet .alert b { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.ai-sheet .alert b i { width: 16px; height: 16px; border-radius: 50%; background: var(--fg-neutral-mute); color: #fff; font: 700 10px/16px var(--font); text-align: center; font-style: normal; }
+.ai-sheet .alert p { font-size: 14px; font-weight: 400; line-height: 18px; color: var(--fg-neutral-mute); }
+/* 밖(토스) 화면 + 시안 (html[data-ext]) */
+.ext { position: absolute; inset: 0; z-index: 9; background: #fff; pointer-events: none; }
+.ext.X1 { transform: translateX(100%); transition: transform .45s cubic-bezier(.4,0,.2,1); }
+.ext.X1.in { transform: none; }
+.ext.X3 { opacity: 0; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+.ext.X3.in { opacity: 1; }
+.ext.X2 { display: none; }
+.toss { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 120px; gap: 60px; color: #191F28; font-family: var(--font); }
+.toss-logo { font: 800 30px/1 var(--font); letter-spacing: -.06em; color: #0064FF; }
+.toss-body { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.toss-body b { font-size: 20px; font-weight: 700; letter-spacing: -.04em; }
+.toss-body p { margin: 0; font-size: 14px; color: #6B7684; letter-spacing: -.03em; }
+.toss-ring { width: 64px; height: 64px; border-radius: 50%; border: 5px solid #E5E8EB; border-top-color: #0064FF; animation: tossSpin 1s linear infinite; margin-bottom: 14px; position: relative; }
+.toss.done .toss-ring { animation: none; border-color: #0064FF; background: #0064FF; }
+.toss.done .toss-ring i { position: absolute; left: 20px; top: 12px; width: 12px; height: 24px; border-right: 4px solid #fff; border-bottom: 4px solid #fff; transform: rotate(45deg); }
+@keyframes tossSpin { to { transform: rotate(360deg); } }
+.toss.inline { position: relative; inset: auto; padding: 8px 0 4px; gap: 22px; }
+.toss.inline .toss-logo { font-size: 22px; }
+.toss.inline .toss-ring { width: 48px; height: 48px; border-width: 4px; margin-bottom: 6px; }
+.toss.inline .toss-body b { font-size: 16px; }
+.ai-sheet.toss-mode { background: #fff; }   /* .toss 와 이름이 겹쳐 시트가 전체 화면이 되던 버그 → toss-mode */
+.ext-banner { position: absolute; left: 20px; right: 20px; top: 70px; z-index: 10; padding: 12px 16px; border-radius: 14px; background: var(--fg-neutral-solid); color: #fff; font-size: 13px; font-weight: 600; letter-spacing: -.03em; text-align: center; opacity: 0; transform: translateY(-10px); transition: opacity .3s, transform .3s; pointer-events: none; }
+.ext-banner.on { opacity: 1; transform: none; }
+
+/* ── 14번 납부 방식 카드(기존 수단 유지 + 링크 행 2) · 요금안내서 2×2 · 신분증 촬영 밖 화면 ── */
+.plan-row.keep .kv-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--line-weak); width: 100%; }
+.plan-row.keep .kv { display: flex; justify-content: space-between; gap: 16px; font-size: 13.5px; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.plan-row.keep .kv b { font-weight: 400; color: var(--fg-neutral-solid); text-align: right; }
+.plan-row.link .top { justify-content: space-between; }
+.plan-row.link .arrow { width: 16px; height: 16px; position: relative; flex: none; }
+.plan-row.link .arrow::before { content: ""; position: absolute; left: 3px; top: 3px; width: 8px; height: 8px; border-right: 1.6px solid var(--fg-neutral-mute); border-top: 1.6px solid var(--fg-neutral-mute); transform: rotate(45deg); }
+html:not([data-flat="C0"]) .ai-card.flatable.pay-card { gap: 8px; }
+.bill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.bill { height: 50px; border-radius: 14px; background: #fff; border: 2px solid transparent; display: grid; place-items: center; font-size: 14px; font-weight: 600; letter-spacing: -.04em; transition: border-color .35s cubic-bezier(.65,0,.35,1); }
+.bill.sel { border-color: var(--fg-neutral-solid); }
+html[data-flat="F2"] .pay.on .bill-grid.in > .bill { opacity: 1; }
+.toss.idcam .toss-logo { color: var(--fg-neutral-solid); font-size: 22px; }
+.toss.idcam .toss-ring { border-top-color: var(--fg-neutral-solid); }
+.toss.idcam.done .toss-ring { border-color: var(--fg-neutral-solid); background: var(--fg-neutral-solid); }
+/* ── 업무처리 결과 선(txt_complete): 왼쪽 → 오른콽 (html[data-line]) ──
+   D1 선만: 체크·글은 함께 페이드, 선이 좌→우로 그려짐(0.6s)
+   D2 순차: 체크가 톡 찍히고(0.35s) → 글이 뜨고(0.25s 뒤) → 선(0.5s 뒤)
+   D3 한 붓: 체크 → 글 → 선이 왼쪽부터 하나의 와이프로 이어져 그려짐 */
+.done-line em { transform-origin: left center; }
+.done-line.in em { animation: lineDraw .6s cubic-bezier(.65,0,.35,1) both .1s; }
+@keyframes lineDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+html[data-line="D2"] .done-line.in .chk { animation: chkPop .5s cubic-bezier(.22,1,.36,1) both; }
+html[data-line="D2"] .done-line.in span { animation: fadeUp .4s cubic-bezier(.65,0,.35,1) both .4s; }
+html[data-line="D2"] .done-line.in em { animation: lineDraw .9s cubic-bezier(.65,0,.35,1) both .75s; }   /* 확정 2026-09-07, 사용자 "조금 빨라" → 느리게 */
+@keyframes chkPop { 0% { transform: scale(.3); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+html[data-line="D3"] .done-line.in .chk { animation: wipeR .3s cubic-bezier(.65,0,.35,1) both; }
+html[data-line="D3"] .done-line.in span { animation: wipeR .35s cubic-bezier(.65,0,.35,1) both .28s; }
+html[data-line="D3"] .done-line.in em { animation: lineDraw .55s cubic-bezier(.65,0,.35,1) both .6s; }
+@keyframes wipeR { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* ── 15번 결제 외부 화면 (10906:6338) ── */
+.payout { position: absolute; inset: 0; background: #fff; color: var(--fg-neutral-solid); font-family: var(--font); }
+.payout .pd-status { height: 59px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 18px; font: 600 17px/22px -apple-system, "SF Pro Text", var(--font); letter-spacing: -.4px; }
+.payout .pd-status img { height: 13px; }
+.payout .appbar { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.payout .appbar b { font-size: 18px; font-weight: 600; letter-spacing: -.05em; }
+.payout .po-body { position: absolute; top: 107px; bottom: 96px; left: 0; right: 0; overflow: hidden; padding: 4px 20px 0; display: flex; flex-direction: column; gap: 22px; }
+.payout section { display: flex; flex-direction: column; gap: 10px; }
+.payout h4 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.po-item { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 16px; background: #F4F5FA; }
+.po-item .thumb { flex: none; width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(160deg,#2B2F3A,#5A6070); }
+.po-item div { display: flex; flex-direction: column; gap: 2px; }
+.po-item b { font-size: 15px; font-weight: 600; letter-spacing: -.04em; }
+.po-item span { font-size: 12.5px; color: var(--fg-neutral-mute); letter-spacing: -.03em; }
+.po-kv { display: flex; justify-content: space-between; font-size: 14px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.po-kv b { font-weight: 500; color: var(--fg-neutral-solid); }
+.po-kv.total { margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line-weak); font-size: 15px; color: var(--fg-neutral-solid); }
+.po-kv.total b { font-weight: 700; font-size: 17px; }
+.po-kv.sub b em { font-style: normal; font-weight: 400; color: var(--fg-neutral-subtle); font-size: 12px; }
+.po-methods { display: flex; flex-direction: column; gap: 8px; }
+.po-m { display: grid; grid-template-columns: 20px 1fr; column-gap: 10px; align-items: center; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); }
+.po-m.sel { border: 2px solid var(--fg-neutral-solid); padding: 13px 15px; }
+.po-m span { font-size: 15px; font-weight: 600; letter-spacing: -.04em; }
+.po-m small { grid-column: 2; font-size: 12px; color: var(--fg-neutral-mute); letter-spacing: -.03em; margin-top: 2px; }
+.po-m .radio { width: 20px; height: 20px; border-radius: 50%; border: 1.6px solid var(--gray-200); position: relative; }
+.po-m.sel .radio { border-color: var(--fg-neutral-solid); }
+.po-m.sel .radio::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--fg-neutral-solid); }
+.po-check { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: var(--fg-neutral-mute); letter-spacing: -.03em; line-height: 17px; }
+.po-check .cb { flex: none; width: 17px; height: 17px; border-radius: 5px; background: var(--fg-neutral-solid); position: relative; }
+.po-check .cb::after { content: ""; position: absolute; left: 5.5px; top: 2px; width: 4px; height: 8px; border-right: 1.8px solid #fff; border-bottom: 1.8px solid #fff; transform: rotate(45deg); }
+.po-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 20px 34px; background: #fff; }
+.po-btn { height: 52px; border-radius: 14px; background: var(--fg-neutral-solid); color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: 600; letter-spacing: -.04em; }
+.payout .x { width: 24px; height: 24px; position: relative; }
+.payout .x::before, .payout .x::after { content: ""; position: absolute; left: 11px; top: 2px; width: 2px; height: 20px; background: var(--fg-neutral-solid); transform: rotate(45deg); }
+.payout .x::after { transform: rotate(-45deg); }
+
+/* 혜택 배지 로고 (BadgeIconGroup · IconItem/Logo 16px): 이미지 그대로, 둥근 사각 4px */
+.brand-badge { display: inline-block; flex: none; border-radius: 4px; object-fit: cover; }
+.brand-badge.nf { background: #141414; overflow: hidden; position: relative; }
+.brand-badge.nf img { position: absolute; inset: -22%; width: 144%; height: 144%; }
+
+/* 말풍선/완료 선 뒤에 오는 생각 점은 DOM 순서대로 (order:-1 해제) · 칩 탭 뒤 말풍선 여백 = 카드 아래 16, 말풍선 아래 16 (Figma 26:41946) */
+.auth .thinking, .pay .thinking { order: 0; }
+.auth .msg-user, .form .msg-user { margin: 0; }
+.alt > .auth, .alt > .form { margin-top: 8px; }   /* .alt gap 8 + 8 = 16 */
+
+/* ── 컨텍스트 헤더 k/n 변화 시안 (html[data-ctxfx]) ── */
+.ctx-header .roll-num, .ctx-header .roll-lbl { display: inline-block; }
+.ctx-header.fx-H2 .roll-num, .ctx-header.fx-H3 .roll-num { animation: numRoll .45s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H2 .roll-lbl, .ctx-header.fx-H3 .roll-lbl { animation: lblFade .4s cubic-bezier(.65,0,.35,1) both; }
+@keyframes numRoll { from { opacity: 0; transform: translateY(70%); } to { opacity: 1; transform: none; } }
+@keyframes lblFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.ctx-bar { margin-top: 6px; width: 180px; height: 3px; border-radius: 2px; background: rgba(16,16,16,.1); overflow: hidden; }
+.ctx-bar i { display: block; height: 100%; border-radius: 2px; background: rgba(16,16,16,.75); transition: width .6s cubic-bezier(.65,0,.35,1); }
+/* H4: Figma 51:26203 한 줄 헤더. 16px 네비 아이콘(#3A38EC) + 14px 600 80% + 12px 500 60% 카운트 · 우측 글래스 필(흰 40% ∘ 네이비 8%, r100, 5/10, 12px) */
+.ctx-header.fx-H4 { justify-content: space-between; gap: 16px; padding: 12px 20px 12px 30px; }
+.ctx-header.fx-H4 .row { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.ctx-header.fx-H4 .nav-wrap { position: relative; width: 16px; height: 16px; flex: none; }
+.ctx-header.fx-H4 .nav { width: 16px; height: 16px; display: block; position: relative; z-index: 1; }
+.ctx-header.fx-H4 .glow { position: absolute; inset: -6px; border-radius: 50%; background: radial-gradient(circle, rgba(58,56,236,.35), rgba(58,56,236,0) 70%); opacity: 0; pointer-events: none; }
+.ctx-header.fx-H4 .cnt { font-size: 12px; font-weight: 500; color: rgba(16,16,16,.6); letter-spacing: -.02em; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.ctx-header.fx-H4 .roll-num { animation: numRoll .45s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4 .back-pill { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: 0; border-radius: 100px; font: inherit; font-size: 12px; letter-spacing: -.02em; color: #000; line-height: 12.5px;
+  background: linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)), rgba(0,38,140,.08); box-shadow: 0 0 20px rgba(35,55,155,.05); cursor: default; }
+.ctx-header.fx-H4 .back-pill svg { display: block; }
+/* ── H4 위 변화 모션 시안 (html[data-ctxfx] M1/M2/M3): 값은 옵션 컴포넌트가 뜨는 순간 바뀐다 ── */
+.ctx-header.fx-H4 .main { display: inline-flex; gap: 0; white-space: nowrap; }
+.ctx-header.fx-H4.m-M1 .roll-num { animation: numRoll .45s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4.m-M1 .roll-lbl { animation: lblFade .4s cubic-bezier(.65,0,.35,1) both; }
+/* M2 슬라이드 교체 */
+.ctx-header.fx-H4 .swap { position: relative; display: inline-grid; align-items: center; height: 18px; overflow: hidden; }
+.ctx-header.fx-H4 .swap-line { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.ctx-header.fx-H4 .swap-line.in { animation: swapIn .48s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4 .swap-line.out { animation: swapOut .4s cubic-bezier(.65,0,.35,1) both; }
+@keyframes swapIn { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: none; } }
+@keyframes swapOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-100%); } }
+/* M3 스파클 펄스: 아이콘이 반짝 돌고(0.6s) 숫자가 팝(브랜드 블루로 잠깐), 라벨 페이드 */
+.ctx-header.fx-H4.m-M3 .nav { animation: sparkPulse .6s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4.m-M3 .roll-num { animation: numPop .55s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4.m-M3 .roll-lbl { animation: lblFade .4s cubic-bezier(.65,0,.35,1) both; }
+@keyframes sparkPulse { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.35) rotate(90deg); } 100% { transform: scale(1) rotate(180deg); } }
+@keyframes numPop { 0% { transform: scale(1.5); color: #3A38EC; } 100% { transform: none; color: inherit; } }
+@media (prefers-reduced-motion: reduce) { .ctx-header * { animation: none !important; } }
+/* M-3 다듬기 (경박함 제거): 회전·색 변화 없음, 작고 느리게 */
+/* M3a 잔잔한 펄스: 아이콘 1 → 1.12 → 1 (0.6s), 숫자는 롤 없이 페이드 */
+.ctx-header.fx-H4.m-M3a .nav { animation: softPulse .6s cubic-bezier(.33,1,.68,1) both; }
+.ctx-header.fx-H4.m-M3a .roll-num, .ctx-header.fx-H4.m-M3a .roll-lbl { animation: lblFade .45s cubic-bezier(.65,0,.35,1) both; }
+@keyframes softPulse { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
+/* M3b 글로우: 아이콘 뒤로 옅은 블루 글로우가 한 번 번지고 사라짐 (0.9s), 텍스트는 페이드 */
+.ctx-header.fx-H4.m-M3b .glow { animation: glowOnce .9s cubic-bezier(.33,1,.68,1) both; }
+.ctx-header.fx-H4.m-M3b .roll-num, .ctx-header.fx-H4.m-M3b .roll-lbl { animation: lblFade .45s cubic-bezier(.65,0,.35,1) both; }
+@keyframes glowOnce { 0% { opacity: 0; transform: scale(.6); } 35% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.4); } }
+/* M3c 느린 반짝: 아이콘이 0.8s 동안 1/4 바퀴만 돌며 살짝 커지고, 숫자만 롤 */
+.ctx-header.fx-H4.m-M3c .nav { animation: slowTurn .8s cubic-bezier(.33,1,.68,1) both; }
+.ctx-header.fx-H4.m-M3c .roll-num { animation: numRoll .5s cubic-bezier(.22,1,.36,1) both; }
+.ctx-header.fx-H4.m-M3c .roll-lbl { animation: lblFade .45s cubic-bezier(.65,0,.35,1) both; }
+@keyframes slowTurn { 0% { transform: scale(1) rotate(0); } 50% { transform: scale(1.08) rotate(45deg); } 100% { transform: scale(1) rotate(90deg); } }
+/* ── 상단 고정 헤더 배경 페이드 (html[data-hdrfade]) — 위는 fill, 아래로 갈수록 투명. 텍스트·버튼은 그대로, 배경(basement + 앵커 블롭)만 ── */
+html[data-hdrfade="G1"] .ai-header-fixed { background: linear-gradient(180deg, var(--bg-basement) 107px, rgba(226,230,241,.1) 100%); }
+html[data-hdrfade="G1"] .ai-header-fixed .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 107px, rgba(0,0,0,.1) 100%); mask-image: linear-gradient(180deg, #000 107px, rgba(0,0,0,.1) 100%); }
+html[data-hdrfade="G2"] .ai-header-fixed { background: linear-gradient(180deg, var(--bg-basement) 107px, rgba(226,230,241,0) 100%); }
+html[data-hdrfade="G2"] .ai-header-fixed .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }
+html[data-hdrfade="G3"] .ai-header-fixed { background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,0) 100%); }
+html[data-hdrfade="G3"] .ai-header-fixed .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 59px, transparent 100%); mask-image: linear-gradient(180deg, #000 59px, transparent 100%); }
+/* ── 2차: 컨텍스트 헤더(51:26203)까지는 안정적으로 읽혀야 함 → 헤더 구간은 fill/blur 유지, 헤더 아래로 '꼬리'가 은은하게 사라짐 ── */
+html[data-hdrfade^="G4"] .ai-header-fixed, html[data-hdrfade^="G5"] .ai-header-fixed, html[data-hdrfade^="G6"] .ai-header-fixed { background: transparent; overflow: visible; }
+html[data-hdrfade^="G4"] .ai-header-fixed::before, html[data-hdrfade^="G5"] .ai-header-fixed::before, html[data-hdrfade^="G6"] .ai-header-fixed::before { content: ''; position: absolute; left: 0; right: 0; top: 0; z-index: 0; pointer-events: none; }
+html[data-hdrfade^="G4"] .ai-header-fixed .ai-bg, html[data-hdrfade^="G5"] .ai-header-fixed .ai-bg, html[data-hdrfade^="G6"] .ai-header-fixed .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%); mask-image: linear-gradient(180deg, #000 60%, transparent 100%); }
+/* G4 헤더 끝(171px)까지 100% fill, 아래 32px 꼬리에서 100 → 0. 블러 없음 */
+html[data-hdrfade="G4"] .ai-header-fixed::before { bottom: -32px; background: linear-gradient(180deg, var(--bg-basement) 171px, rgba(226,230,241,0) 100%); }
+/* G5 헤더 구간 100 → 85% + backdrop blur 20, 아래 40px 꼬리에서 85 → 0 (블러도 같이 사라짐) */
+html[data-hdrfade="G5"] .ai-header-fixed::before { bottom: -40px; background: linear-gradient(180deg, var(--bg-basement) 107px, rgba(226,230,241,.85) 171px, rgba(226,230,241,0) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); -webkit-mask-image: linear-gradient(180deg, #000 171px, transparent 100%); mask-image: linear-gradient(180deg, #000 171px, transparent 100%); }
+/* G6 상태바 100%, 앱바~헤더 100 → 70% + blur 30, 아래 56px 긴 꼬리 */
+html[data-hdrfade="G6"] .ai-header-fixed::before { bottom: -56px; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 171px, rgba(226,230,241,0) 100%); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 171px, transparent 100%); mask-image: linear-gradient(180deg, #000 171px, transparent 100%); }
+
+/* ── 신청서 시트 플로우 (Figma ixGPs9 67:28493, 2026-09-08) ─────────────────────────────
+   말풍선 → 개인정보 Alert(대화 안) → 화면 딤 + AiAgentBottomSheet 4장(‹ n/4 › ×) → 시트 닫힘 → Alert 자리에 안내 + 완료 선(재입력) → 신청서 카드 */
+.form-alert { width: 100%; box-sizing: border-box; background: rgba(39,59,157,.05); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.form-alert b { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
+.form-alert b i { width: 20px; height: 20px; border-radius: 50%; background: var(--fg-neutral-mute); color: #fff; font: 700 11px/20px var(--font); text-align: center; font-style: normal; flex: none; }
+.form-alert p { margin: 0; font-size: 14px; font-weight: 400; line-height: 18px; color: var(--fg-neutral-mute); letter-spacing: -.04em; word-break: keep-all; }
+/* 완료 선: 왼쪽 세로 바 + 문장 + 오른쪽 [재입력] 텍스트 버튼 (52:62480 / ButtonText) */
+.form-line { display: flex; align-items: center; gap: 10px; padding: 0 0 0 8px; border-left: 1px solid rgba(6,12,31,.25); min-height: 24px; }
+.form-line span { flex: 1; font-size: 15px; font-weight: 400; line-height: 24px; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+.form-line a { font-size: 15px; font-weight: 500; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); text-decoration: underline; text-underline-offset: 3px; padding-right: 6px; }
+.review .form-line { margin: 0; }
+.review-card h3 { font-weight: 600; }
+
+/* 시트 본체: 공통 .ai-sheet 위에 — bottom 24 (51:37984 y566+h262), 키패드 열리면 키패드(310) 위 14px */
+.ai-sheet.fs { bottom: 24px; gap: 0; padding: 28px; background: rgba(255,255,255,.9); transition: transform .5s var(--kb-ease), bottom var(--kb-ms) var(--kb-ease); }
+.ai-sheet.fs.kb { bottom: 324px; }
+.ai-sheet.fs:not(.on):not(.peek) { visibility: hidden; }                         /* 내용 없는 빈 시트가 하단에 걸쳐 보이던 버그(2026-09-08) */
+.ai-sheet.fs.peek { visibility: visible; transform: translateY(calc(100% - 10px)); } /* 스텝 10 시작: 하단에 10px 만 걸쳐 대기 → 내용과 함께 상승 (사용자 2026-09-08 '-10px') */
+.ai-sheet.fs.peek .fs-wrap { min-height: 60px; }
+.fs-wrap { display: flex; flex-direction: column; }
+/* H-1 높이 트윈: JS 가 이전 높이 → 새 높이를 지정, 내용은 크로스페이드 */
+html[data-fsh="H1"] .fs-wrap { transition: height .45s var(--kb-ease); overflow: hidden; }
+html[data-fsh="H1"] .fs-body { animation-duration: .5s; }
+/* H-1 모션감 시안 html[data-fsm] */
+@keyframes fsInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+html[data-fsm="M2"] .fs-wrap { transition: height .6s cubic-bezier(.34,1.3,.64,1); }                       /* 3% 오버슈트 → 안착 */
+html[data-fsm="M2"] .fs-body { animation: fsInUp .55s cubic-bezier(.34,1.3,.64,1) both; }
+html[data-fsm="M2"] .ai-sheet.fs { transition: transform .6s cubic-bezier(.34,1.2,.64,1), bottom var(--kb-ms) var(--kb-ease); }   /* 첫 상승도 같은 스프링 */
+html[data-fsm="M3"] .fs-wrap { transition: height .4s cubic-bezier(.45,0,.55,1); }                        /* in-out sine */
+html[data-fsm="M3"] .fs-body { animation: fsInUp .35s cubic-bezier(.22,1,.36,1) both; }
+html[data-fsm="M3"] .fs-body.out { opacity: 0; transition: opacity .15s; animation: none; }
+html[data-fsm="M3"] .ai-sheet.fs.hold .fs-body { animation: none; opacity: 0; }                            /* 높이만 바뀌는 동안 내용은 비어 있음 */
+/* H-2 고정 높이: 가장 큰 장(주소 ≈ 402) 에 맞춤. 짧은 장은 위쪽 정렬, [다음]은 항상 바닥 */
+html[data-fsh="H2"] .fs-wrap { min-height: 402px; }
+html[data-fsh="H2"] .fs-body { flex: 1; }
+html[data-fsh="H2"] .fs-next { margin-top: auto; }
+/* H-3 내려갔다 올라오기: .swap 동안 바닥 아래로 (하강 0.35s, 상승 0.45s) */
+.ai-sheet.fs.on.swap { transform: translateY(110%); transition-duration: .35s; }
+html[data-fsh="H3"] .fs-body { animation: none; }
+.ai-sheet-dim.deep { background: rgba(6,12,31,.38); }
+.ai-screen.fs-open .keyboard.slide { z-index: 8; }          /* 시트 딤(6)·시트(7) 위로 */
+.ai-screen.fs-open .search-ai { opacity: 0; pointer-events: none; }
+.fs-body { display: flex; flex-direction: column; gap: 20px; animation: fsIn .35s cubic-bezier(.22,1,.36,1) both; }
+@keyframes fsIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fs-top { display: flex; align-items: center; justify-content: space-between; height: 18px; }
+.fs-top .x { margin: 0; }
+.fs-top.hd { height: auto; align-items: flex-start; gap: 16px; }   /* 2안: 타이틀 + × 한 줄 (AiAgentBottomSheet Header, Figma 90:101338) */
+.fs-top.hd h3 { flex: 1; min-width: 0; }
+.fs-top.hd .x { margin-top: 4px; }
+.pager { display: flex; align-items: center; gap: 3px; font-size: 14px; font-weight: 600; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); }
+.pager b { color: var(--fg-neutral-solid); font-weight: 600; margin-left: 5px; }
+.pager span { margin-right: 5px; }
+.chev { display: inline-block; width: 18px; height: 18px; position: relative; flex: none; }
+.chev::before { content: ""; position: absolute; left: 5px; top: 5px; width: 7px; height: 7px; border-right: 1.6px solid currentColor; border-top: 1.6px solid currentColor; transform: rotate(45deg); }
+.chev.l::before { transform: rotate(-135deg); left: 7px; }
+.chev.dim { opacity: .2; }
+.pager .chev { color: var(--fg-neutral-solid); }
+.ai-sheet.fs h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.fs-slot { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.fs-label { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); margin-bottom: 2px; }
+.fs-field { border-color: rgba(0,38,140,.08); }
+.fs-field.on { border-color: var(--fg-neutral-solid); box-shadow: none; }
+.fs-field.filled { border-color: rgba(0,38,140,.08); }
+.fs-field.filled.on { border-color: var(--fg-neutral-solid); }
+.fs-slot .input-row { gap: 8px; }
+.fs-slot .input-btn { padding: 0 16px; border-radius: 14px; }
+/* 5G 이용 가능 지역 안내 확인: 원형 체크 + 문장 + › (52:59460) */
+.fs-chk { display: flex; align-items: center; gap: 8px; padding: 6px 0 2px 4px; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
+.fs-chk span { flex: 1; word-break: keep-all; }
+.fs-chk .ck { width: 18px; height: 18px; border-radius: 50%; border: 1.6px solid rgba(6,12,31,.25); position: relative; flex: none; box-sizing: border-box; transition: background .25s, border-color .25s; }
+.fs-chk .ck::before { content: ""; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border-right: 1.6px solid #fff; border-bottom: 1.6px solid #fff; transform: rotate(45deg); opacity: 0; transition: opacity .2s; }
+.fs-chk.on .ck { background: var(--fg-neutral-solid); border-color: var(--fg-neutral-solid); }
+.fs-chk.on .ck::before { opacity: 1; }
+.fs-chk .chev { color: var(--fg-neutral-solid); }
+/* [다음 ›] 74×48 우측 정렬. 비활성 회색 → 필수 입력 완료 시 검정 (Figma Button) */
+.fs-next { align-self: flex-end; margin-top: 8px; height: 48px; padding: 0 12px 0 16px; border-radius: 14px; display: inline-flex; align-items: center; gap: 2px; background: rgba(39,59,157,.06); color: rgba(79,89,114,.55); font-size: 15px; font-weight: 600; letter-spacing: -.04em; transition: background .3s, color .3s; }
+.fs-next .chev { width: 16px; height: 16px; }
+.fs-next .chev::before { left: 3px; top: 4px; width: 6px; height: 6px; }
+.fs-next.on { background: var(--fg-neutral-solid); color: #fff; }
+
+/* ── 2안(mode an2) 납부 시트 A/B + 결과 한 줄 (Figma 107:47520) ── */
+.ai-sheet.p2a { bottom: 86px; padding: 24px 20px 20px; background: rgba(255,255,255,.92); gap: 20px; }
+.ai-sheet.p2a .rows { display: flex; flex-direction: column; gap: 10px; }
+.ai-sheet.p2a .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; transition: border-color .3s cubic-bezier(.65,0,.35,1); }
+.ai-sheet.p2a .plan-row.sel { border-color: var(--fg-neutral-solid); }
+.ai-sheet.p2a:not(.on) { visibility: hidden; transition: transform .5s var(--kb-ease), visibility 0s .5s; }
+.pay2 .p2-result { width: 353px; }
+.pay2 .p2-result .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; box-shadow: 0 0 20px rgba(35,55,155,.05); }
+.pay2 .p2-result:empty { display: none; }
+.ai-sheet.fs.p2 .fs-top span { flex: 1; }
+.input-field .p2-timer { margin-left: auto; font-style: normal; font-size: 14px; color: var(--fg-neutral-mute); font-variant-numeric: tabular-nums; }
+
+/* S-1 확정: 3안(및 2안 신청서·인증·납부)의 AI 바텀시트에도 같은 곡선 — 사용자 "시안 2, 3 다" (2026-09-08) */
+html[data-sheetfx="S1"] .ai-sheet.on { transition: transform .8s cubic-bezier(.16,1,.3,1); }
+html[data-sheetfx="S1"] .ai-sheet.fs.on { transition: transform .8s cubic-bezier(.16,1,.3,1), bottom var(--kb-ms) var(--kb-ease); }
+html[data-sheetfx="S1"] .ai-sheet.fs.on.swap { transition-duration: .35s; }
+html[data-sheetfx="S1"] .ai-sheet-dim { transition: opacity .6s cubic-bezier(.65,0,.35,1); }
+
+/* ── 2안 신청서 시트 하단 (Figma 90:101338): 진행 ‹ 1 / 4 › + [다음 ›] 한 줄. 버튼 brand-solid, 비활성 30% ── */
+.fs-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.fs-foot .pager .chev.l { opacity: .2; }
+.fs-foot .fs-next { margin-top: 0; }
+.fs-next.brand { background: var(--fg-brand-solid); color: #fff; opacity: .3; transition: opacity .3s; }
+.fs-next.brand.on { background: var(--fg-brand-solid); color: #fff; opacity: 1; }
+.fs-next.brand .chev::before { border-color: #fff; }
+
+/* ── 바텀 모달 등장 2차 시안 html[data-sheetfx] R1~R3 — S-1 도 "급발진(쑈옹)" 피드백 (2026-09-08): 출발을 느리게. 2안 .sheet2 + 2·3안 .ai-sheet 공통 ── */
+html[data-sheetfx="R1"] .ai-sheet.on, html[data-sheetfx="R1"] .ai2 .sheet2.on { transition: transform .7s cubic-bezier(.45,.05,.55,.95); }
+html[data-sheetfx="R1"] .ai-sheet.fs.on { transition: transform .7s cubic-bezier(.45,.05,.55,.95), bottom var(--kb-ms) var(--kb-ease); }
+html[data-sheetfx="R1"] .ai-sheet-dim, html[data-sheetfx="R1"] .ai2 .s2dim { transition: opacity .6s cubic-bezier(.45,.05,.55,.95); }
+html[data-sheetfx="R2"] .ai-sheet.on, html[data-sheetfx="R2"] .ai2 .sheet2.on { transition: transform .9s cubic-bezier(.4,0,.15,1); }
+html[data-sheetfx="R2"] .ai-sheet.fs.on { transition: transform .9s cubic-bezier(.4,0,.15,1), bottom var(--kb-ms) var(--kb-ease); }
+html[data-sheetfx="R2"] .ai-sheet-dim, html[data-sheetfx="R2"] .ai2 .s2dim { transition: opacity .7s cubic-bezier(.4,0,.2,1); }
+html[data-sheetfx="R3"] .ai-sheet-dim, html[data-sheetfx="R3"] .ai2 .s2dim { transition: opacity .35s cubic-bezier(.65,0,.35,1); }
+html[data-sheetfx="R3"] .ai-sheet.on, html[data-sheetfx="R3"] .ai2 .sheet2.on { transition: transform .8s cubic-bezier(.5,0,.15,1) .15s; }
+html[data-sheetfx="R3"] .ai-sheet.fs.on { transition: transform .8s cubic-bezier(.5,0,.15,1) .15s, bottom var(--kb-ms) var(--kb-ease); }
+html[data-sheetfx="R1"] .ai-sheet.fs.on.swap, html[data-sheetfx="R2"] .ai-sheet.fs.on.swap, html[data-sheetfx="R3"] .ai-sheet.fs.on.swap { transition-duration: .35s; transition-delay: 0s; }
+
+/* ── R-2 확정 보강: 시트가 내려갈 때도 스르륵 (사용자 2026-09-08 "나갈 때 쓩") — 시트 0.8s 느린 출발·긴 안착, 딤 0.6s ── */
+html[data-sheetfx="R2"] .ai-sheet:not(.on) { transition: transform .8s cubic-bezier(.4,0,.15,1); }
+html[data-sheetfx="R2"] .ai-sheet.fs:not(.on) { transition: transform .8s cubic-bezier(.4,0,.15,1), bottom var(--kb-ms) var(--kb-ease), visibility 0s .8s; }
+html[data-sheetfx="R2"] .ai-sheet.p2a:not(.on) { transition: transform .8s cubic-bezier(.4,0,.15,1), visibility 0s .8s; }
+html[data-sheetfx="R2"] .ai2 .sheet2:not(.on) { transition: transform .8s cubic-bezier(.4,0,.15,1), visibility 0s .8s; }
+html[data-sheetfx="R2"] .ai-sheet-dim:not(.on), html[data-sheetfx="R2"] .ai2 .s2dim:not(.on) { transition: opacity .6s cubic-bezier(.4,0,.2,1); }
+html[data-sheetfx="R2"] .ai-sheet.fs.on.swap { transition-duration: .35s; }
+
+/* ── 시트 내려가기 시안 html[data-sheetout] (2026-09-08, 사용자 "높이가 줄며 쑈옹") — 내용은 내려가는 동안 유지(fsKeep/keep) 위에서:
+   X1 통째로 (R-2 곡선 0.8s 그대로) / X2 제자리 디졸브 (24px 만 내려가며 0.45s 페이드) / X3 두 박자 (내용 0.15s 아웃 → 빈 시트 0.6s 하강) ── */
+/* X-2 (확정 2026-09-08): 닫힐 때만 .out — 24px 내려가며 0.45s 디졸브. 올라오기 직전(닫힌 기본 상태)은 그대로 화면 밖이라 R-2 상승과 충돌하지 않는다 */
+html[data-sheetout="X2"] .ai-sheet:not(.on):not(.peek), html[data-sheetout="X2"] .ai2 .sheet2:not(.on) { transition: none; }
+html[data-sheetout="X2"] .ai-sheet.out:not(.on):not(.peek), html[data-sheetout="X2"] .ai2 .sheet2.out:not(.on) { transform: translateY(24px); opacity: 0; visibility: visible; transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .4s cubic-bezier(.4,0,.2,1); }
+html[data-sheetout="X2"] .ai-sheet.fs.out:not(.on):not(.peek) { transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .4s cubic-bezier(.4,0,.2,1), bottom var(--kb-ms) var(--kb-ease); }
+html[data-sheetout="X2"] .ai-sheet.on, html[data-sheetout="X2"] .ai2 .sheet2.on { opacity: 1; }
+html[data-sheetout="X2"] .ai-sheet-dim:not(.on), html[data-sheetout="X2"] .ai2 .s2dim:not(.on) { transition: opacity .45s cubic-bezier(.4,0,.2,1); }
+html[data-sheetout="X3"] .ai-sheet:not(.on) > *, html[data-sheetout="X3"] .ai2 .sheet2:not(.on) > * { opacity: 0; transition: opacity .15s cubic-bezier(.65,0,.35,1); }
+html[data-sheetout="X3"] .ai-sheet.on > *, html[data-sheetout="X3"] .ai2 .sheet2.on > * { opacity: 1; transition: opacity .3s cubic-bezier(.65,0,.35,1) .15s; }
+html[data-sheetout="X3"] .ai-sheet:not(.on):not(.peek), html[data-sheetout="X3"] .ai2 .sheet2:not(.on) { transition: transform .6s cubic-bezier(.4,0,.15,1) .15s, visibility 0s .75s; }
+html[data-sheetout="X3"] .ai-sheet.fs:not(.on):not(.peek) { transition: transform .6s cubic-bezier(.4,0,.15,1) .15s, bottom var(--kb-ms) var(--kb-ease), visibility 0s .75s; }
+html[data-sheetout="X3"] .ai-sheet-dim:not(.on), html[data-sheetout="X3"] .ai2 .s2dim:not(.on) { transition: opacity .6s cubic-bezier(.4,0,.2,1) .15s; }
+html[data-sheetout="X2"] .ai-sheet.fs.on.swap, html[data-sheetout="X3"] .ai-sheet.fs.on.swap { transition-duration: .35s; transition-delay: 0s; }
+html[data-sheetout="X2"] .ai-sheet.fs.on.swap { transition: transform .35s var(--kb-ease); }
+
+/* 사용자 탭 모드(폰 도메인) 전용: 2안 턴 끝 [이어서 진행하기] 칩 — 다음 스텝이 시작되면 사라진다 (2026-09-10) */
+.next-chip { display: none; margin-top: 12px; }
+html[data-tapmode="user"] .next-chip.on { display: flex; animation: nextChipIn .4s cubic-bezier(.65,0,.35,1) both; }
+@keyframes nextChipIn { from { opacity: 0; transform: translateY(8px); } }
+
+/* ── 주소 검색 풀페이지 팝업 (Figma 210:122423, 2026-09-10): 시트 2/4 [검색] → 흰 풀페이지(상태바 · 앱바 · Search 353×46 · 결과 TextProductGroup 64h) · 키패드가 그 위에 ── */
+.sheet.zip { z-index: 12; }
+.ai-screen.zip-open .keyboard.slide { z-index: 13; }                       /* 팝업 위에 키패드 */
+.sheet.zip .zip-search { margin: 12px 20px 0; height: 46px; border-radius: 12px; background: rgba(39,59,157,.05); display: flex; align-items: center; gap: 2px; padding: 0 16px; box-sizing: border-box; font-size: 16px; font-weight: 500; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); flex: none; }
+.sheet.zip .zip-search.filled { color: var(--fg-neutral-solid); }
+.sheet.zip .zip-search span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet.zip .zip-search .caret { display: inline-block; width: 1.5px; height: 18px; background: var(--blue-600); animation: caret 1s steps(1) infinite; flex: none; }
+.sheet.zip .zip-search .mag { width: 18px; height: 18px; position: relative; flex: none; }
+.sheet.zip .zip-search .mag::before { content: ""; position: absolute; left: 1px; top: 1px; width: 10px; height: 10px; border: 1.8px solid var(--fg-neutral-solid); border-radius: 50%; }
+.sheet.zip .zip-search .mag::after { content: ""; position: absolute; left: 12px; top: 11px; width: 6px; height: 1.8px; background: var(--fg-neutral-solid); transform: rotate(45deg); transform-origin: left center; }
+.sheet.zip .zip-search .clr { width: 14px; height: 14px; border-radius: 3px; background: rgba(79,89,114,.35); flex: none; }
+.sheet.zip .zip-list { flex: 1; min-height: 0; overflow: hidden; padding: 16px 20px 0; display: flex; flex-direction: column; gap: 12px; }
+.sheet.zip .zip-item { flex: none; height: 64px; display: flex; flex-direction: column; justify-content: center; gap: 2px; letter-spacing: -.04em; animation: fsIn .35s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i) * 45ms); }
+.sheet.zip .zip-item small { font-size: 12px; line-height: 16px; color: var(--fg-neutral-mute); }
+.sheet.zip .zip-item b { font-size: 15px; line-height: 20px; font-weight: 600; color: var(--fg-neutral-solid); }
+.sheet.zip .zip-item span { font-size: 12px; line-height: 16px; color: var(--fg-neutral-subtle); }
+.sheet.zip .zip-item em { font-style: normal; margin-right: 6px; padding-right: 6px; border-right: 1px solid rgba(79,89,114,.25); }
+.sheet.zip .zip-item.pressing { opacity: .6; }
+/* 등장 시안 html[data-zippop]: Z1 아래서 올라옴(요금제 팝업 §8 과 같은 언어, 기본 .sheet) / Z2 오른쪽에서(X-1 앱 전환 언어) / Z3 시트에서 자라남(시트 자리에서 확대·모서리 펴짐) */
+html[data-zippop="Z2"] .sheet.zip { transform: translateX(100%); box-shadow: -20px 0 40px rgba(6,12,31,.12); transition: transform .45s var(--kb-ease); }
+html[data-zippop="Z2"] .sheet.zip.on { transform: none; }
+html[data-zippop="Z3"] .sheet.zip { transform: translateY(46%) scale(.92); transform-origin: 50% 100%; opacity: 0; border-radius: 28px 28px 0 0; transition: transform .5s var(--kb-ease), opacity .3s, border-radius .5s var(--kb-ease); }
+html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radius: 0; }

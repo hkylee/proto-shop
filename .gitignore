@@ -1,0 +1,11 @@
+node_modules
+dist
+.vercel
+.DS_Store
+dist-phone
+
+# 배포 폴더의 빌드 산출물(dist 복사본) — vercel.json 만 추적
+deploy/*/assets/
+deploy/*/icons/
+deploy/*/screens/
+deploy/*/index.html

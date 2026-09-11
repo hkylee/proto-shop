@@ -1,0 +1,85 @@
+/* ── 2안 · AI Agent 중심 + Bottom Sheet 선택 (AgentChat2) — agent.css 위의 레이어. Figma ixGPs9 96:47398 ───────── */
+
+/* 턴 컨테이너: 3안 .pen / .opt-turn 과 같은 등장 규칙 (자식이 .in 으로 하나씩) */
+.ai2 .turn2 { display: none; flex-direction: column; gap: 8px; }
+/* 한 턴 안의 연속 안내문(결제 방법 턴) 간격 = 10px (사용자 2026-09-09 '갭이 너무 커'): 앞 문장 아래 여백 15 → 2, 다음 문장 위 여백 12 → 0, turn2 gap 8 */
+.ai2 .turn2 > .msg-ai + .msg-ai { margin-top: 0; }
+.ai2 .turn2 > .msg-ai:has(+ .msg-ai) { margin-bottom: 2px; }
+.ai2 .turn2.on { display: flex; }
+.ai2 .turn2 > * { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+.ai2 .turn2 > .in { opacity: 1; transform: none; }
+.ai2 .turn2.plan-res { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+.ai2 .turn2.plan-res.in { opacity: 1; transform: none; }
+.ai2 .turn2.plan-res > * { opacity: 1; transform: none; }
+/* 시트에서 고른 결과 = 사용자 말풍선 "질문: … / 답: …" (Figma 155:88000 MessageUserSingle: neutral-subtle 8% · 12/18 · radius 20 · 14/18 medium · 오른쪽 정렬). 질문 줄은 mute, 답 줄은 solid */
+.ai2 .t2-result { width: 353px; }
+.t2-bubble span { display: flex; flex-direction: column; gap: 0; text-align: left; }
+.t2-bubble .q { font-style: normal; color: var(--fg-neutral-mute); }
+.t2-bubble .a { font-weight: 500; color: var(--fg-neutral-solid); }
+.ai2 .turn2.plan-res { width: 353px; }
+
+/* 바텀 모달 (AiAgentBottomSheet 361×408 @ 96:41834): 좌우 16, SearchAi 위 10px 에 앉는다. radius 28, padding 24, 제목 18/600 + × */
+.ai2 .sheet2 { position: absolute; left: 16px; right: 16px; bottom: 86px; z-index: 7; padding: 24px 20px 20px; border-radius: 28px; background: rgba(255,255,255,.92); border: 1px solid rgba(255,255,255,.3); box-shadow: 0 0 80px rgba(16,49,140,.12); backdrop-filter: blur(30px); display: flex; flex-direction: column; gap: 20px; transform: translateY(calc(100% + 120px)); transition: transform .5s var(--kb-ease), visibility 0s .5s; visibility: hidden; }   /* 내용이 없을 때도 화면 밖으로 (100% 만으론 머리가 걸침) */
+.ai2 .sheet2.on { transform: none; visibility: visible; transition: transform .5s var(--kb-ease); }
+.ai2 .sheet2 .hd { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 4px; }
+.ai2 .sheet2 h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; }
+.ai2 .sheet2 .x { width: 16px; height: 16px; position: relative; flex: none; }
+.ai2 .sheet2 .x::before, .ai2 .sheet2 .x::after { content: ""; position: absolute; left: 7px; top: -1px; width: 1.6px; height: 18px; background: var(--fg-neutral-solid); transform: rotate(45deg); }
+.ai2 .sheet2 .x::after { transform: rotate(-45deg); }
+.ai2 .sheet2 .rows { display: flex; flex-direction: column; gap: 10px; }
+.ai2 .sheet2 .plan-row { border-color: transparent; border-radius: 18px; padding: 20px; transition: border-color .3s cubic-bezier(.65,0,.35,1); }
+.ai2 .sheet2 .plan-row.sel { border-color: var(--fg-neutral-solid); }
+.ai2 .sheet2 .plan-mini.in-sheet { background: #fff; border-color: transparent; }
+.ai2 .sheet2 .more-btn { height: 40px; border-radius: 12px; background: var(--bg-neutral-subtle); color: var(--fg-neutral-mute); font-size: 14px; font-weight: 500; letter-spacing: -.04em; display: grid; place-items: center; }
+.ai2 .sheet2 .more-btn.pressing { transform: scale(.98); }
+/* 딤(6) 아래에 SearchAi(3) — 시트(7)가 입력창을 가리며 올라온다 (사용자 2026-09-08: 뒤로 지나가면 어색). 시트 자리는 입력창 위 10px 그대로 */
+.ai2 .s2dim { background: rgba(6,12,31,.42); }   /* 기본(옛 값) — 아래 html[data-dim] 시안이 덮는다 */
+/* 2안 시트 딤 농도 시안 (사용자 2026-09-09 "딤이 좀 강하다"). 3안 .ai-sheet-dim 은 22%(신청서 38%) */
+html[data-dim="A1"] .ai2 .s2dim { background: rgba(6,12,31,.32); }
+html[data-dim="A2"] .ai2 .s2dim { background: rgba(6,12,31,.26); }
+html[data-dim="A3"] .ai2 .s2dim { background: rgba(6,12,31,.20); }
+/* 전체 요금제 팝업은 3안 .sheet 그대로 (agent.css) */
+
+/* 바텀 모달 등장 모션 시안 html[data-sheetfx] — 사용자 "너무 쓕 나온다" (2026-09-08). S0 = 현재(0.5s quint-out) */
+html[data-sheetfx="S1"] .ai2 .sheet2.on { transition: transform .8s cubic-bezier(.16,1,.3,1); }
+html[data-sheetfx="S1"] .ai2 .s2dim { transition: opacity .6s cubic-bezier(.65,0,.35,1); }
+html[data-sheetfx="S2"] .ai2 .s2dim { transition: opacity .3s cubic-bezier(.65,0,.35,1); }
+html[data-sheetfx="S2"] .ai2 .sheet2.on { transition: transform .6s cubic-bezier(.22,1,.36,1) .2s; }
+html[data-sheetfx="S3"] .ai2 .sheet2.on { transition: transform .7s cubic-bezier(.34,1.22,.64,1); }
+html[data-sheetfx="S3"] .ai2 .sheet2 > * { opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s; }
+html[data-sheetfx="S3"] .ai2 .sheet2.on > * { opacity: 1; transform: none; transition: opacity .35s cubic-bezier(.65,0,.35,1) .28s, transform .4s cubic-bezier(.22,1,.36,1) .28s; }
+
+/* ── 2안 상단 앵커링 + 대화창을 덮는 모달 (Figma 90:86712 · 사용자 2026-09-09) html[data-s2cover="on"] ──
+   시트 높이·내용은 그대로. 위치만: 화면 아래에서 20px 고정(SearchAi 위 10px 이던 것을 SearchAi 를 덮는 자리로). 시트 위 8px 에 44px 원형 ∨ 버튼(ButtonIconAiItem: 흰 40% 유리 + shadow) */
+html:not([data-s2cover="off"]) .ai2 .sheet2 { bottom: 20px; }
+/* ∨ 플로팅 (Figma 210:122678 ButtonIconAiItem): 44 원형 · 흰 40% 유리 + blur · shadow 0 0 20 (0,38,140,.08) · 시트 위 12px 가운데. 모달이 직전 응답을 가릴 때만 (html[data-knob], 2026-09-10).
+   탭 대상이므로 transform 으로 자리 잡지 않는다(bottom 으로) */
+.ai2 .s2knob { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: calc(20px + var(--sheet-h, 0px) + 12px); width: 44px; height: 44px; border-radius: 999px; background: rgba(255,255,255,.4); backdrop-filter: blur(50px); box-shadow: 0 0 20px rgba(0,38,140,.08); z-index: 8; display: grid; place-items: center; opacity: 0; translate: 0 6px; pointer-events: none; transition: opacity .3s, translate .35s var(--kb-ease), bottom .9s cubic-bezier(.4,0,.15,1), scale .15s; }
+.ai2 .s2knob.on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.ai2 .s2knob.pressing { scale: .94; }
+.ai2 .s2knob i { width: 9px; height: 9px; border-right: 2px solid var(--fg-neutral-solid); border-bottom: 2px solid var(--fg-neutral-solid); rotate: 45deg; margin-top: -5px; transition: rotate .4s var(--kb-ease), margin .4s var(--kb-ease); }
+.ai2 .s2knob.up i { rotate: 225deg; margin-top: 5px; }
+/* K2 시트 접힘: 제목 줄(24 + 패딩 24)만 남기고 내려감. ∨ 는 접힌 시트 위로 따라 내려간다 */
+.ai2 .sheet2.on.fold { transform: translateY(calc(100% - 68px)); }
+.ai2 .s2knob.up { bottom: calc(20px + 68px + 12px); }
+/* K3 시트가 잠깐 비켜줌: 화면 밖으로 */
+.ai2 .sheet2.on.away { transform: translateY(calc(100% + 120px)); }
+html:not([data-knob="off"]) .ai2 .sheet2.on { transition: transform .9s cubic-bezier(.4,0,.15,1); }
+
+/* ── 2안 스텝 9~ (AgentChat mode='an2'): 3안 이력(이용현황·위약금·옵션 턴)은 숨기고 스텝 8 의 마지막 부분(.an2-hist)만 보인다 */
+.ai-screen.an2 .chat-scroll > .s5, .ai-screen.an2 .alt > .plans, .ai-screen.an2 .alt > .pen, .ai-screen.an2 .alt > .opts { display: none !important; }
+.ai-screen.an2 .alt > .an2-hist { display: flex; flex-direction: column; gap: 8px; width: 353px; opacity: 1; transform: none; filter: none; }   /* .alt > * 등장 규칙(opacity 0) 제외 — 이력은 처음부터 보인다 */
+.ai-screen.an2 .an2-hist .t2-bubble { width: 353px; }
+
+/* ── 스텝 4 추천 흐름 (html[data-recflow], Figma 210:124536, 2026-09-10): 추천 카드는 대화 안, 모달은 [네 / 다른 요금제 살펴보기] 두 줄 ── */
+.ai2 .rec-wrap { width: 353px; }
+.ai2 .plan-mini.in-chat { background: #fff; border-color: transparent; transition: border-color .35s cubic-bezier(.65,0,.35,1); }
+.ai2 .plan-mini.in-chat.sel { border-color: var(--fg-neutral-solid); }   /* P3: 적용 뒤 선택 테두리 (S-1 2px 검정) */
+.ai2 .sheet2 .choice { display: flex; flex-direction: column; gap: 12px; padding: 0 4px 4px; }
+.ai2 .sheet2 .choice .ai-sheet-item.pressing { opacity: .6; }
+/* ∨ 등장 타이밍 html[data-knobtime]: T1 시트와 동시 — 시트가 올라오기 전엔 화면 아래(bottom 8)에 있다가 .on 과 함께 시트와 같은 R-2 0.9s 로 올라온다. T2/T3 는 최종 자리에서 페이드만 */
+html[data-knobtime="T1"] .ai2 .s2knob:not(.on) { bottom: 8px; translate: 0 0; transition: opacity .3s, bottom .9s cubic-bezier(.4,0,.15,1); }
+html[data-knobtime="T1"] .ai2 .s2knob.on { transition: opacity .3s .1s, bottom .9s cubic-bezier(.4,0,.15,1), scale .15s; }
+/* T0 카드부터: 시트가 없을 땐 SearchAi(bottom 24 · 52h) 위 12px = 88 에. 시트가 오면 base-sheet 로 바뀌며 bottom 트랜지션(0.9s R-2)으로 시트와 함께 올라간다 */
+.ai2 .s2knob.base-search { bottom: 88px; }
+html[data-knobtime="T0"] .ai2 .s2knob { transition: opacity .3s, translate .35s var(--kb-ease), bottom .9s cubic-bezier(.4,0,.15,1), scale .15s; }

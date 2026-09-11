@@ -1,0 +1,46 @@
+/* NEXT Platform DS tokens — values read from Figma AiChat frame (oWim7Vh2m7pYSq0NiKHWAM / 11855:96463) */
+:root {
+  /* bg */
+  --bg-basement: #E2E6F1;            /* bg/layer/basement */
+  --bg-neutral-subtle: rgba(0, 38, 140, 0.08);
+  --bg-ai-subtle: rgba(255, 255, 255, 0.4);
+  --bg-inverse-solid: #FFFFFF;
+  --cardhome-bg: rgba(255, 255, 255, 0.9);
+  --inverse-alpha-400: rgba(255, 255, 255, 0.4);
+  --border-ai-subtle: rgba(255, 255, 255, 0.3);
+  --border-neutral-weak: #F4F5FA;
+
+  /* fg */
+  --fg-neutral-solid: #060C1F;
+  --fg-neutral-mute: #4F5972;
+  --fg-neutral-secondary: rgba(12, 27, 65, 0.67);
+  --fg-neutral-subtle: #6C7691;
+  --fg-brand-solid: #3A38EC;
+
+  /* palette */
+  --blue-50: #F0F4FF;
+  --blue-100: #DEE6FF;
+  --blue-200: #C5D3FF;
+  --blue-500: #5A6FFE;
+  --blue-600: #4B59FF;
+  --gray-100: #E2E6F1;
+  --gray-200: #D3D9E8;
+  --gray-500: #75809B;
+  --gray-1000: #060C1F;
+
+  /* effects */
+  --shadow-ai: 0 0 80px 0 rgba(16, 49, 140, 0.12);   /* shadow/neutral-mute */
+  --shadow-chip: 0 0 20px 0 rgba(35, 55, 155, 0.05);  /* gray-alpha-50 */
+
+  /* radius */
+  --radius-4: 4px; --radius-8: 8px; --radius-20: 20px; --radius-28: 28px; --radius-full: 999px;
+
+  /* player chrome aliases (player.css · product.css 공용) */
+  --ground: var(--border-neutral-weak);
+  --panel: #FFFFFF;
+  --line: var(--gray-200);
+  --line-weak: var(--gray-100);
+
+  /* type */
+  --font: "Pretendard Variable", "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}

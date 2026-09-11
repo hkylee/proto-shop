@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1안 스텝 2 · E 고도화 3안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ground: #F3F4F9; --panel: #FFFFFF; --ink: #060C1F; --mute: #4F5972; --subtle: #7A849C;
+  --line: #D8DDEA; --line-weak: #E8EBF3; --accent: #4B59FF; --accent-soft: #E9EBFF; --bezel: #0B0F1E;
+  --font: "Noto Sans KR", "Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ground: #12151F; --panel: #1A1E2B; --ink: #EEF0F7; --mute: #AEB5C8; --subtle: #7D859B; --line: #2C3244; --line-weak: #232837; --accent: #7B86FF; --accent-soft: #262B4A; }
+}
+:root[data-theme="dark"] { --ground: #12151F; --panel: #1A1E2B; --ink: #EEF0F7; --mute: #AEB5C8; --subtle: #7D859B; --line: #2C3244; --line-weak: #232837; --accent: #7B86FF; --accent-soft: #262B4A; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font); letter-spacing: -.02em; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; letter-spacing: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+.wrap { max-width: 1280px; margin: 0 auto; padding: 36px 32px 64px; }
+header { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin-bottom: 20px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--accent); text-transform: uppercase; }
+h1 { margin: 6px 0 8px; font-size: 26px; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; font-size: 14px; line-height: 22px; color: var(--mute); }
+.ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.ctl > button { height: 36px; padding: 0 14px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--ink); }
+.ctl > button.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.seg { display: flex; padding: 3px; border-radius: 999px; background: var(--line-weak); }
+.seg button { height: 30px; min-width: 36px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--mute); white-space: nowrap; }
+.seg button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 3px rgba(6,12,31,.08); }
+.bar2 { display: flex; align-items: center; gap: 14px; margin: 0 0 22px; font-size: 13px; flex-wrap: wrap; }
+.bar2 .lbl { font-size: 12px; color: var(--subtle); font-weight: 600; }
+.bar2 button.nav { height: 32px; padding: 0 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); font-weight: 600; }
+.bar2 #focusTitle { font-weight: 700; font-size: 15px; }
+.bar2 .kbd { margin-left: auto; color: var(--subtle); font-size: 12px; }
+
+/* one 시안 at a time */
+.col { display: none; }
+.col.active { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); grid-template-areas: "stage tag" "stage name" "stage one" "stage notes" "stage pro" "stage fit" "stage ." "beats ."; column-gap: 48px; row-gap: 14px; align-content: start; }
+.col > .tag { grid-area: tag; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--subtle); }
+.col > .tag b { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); color: var(--ground); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.col > h2 { grid-area: name; margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.03em; }
+.col > .one { grid-area: one; margin: -6px 0 0; font-size: 15px; line-height: 23px; color: var(--mute); max-width: 56ch; }
+.col > .stage { grid-area: stage; } .col > .beats { grid-area: beats; }
+.col > .notes { grid-area: notes; margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; max-width: 56ch; }
+.notes li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; font-size: 15px; line-height: 23px; color: var(--subtle); transition: color .3s; }
+.notes li i { font-style: normal; width: 26px; height: 26px; border-radius: 8px; background: var(--line-weak); color: var(--subtle); display: grid; place-items: center; font-size: 13px; font-weight: 700; margin-top: -1px; }
+.notes li.cur { color: var(--ink); } .notes li.cur i { background: var(--accent); color: #fff; }
+.col > .pro { grid-area: pro; margin: 4px 0 0; padding: 16px 18px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line-weak); font-size: 14px; line-height: 21px; color: var(--mute); max-width: 56ch; }
+.pro b { color: var(--ink); font-weight: 600; }
+.col > .fit { grid-area: fit; margin: 0; padding: 12px 16px; border-radius: 12px; background: var(--accent-soft); font-size: 13px; line-height: 20px; color: var(--ink); max-width: 56ch; }
+.fit b { font-weight: 700; }
+@media (max-width: 760px) { .col.active { grid-template-columns: 1fr; grid-template-areas: "tag" "name" "one" "stage" "beats" "notes" "pro" "fit"; } }
+.beats { display: flex; gap: 6px; align-items: center; }
+.beats button { flex: 1; height: 8px; border-radius: 4px; background: var(--line); transition: background .3s; }
+.beats button[aria-current="true"] { background: var(--accent); }
+.play { width: 28px; height: 28px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; flex: none; }
+
+/* ── phone 393×852 ── */
+.stage { position: relative; width: 100%; aspect-ratio: 393 / 852; }
+.phone { position: absolute; left: 50%; top: 0; width: 393px; height: 852px; transform: translateX(-50%) scale(var(--k, .6)); transform-origin: top center; border-radius: 44px; background: #fff; overflow: hidden; box-shadow: inset 0 0 0 10px var(--bezel), 0 24px 60px -24px rgba(6,12,31,.35); color: #060C1F; letter-spacing: -.03em; }
+.screen { position: absolute; inset: 10px; border-radius: 36px; overflow: hidden; background: #fff; }
+.island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; border-radius: 20px; background: var(--bezel); z-index: 40; }
+.status { height: 54px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 8px; font-size: 15px; font-weight: 600; }
+.status i { width: 60px; height: 11px; border-radius: 3px; background: linear-gradient(90deg, #060C1F 0 30%, transparent 30% 38%, #060C1F 38% 70%, transparent 70% 76%, #060C1F 76%); }
+.appbar { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 16px; font-weight: 600; }
+.appbar .back { width: 10px; height: 10px; border-left: 2px solid #060C1F; border-bottom: 2px solid #060C1F; transform: rotate(45deg); margin-left: 4px; }
+.appbar .dots { width: 18px; height: 4px; background: radial-gradient(circle, #060C1F 1.8px, transparent 2px) 0 0/6px 4px; }
+.content { position: absolute; top: 102px; left: 0; right: 0; bottom: 0; padding: 0 20px; }
+.sec-h { margin: 22px 0 14px; }
+.sec-h h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.04em; }
+.sec-h p { margin: 4px 0 0; font-size: 12.5px; color: #6C7691; }
+.spark { width: 12px; height: 12px; background: #4B59FF; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); flex: none; }
+.spark.w { background: #fff; }
+.spark.k { background: #060C1F; }
+/* option components */
+.opt { position: relative; transition: border-color .35s cubic-bezier(.65,0,.35,1), opacity .4s, transform .4s, box-shadow .35s; }
+.opt .badge { position: absolute; top: -10px; left: 14px; height: 22px; padding: 0 9px 0 7px; border-radius: 6px; background: #4B59FF; color: #fff; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; z-index: 2; }
+.opt.hint .badge { opacity: 1; transform: none; }
+.car { display: flex; gap: 12px; margin: 0 -20px; padding: 0 20px 4px; overflow: hidden; }
+.car-in { display: flex; gap: 12px; }
+.pc { flex: none; width: 262px; padding: 20px; border-radius: 20px; border: 1px solid #D3D9E8; background: #fff; }
+.pc .n { font-size: 18px; font-weight: 600; line-height: 24px; }
+.pc .p { margin-top: 2px; font-size: 15px; font-weight: 600; color: #3A38EC; }
+.pc .d { margin-top: 6px; font-size: 12.5px; color: #4F5972; }
+.pc .rows { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.pc .r { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; border: 1px solid #E2E6F1; font-size: 12px; }
+.pc .r b { font-weight: 600; } .pc .r span { color: #6C7691; }
+.pc.sel { border: 2px solid #060C1F; padding: 19px; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.rc { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 16px; border: 1px solid #D3D9E8; background: #fff; }
+.rc b { display: block; font-size: 15px; font-weight: 600; } .rc span { display: block; margin-top: 3px; font-size: 12px; color: #4F5972; }
+.rc em { font-style: normal; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.rc.sel { border: 2px solid #060C1F; padding: 15px 17px; }
+.swatches { display: flex; gap: 18px; }
+.sw { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12.5px; color: #4F5972; }
+.sw i { width: 52px; height: 52px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1px rgba(6,12,31,.08); transition: box-shadow .35s; }
+.sw.sel i { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #060C1F; }
+.sw.sel { color: #060C1F; font-weight: 600; }
+.sw .badge { left: 50%; transform: translate(-50%, 4px); top: -12px; white-space: nowrap; }
+.sw.hint .badge { transform: translate(-50%, 0); }
+.dimmed .opt:not(.rec) { opacity: .4; transform: scale(.98); }
+.sec2 { margin-top: 26px; }
+.sec2 h3 { margin: 0 0 12px; font-size: 18px; font-weight: 600; letter-spacing: -.04em; }
+.sec2 .rc { margin-bottom: 8px; }
+.fade { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff 45%); pointer-events: none; z-index: 3; }
+/* summary + bottom group (Figma 62:42420 ⇄ 62:42508) */
+.sum { position: absolute; left: 20px; right: 20px; bottom: 96px; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 14px; background: #F0F4FF; font-size: 10.5px; color: #6C7691; z-index: 4; transition: opacity .3s, transform .4s cubic-bezier(.65,0,.35,1); }
+.sum div { display: flex; flex-direction: column; gap: 3px; }
+.sum b { font-size: 14px; font-weight: 600; color: #060C1F; }
+.sum b.brand { color: #3A38EC; }
+.sum b.pending { color: #9AA3B8; font-weight: 500; }
+.dock { position: absolute; left: 20px; bottom: 24px; height: 52px; width: 52px; border-radius: 999px; background: rgba(255,255,255,.96); border: 1px solid #DDE1FF; box-shadow: 0 0 40px rgba(16,49,140,.14), 0 4px 14px rgba(6,12,31,.06); z-index: 22; overflow: hidden; transition: width .5s cubic-bezier(.22,1,.36,1), bottom .5s cubic-bezier(.22,1,.36,1); }
+.dock .tico { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .25s; }
+.dock .tico .t { position: relative; width: 22px; height: 22px; }
+.dock .tico .t::before { content: ""; position: absolute; left: 0; right: 4px; top: 0; height: 5px; background: #2D2A6E; border-radius: 1px; }
+.dock .tico .t::after { content: ""; position: absolute; left: 6px; top: 0; width: 6px; height: 20px; background: #2D2A6E; border-radius: 1px; }
+.dock .tico .spark { position: absolute; right: 0; bottom: 0; width: 9px; height: 9px; background: #2D2A6E; }
+.dock .sinp { position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 18px 0 22px; opacity: 0; transition: opacity .3s .15s; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.dock .sinp .spark { width: 16px; height: 16px; }
+.dock .sinp .q { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: #6C7691; }
+.dock .sinp .q.typed { color: #060C1F; }
+.dock .sinp .caret { width: 1.5px; height: 18px; background: #4B59FF; animation: caret 1s steps(1) infinite; }
+.dock .sinp .voice { width: 18px; height: 14px; background: repeating-linear-gradient(90deg, #060C1F 0 2px, transparent 2px 5px); clip-path: polygon(0 35%, 100% 35%, 100% 65%, 0 65%); }
+.dock .sinp .x { width: 18px; height: 18px; position: relative; display: none; }
+.dock .sinp .x::before, .dock .sinp .x::after { content: ""; position: absolute; left: 2px; right: 2px; top: 8px; height: 2px; background: #060C1F; transform: rotate(45deg); }
+.dock .sinp .x::after { transform: rotate(-45deg); }
+@keyframes caret { 50% { opacity: 0; } }
+.cta { position: absolute; left: 80px; right: 20px; bottom: 24px; height: 52px; border-radius: 14px; background: #4B59FF; color: #fff; font-size: 15px; font-weight: 600; display: grid; place-items: center; z-index: 21; transition: opacity .3s, transform .45s cubic-bezier(.22,1,.36,1); overflow: hidden; }
+.cta span { grid-area: 1 / 1; transition: opacity .3s, transform .3s; }
+.cta .l1 { opacity: 0; transform: translateY(10px); }
+.ph.b1 .dock, .ph.b2 .dock, .ph.b3 .dock { width: 353px; }
+.ph.b1 .dock .tico, .ph.b2 .dock .tico, .ph.b3 .dock .tico { opacity: 0; }
+.ph.b1 .dock .sinp, .ph.b2 .dock .sinp, .ph.b3 .dock .sinp { opacity: 1; }
+.ph.b1 .cta, .ph.b2 .cta, .ph.b3 .cta { opacity: 0; transform: translateY(20px); pointer-events: none; }
+.ph.b1 .sum, .ph.b2 .sum, .ph.b3 .sum { opacity: 0; }
+.ph.b1 .dock .q, .ph.b2 .dock .q, .ph.b3 .dock .q { color: #060C1F; }
+.ph.b2 .dock .caret, .ph.b3 .dock .caret, .ph.b0 .dock .caret, .ph.b4 .dock .caret { display: none; }
+.ph.b2 .dock .voice, .ph.b3 .dock .voice { display: none; } .ph.b2 .dock .x, .ph.b3 .dock .x { display: block; }
+.ph.b4 .cta .l0 { opacity: 0; transform: translateY(-10px); } .ph.b4 .cta .l1 { opacity: 1; transform: none; }
+.ph.b0 .cta, .ph.b4 .cta { transition-delay: .2s; }
+/* keyboard */
+.kb { position: absolute; left: 0; right: 0; bottom: 0; height: 280px; background: rgba(233,235,251,.97); border-radius: 26px 26px 0 0; z-index: 20; transform: translateY(100%); transition: transform .5s cubic-bezier(.22,1,.36,1); padding: 14px 6px; display: flex; flex-direction: column; gap: 10px; }
+.kb .row { display: flex; justify-content: center; gap: 6px; }
+.kb .row i { width: 32px; height: 40px; border-radius: 6px; background: #fff; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.kb .row.r2 i { width: 60px; } .kb .row.r2 i:nth-child(2) { width: 190px; } .kb .row.r2 i:last-child { background: #4B59FF; }
+.ph.b1 .kb { transform: none; }
+.ph.b1 .dock { bottom: 292px; }
+/* touch pointer */
+.finger { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: rgba(75,89,255,.32); border: 2px solid rgba(255,255,255,.95); box-shadow: 0 2px 8px rgba(6,12,31,.25); z-index: 50; opacity: 0; transition: left .45s cubic-bezier(.65,0,.35,1), top .45s cubic-bezier(.65,0,.35,1), opacity .25s, transform .15s; left: 46px; top: 776px; }
+.finger.on { opacity: 1; } .finger.press { transform: scale(.72); background: rgba(75,89,255,.6); }
+
+/* ── answer surfaces (all anchored to the dock) ── */
+.surf { position: absolute; left: 20px; right: 20px; bottom: 86px; z-index: 21; opacity: 0; transform: translateY(14px); transition: opacity .35s, transform .45s cubic-bezier(.22,1,.36,1); }
+.ph.b2 .surf, .ph.b3 .surf { opacity: 1; transform: none; }
+.ph.b3 .surf.leave3, .ph.b4 .surf { opacity: 0; transform: translateY(14px); }
+.think { display: inline-flex; gap: 4px; height: 18px; align-items: center; }
+.think i { width: 6px; height: 6px; border-radius: 50%; background: #4B59FF; opacity: .35; animation: th 1s infinite; }
+.think i:nth-child(2) { animation-delay: .15s; } .think i:nth-child(3) { animation-delay: .3s; }
+@keyframes th { 50% { opacity: 1; transform: translateY(-2px); } }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.bai { height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.9); border: 1px solid #DDE1FF; font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; white-space: nowrap; }
+.bai.dark { background: #060C1F; color: #fff; border-color: #060C1F; }
+@keyframes up { from { opacity: 0; transform: translateY(4px); } }
+/* A · E strip */
+.strip { padding: 14px 16px 12px; border-radius: 20px 20px 20px 8px; background: rgba(255,255,255,.96); border: 1px solid #DDE1FF; box-shadow: 0 16px 40px -18px rgba(16,49,140,.35); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 10px; }
+.strip .hd { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: #3A38EC; }
+.strip .ans { font-size: 14px; line-height: 20px; }
+.strip .ans b { font-weight: 600; }
+/* B card */
+.card { padding: 18px 18px 16px; border-radius: 24px; background: rgba(255,255,255,.97); border: 1px solid #DDE1FF; box-shadow: 0 24px 60px -20px rgba(16,49,140,.4); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 12px; }
+.card .hd { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: #3A38EC; }
+.card .hd span { display: inline-flex; align-items: center; gap: 6px; }
+.card .ans { font-size: 14px; line-height: 20px; color: #060C1F; }
+.card .mini { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #F4F6FF; border: 1px solid #DDE1FF; }
+.card .mini b { display: block; font-size: 15px; font-weight: 600; } .card .mini span { display: block; margin-top: 2px; font-size: 12px; color: #4F5972; }
+.card .mini i { width: 40px; height: 40px; border-radius: 50%; flex: none; display: none; }
+.card .mini.hascolor i { display: block; }
+.card .cmp { display: flex; gap: 12px; font-size: 12px; color: #6C7691; }
+.card .cmp b { color: #060C1F; font-weight: 600; }
+.card .ok { height: 46px; border-radius: 14px; background: #060C1F; color: #fff; font-size: 14px; font-weight: 600; display: grid; place-items: center; }
+/* C picker */
+.picker { padding: 16px 16px 14px; border-radius: 24px; background: rgba(255,255,255,.97); border: 1px solid #DDE1FF; box-shadow: 0 24px 60px -20px rgba(16,49,140,.4); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 8px; }
+.picker .ans { min-height: 18px; display: flex; align-items: center; }
+.picker .ans:has(.think[hidden]) { display: none; }
+.picker .hd { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #3A38EC; margin-bottom: 4px; }
+.pk { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid #E2E6F1; background: #fff; transition: border-color .3s; }
+.pk i { width: 28px; height: 28px; border-radius: 50%; flex: none; display: none; }
+.pk.hascolor i { display: block; }
+.pk .tx { flex: 1; min-width: 0; } .pk b { display: block; font-size: 14px; font-weight: 600; } .pk span { display: block; font-size: 11.5px; color: #6C7691; margin-top: 1px; }
+.pk em { font-style: normal; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.pk.rec { border: 2px solid #4B59FF; padding: 11px 13px; background: #F7F8FF; }
+.pk.rec .why { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11.5px; color: #3A38EC; font-weight: 600; }
+.pk .why { display: none; }
+.ph.b3 .pk.rec { border-color: #060C1F; background: #fff; }
+/* D bar */
+.abar { padding: 12px 14px 12px 16px; border-radius: 999px; background: #060C1F; color: #fff; display: flex; align-items: center; gap: 10px; font-size: 13px; box-shadow: 0 12px 30px rgba(6,12,31,.3); }
+.abar .tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.abar .tx b { font-weight: 600; }
+.abar .ok { height: 30px; padding: 0 12px; border-radius: 999px; background: #fff; color: #060C1F; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; flex: none; }
+.abar .think i { background: #fff; }
+.D.b2 .abar .t1 { display: none; } .D.b2 .abar .think { display: inline-flex; }
+.D.b2 .abar .ok { display: none; }
+.D.b2 .abar.after .think { display: none; } .D.b2 .abar.after .t1 { display: inline; } .D.b2 .abar.after .ok { display: inline-flex; }
+.D.b3 .abar .think { display: none; }
+.D .surf { bottom: 86px; }
+.D.b4 .surf { opacity: 1; transform: none; }
+.D.b4 .abar .t1, .D.b4 .abar .ok { display: none; } .D.b4 .abar .t2 { display: inline; } .D .abar .t2 { display: none; }
+.D.b4 .abar .think { display: none; }
+.D.b4 .abar { transition: opacity .3s 2.2s; opacity: 0; }
+.D.b4 .surf { transition: opacity .3s 2.4s; }
+
+
+/* ── E 고도화 공통: 이전 섹션 + 팬 ── */
+.status, .appbar { position: relative; z-index: 6; background: #fff; }
+.appbar { box-shadow: 0 1px 0 rgba(6,12,31,.04); }
+.sw.soft i { box-shadow: 0 0 0 2px #fff, 0 0 0 3px #4B59FF; }
+.content { transition: transform .9s cubic-bezier(.65,0,.35,1); }
+.pre { margin: 18px 0 0; padding-bottom: 22px; border-bottom: 1px solid #EEF0F6; }
+.pre h3 { margin: 0 0 12px; font-size: 18px; font-weight: 600; letter-spacing: -.04em; display: flex; align-items: center; justify-content: space-between; }
+.pre h3 em { font-style: normal; font-size: 12px; font-weight: 500; color: #6C7691; }
+.pre .rc { margin-bottom: 8px; }
+.sec-h { position: relative; }
+/* E-2 상태형: 추천 = 파란 2px 테두리, 나머지 물러남 */
+.pc.recst { border: 2px solid #4B59FF; padding: 19px; box-shadow: 0 0 0 4px rgba(75,89,255,.12); }
+.rc.recst { border: 2px solid #4B59FF; padding: 15px 17px; box-shadow: 0 0 0 4px rgba(75,89,255,.12); }
+.sw.recst i { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4B59FF; } .sw.recst { color: #3A38EC; font-weight: 600; }
+.pc.recst.sel, .rc.recst.sel { border-color: #060C1F; box-shadow: none; }
+.sw.recst.sel i { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #060C1F; } .sw.recst.sel { color: #060C1F; }
+.opt .tapme { position: absolute; right: 14px; top: -11px; height: 22px; padding: 0 9px; border-radius: 6px; background: #4B59FF; color: #fff; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; z-index: 2; white-space: nowrap; }
+.sw .tapme { right: auto; left: 50%; transform: translate(-50%, 4px); top: -12px; }
+.opt.recst:not(.sel) .tapme { opacity: 1; transform: none; }
+.sw.recst:not(.sel) .tapme { transform: translate(-50%, 0); }
+/* E-3 캡션형: 섹션 헤더 캡션 */
+.cap { display: none; align-items: center; gap: 6px; margin-top: 8px; height: 28px; padding: 0 10px 0 8px; border-radius: 8px; background: #EEF0FF; color: #3A38EC; font-size: 12px; font-weight: 600; width: fit-content; animation: up .45s cubic-bezier(.65,0,.35,1) both; }
+.cap.on { display: inline-flex; }
+.cap .c2 { display: none; } .cap.done .c1 { display: none; } .cap.done .c2 { display: inline; }
+.cap.done { background: #F1F2F6; color: #060C1F; }
+.pc.soft, .rc.soft { border-color: #4B59FF; background: #FAFBFF; }
+.sw.soft i { box-shadow: 0 0 0 2px #fff, 0 0 0 2px #4B59FF; }
+.pc.soft.sel, .rc.soft.sel { border-color: #060C1F; background: #fff; }
+/* E-3 미니 스트립 */
+.strip.mini { padding: 12px 14px; gap: 8px; }
+.strip.mini .ans { font-size: 13.5px; line-height: 19px; }
+/* focus-only */
+.strip .chips .bai.ok { position: relative; }
+.tbl[data-focus="E1"] :is(td, th):nth-child(2), .tbl[data-focus="E2"] :is(td, th):nth-child(3), .tbl[data-focus="E3"] :is(td, th):nth-child(4) { background: var(--accent-soft); }
+.back-link { font-size: 13px; color: var(--subtle); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.back-link:hover { color: var(--ink); }
+
+/* compare table */
+.cmpt { margin-top: 44px; }
+.cmpt h2 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+.cmpt p { margin: 0 0 16px; font-size: 13px; color: var(--mute); max-width: 70ch; line-height: 20px; }
+.tbl { overflow-x: auto; border: 1px solid var(--line-weak); border-radius: 14px; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line-weak); vertical-align: top; line-height: 18px; }
+th { font-weight: 600; color: var(--subtle); font-size: 12px; white-space: nowrap; }
+thead th { background: var(--ground); }
+tbody th { color: var(--ink); white-space: nowrap; }
+tr:last-child td, tr:last-child th { border-bottom: 0; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.hi { background: #3DBE7A; } .mid { background: #E8B33A; } .lo { background: #D8DDEA; }
+.rec { font-weight: 600; color: var(--accent); }
+.tbl[data-focus="A"] :is(td, th):nth-child(2), .tbl[data-focus="B"] :is(td, th):nth-child(3), .tbl[data-focus="C"] :is(td, th):nth-child(4), .tbl[data-focus="D"] :is(td, th):nth-child(5), .tbl[data-focus="E"] :is(td, th):nth-child(6) { background: var(--accent-soft); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back-link" href="./">← A~E 시안 보드로</a>
+  <header>
+    <div>
+      <div class="eyebrow">1안 · Static 중심 + AI 일시 호출 · E 고도화</div>
+      <h1>답은 하단 스트립에, 대상은 페이지에. 그걸 실제로 만들 수 있게 세 갈래로</h1>
+      <p class="lede">E 시안의 두 가지 약점, <b>"대상이 화면 밖이면?"</b>과 <b>"배지 위치를 컴포넌트마다 정해야 한다"</b>를 푸는 세 방향입니다. 세 시안 모두 공통으로 <b>대상이 스트립에 가리면 페이지가 그만큼만 자동으로 올라옵니다</b>(전송 직후, 답이 오기 전에 움직여서 답이 도착할 때 대상이 이미 보이게). 다른 것은 "추천을 페이지에 어떻게 표시하는가"와 "동의를 어디서 하는가"입니다. 그래서 각 시안이 NEXT DS의 어떤 기존 상태·컴포넌트로 만들어지는지도 함께 적었습니다.</p>
+    </div>
+    <div class="ctl">
+      <div class="seg" id="tabs" role="tablist"><button data-f="E1" aria-selected="true">E-1</button><button data-f="E2">E-2</button><button data-f="E3">E-3</button></div>
+      <button id="playAll" class="primary">▶ 다시 재생</button>
+      <button id="resetAll">처음으로</button>
+    </div>
+  </header>
+  <div class="bar2">
+    <button class="nav" id="prev">← 이전</button>
+    <span id="focusTitle"></span>
+    <button class="nav" id="next">다음 →</button>
+    <span class="lbl" style="margin-left:18px">적용 대상</span>
+    <div class="seg" id="targets"><button data-t="plan" aria-selected="true">요금제 캐러셀</button><button data-t="storage">용량 리스트</button><button data-t="color">색상 스와치</button></div>
+    <span class="kbd">← → 시안 · 스페이스 재생/정지</span>
+  </div>
+
+  <div id="board"></div>
+
+  <section class="cmpt">
+    <h2>한눈에 비교</h2>
+    <p>공통(자동 팬)을 빼면 세 시안의 차이는 두 줄로 요약됩니다. <b>추천 표시가 항목에 붙는가(E-1, E-2) / 섹션에 붙는가(E-3)</b>, 그리고 <b>동의를 스트립에서 하는가(E-1, E-3) / 페이지 항목을 직접 누르는가(E-2)</b>. 구현 관점에서는 E-2와 E-3가 컴포넌트별 배지 슬롯을 만들 필요가 없어 가볍고, E-1은 지금 3안 [AI 추천] 배지를 그대로 쓰는 대신 슬롯 3종을 정의해야 합니다.</p>
+    <div class="tbl" id="tbl">
+      <table>
+        <thead><tr><th></th><th>E-1 배지 + 팬</th><th>E-2 상태형 · 페이지에서 동의</th><th>E-3 섹션 캡션</th></tr></thead>
+        <tbody>
+          <tr><th>페이지에 추천 표시</th><td>항목 위 [AI 추천] 배지 (3안 배지 재사용)</td><td>항목의 추천 상태(파란 2px 테두리) + 나머지 40%로 물러남. 배지 없음</td><td>섹션 헤더 아래 캡션 "✦ AI 추천 · 항목명" + 항목 얇은 파란 테두리</td></tr>
+          <tr><th>동의</th><td>스트립의 [이 항목으로 선택]</td><td>페이지의 파란 항목을 직접 탭 (일반 선택과 동일한 탭)</td><td>스트립의 [항목명으로 선택]</td></tr>
+          <tr><th>컴포넌트별 추가 정의</th><td><span class="dot mid"></span>배지 슬롯 3종 (카드 좌상단 · 행 좌상단 · 스와치 위)</td><td><span class="dot hi"></span>없음. 기존 selected 스타일의 색만 다른 "recommended" 상태 1개</td><td><span class="dot hi"></span>없음. 섹션 헤더 슬롯 1개만</td></tr>
+          <tr><th>선택 뒤 남는 흔적</th><td>배지 유지 → "AI가 고른 항목" 계속 읽힘</td><td>없음 (일반 선택과 같아짐)</td><td>캡션이 "AI 추천으로 선택했어요"로 바뀌어 유지</td></tr>
+          <tr><th>스트립 높이</th><td>입력창 + 약 100px</td><td>입력창 + 약 100px</td><td><span class="rec">입력창 + 약 80px (미니)</span></td></tr>
+          <tr><th>탭 수 (발화 뒤)</th><td>1 (스트립)</td><td>1 (페이지)</td><td>1 (스트립)</td></tr>
+          <tr><th>위험</th><td>배지가 카드 제목과 겹치는 컴포넌트가 있으면 슬롯 재정의</td><td>추천을 못 알아채고 다른 항목을 누를 수 있음 → 그것도 정상 선택이라 문제 없음. 스트립은 그냥 닫힘</td><td>캡션과 항목이 떨어져 있어 항목이 여러 개 보일 때 "어느 것" 확인이 한 박자 느림</td></tr>
+          <tr><th>구현 현실성</th><td>높음</td><td><span class="rec">가장 높음</span></td><td>높음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const TARGETS = {
+  plan: { label: '요금제 캐러셀', title: '요금제를 선택해 주세요', desc: '오른쪽으로 밀어 비교해 보세요', q: '이용 현황에 맞춰서 적합한 요금제 추천해줘', sec: '요금제',
+    opt: '5GX 프라임 플러스', sub: '월 99,000원 · 데이터 무제한', why: '6개월 평균 22.4GB, 최근 3개월은 20GB를 넘겼어요',
+    cta0: '요금제 선택하기', cta1: 'SIM 유형 선택하기', sumKey: 'pend', sumVal: '월 99,000원',
+    prev: () => `<div class="pre"><h3>모델 <em>갤럭시 Z 플립8</em></h3><div class="rc sel" style="margin-bottom:22px"><div><b>갤럭시 Z 플립8</b><span>7.5형 · 2025년 7월 출시</span></div><em>1,684,000원~</em></div><h3>색상 <em>그라파이트</em></h3><div class="swatches">
+      <div class="sw"><i style="background:#E9B4C0"></i><span>핑크</span></div><div class="sw sel"><i style="background:#4A4F57"></i><span>그라파이트</span></div><div class="sw"><i style="background:#EEEBE3"></i><span>크림</span></div><div class="sw"><i style="background:#BFD9CF"></i><span>민트</span></div></div></div>`,
+    next: ['SIM 유형을 선택해 주세요', [['기존 USIM을 그대로 사용할게요', '재사용 가능 여부를 확인했어요'], ['eSIM으로 개통할게요', '배송 없이 디지털 SIM을 발급해요']]],
+    comp: () => `<div class="car"><div class="car-in">
+      <div class="pc opt rec"><span class="badge"><span class="spark w"></span>AI 추천</span><span class="tapme">눌러서 선택</span><div class="n">5GX 프라임 플러스</div><div class="p">월 99,000원</div><div class="d">데이터 무제한 · 테더링 80GB</div><div class="rows"><div class="r"><b>공통지원금</b><span>450,000원</span></div><div class="r"><b>선택약정 24개월</b><span>594,000원</span></div></div></div>
+      <div class="pc opt"><div class="n">베스트 Pro</div><div class="p">월 119,000원</div><div class="d">데이터 무제한 · 공유 120GB</div><div class="rows"><div class="r"><b>공통지원금</b><span>500,000원</span></div><div class="r"><b>선택약정 24개월</b><span>714,000원</span></div></div></div>
+    </div></div>` },
+  storage: { label: '용량 리스트', title: '용량은 얼마나 필요하세요?', desc: '사진 1장당 약 5MB 기준 예상치예요', q: '사진 많이 찍는데 용량 뭐로 하는 게 좋아?', sec: '용량',
+    opt: '512GB', sub: '1,936,000원 · 사진 약 102,400장', why: '지금 폰에 사진 38,000장, 256GB의 74%를 쓰고 있어요',
+    cta0: '용량 선택하기', cta1: '수령 방법 선택하기', sumKey: 'dev', sumVal: '월 60,167원',
+    prev: () => `<div class="pre"><h3>모델 <em>갤럭시 Z 플립8</em></h3><div class="rc sel" style="margin-bottom:22px"><div><b>갤럭시 Z 플립8</b><span>7.5형 · 2025년 7월 출시</span></div><em>1,684,000원~</em></div><h3>색상 <em>그라파이트</em></h3><div class="swatches">
+      <div class="sw"><i style="background:#E9B4C0"></i><span>핑크</span></div><div class="sw sel"><i style="background:#4A4F57"></i><span>그라파이트</span></div><div class="sw"><i style="background:#EEEBE3"></i><span>크림</span></div><div class="sw"><i style="background:#BFD9CF"></i><span>민트</span></div></div></div>`,
+    next: ['휴대폰은 어떻게 받으시겠어요?', [['집에서 편하게 받아볼게요', '일반 배송'], ['오늘 최대한 빨리 받아볼래요', '바로 도착']]],
+    comp: () => `<div class="stack">
+      <div class="rc opt"><div><b>256GB</b><span>사진 약 51,200장을 저장할 수 있어요</span></div><em>1,684,000원</em></div>
+      <div class="rc opt rec"><span class="badge"><span class="spark w"></span>AI 추천</span><span class="tapme">눌러서 선택</span><div><b>512GB</b><span>사진 약 102,400장을 저장할 수 있어요</span></div><em>1,936,000원</em></div>
+      <div class="rc opt"><div><b>1TB</b><span>사진 약 204,800장을 저장할 수 있어요</span></div><em>2,557,500원</em></div>
+    </div>` },
+  color: { label: '색상 스와치', title: '어떤 색상이 마음에 드세요?', desc: '색상별 재고와 출고 일정이 달라요', q: '제일 인기 많은 색이 뭐야?', sec: '색상',
+    opt: '그라파이트', sub: '재고 있음 · 오늘 출고', why: 'Z 플립8 구매 고객 중 41%가 골랐고, 지금 바로 출고돼요',
+    cta0: '색상 선택하기', cta1: '용량 선택하기', sumKey: null, sumVal: '',
+    prev: () => `<div class="pre"><h3>모델 <em>갤럭시 Z 플립8</em></h3><div class="rc sel"><div><b>갤럭시 Z 플립8</b><span>7.5형 · 2025년 7월 출시</span></div><em>1,684,000원~</em></div><div class="rc"><div><b>갤럭시 Z 폴드8</b><span>8형 · 2025년 7월 출시</span></div><em>2,398,000원~</em></div><div class="rc"><div><b>갤럭시 S25 울트라</b><span>6.9형 · 2025년 2월 출시</span></div><em>1,698,400원~</em></div></div>`,
+    next: ['용량은 얼마나 필요하세요?', [['256GB', '사진 약 51,200장'], ['512GB', '사진 약 102,400장']]],
+    comp: () => `<div class="swatches">
+      <div class="sw opt"><i style="background:#E9B4C0"></i><span>핑크</span></div>
+      <div class="sw opt rec"><span class="badge"><span class="spark w"></span>AI 추천</span><span class="tapme">눌러서 선택</span><i style="background:#4A4F57"></i><span>그라파이트</span></div>
+      <div class="sw opt"><i style="background:#EEEBE3"></i><span>크림</span></div>
+      <div class="sw opt"><i style="background:#BFD9CF"></i><span>민트</span></div>
+    </div>` },
+}
+
+const phoneHTML = (T, surface) => `
+  <div class="phone ph"><div class="island"></div><div class="screen">
+    <div class="status"><span>9:41</span><i></i></div>
+    <div class="appbar"><span class="back"></span><span>갤럭시 Z 플립8</span><span class="dots"></span></div>
+    <div class="content">
+      ${T.prev()}
+      <div class="sec-h"><h3>${T.title}</h3><p>${T.desc}</p><div class="cap"><span class="spark"></span><span class="c1">AI 추천 · ${T.opt}</span><span class="c2">AI 추천으로 ${T.opt} 선택했어요</span></div></div>
+      <div class="compwrap">${T.comp()}</div>
+      <div class="sec2"><h3>${T.next[0]}</h3>${T.next[1].map(([a, b]) => `<div class="rc"><div><b>${a}</b><span>${b}</span></div></div>`).join('')}</div>
+    </div>
+    <div class="fade"></div>
+    <div class="sum"><div><span>단말</span><b class="dev">${T.sumKey === 'dev' ? '계산 전' : '월 52,417원'}</b></div><div><span>통신요금</span><b class="pend pending">계산 전</b></div><div><span>예상 월 청구</span><b class="brand tot pending">계산 전</b></div></div>
+    <div class="kb"><div class="row">${'<i></i>'.repeat(10)}</div><div class="row">${'<i></i>'.repeat(9)}</div><div class="row">${'<i></i>'.repeat(7)}</div><div class="row r2"><i></i><i></i><i></i></div></div>
+    ${surface}
+    <div class="cta"><span class="l0">${T.cta0}</span><span class="l1">${T.cta1}</span></div>
+    <div class="dock"><div class="tico"><div class="t"><span class="spark"></span></div></div><div class="sinp"><span class="spark"></span><span class="q">${T.q}</span><span class="caret"></span><span class="voice"></span><span class="x"></span></div></div>
+    <div class="finger"></div>
+  </div></div>`
+
+const HD = (T) => `<span class="spark"></span>${T.sec} 추천 · 이용 패턴 기준`
+const THINK = `<span class="think"><i></i><i></i><i></i></span>`
+const SCENES = [
+  { id: 'E1', ref: 'E 원안 + 자동 팬 · 3안 [AI 추천] 배지 재사용', name: '배지 + 팬', one: '원안 그대로, 대상 항목에 [AI 추천] 배지가 붙고 동의는 스트립에서. 대상이 스트립에 가리면 페이지가 먼저 올라온다.',
+    mark: 'badge', okOnPage: false,
+    surface: (T) => `<div class="surf"><div class="strip"><div class="hd">${HD(T)}</div><div class="ans">${THINK}<span class="txt" hidden>${T.why}. 위에 표시한 <b>${T.opt}</b>를 추천해요.</span></div><div class="chips" hidden><span class="bai dark ok">이 항목으로 선택</span><span class="bai">다른 것도 볼래</span></div></div></div>`,
+    notes: ['T 버튼 탭 → 입력창 모핑 + 키패드, 발화 타이핑', '전송 → 키패드 하강. 대상이 스트립에 가리므로 페이지가 그만큼 올라오고, 스트립 등장. 답이 오면 대상에 [AI 추천] 배지, 나머지는 물러남', '스트립의 [이 항목으로 선택] → 배지 항목이 선택 상태로', '스트립 사라지고 배지는 유지. T 버튼 복귀, CTA 다음 항목명'],
+    pro: '<b>원안에서 가장 덜 바꾼 시안.</b> 3안 카드에 있는 [AI 추천] 배지를 그대로 페이지 컴포넌트에 얹는다. 대신 배지가 앉을 자리를 카드·행·스와치 세 가지에 각각 정해야 하고, 캐러셀에서 대상이 오른쪽 밖에 있으면 가로 스크롤까지 필요하다.',
+    fit: '<b>만드는 것:</b> 페이지 컴포넌트 3종에 badge 슬롯 · 스트립(3안 칩 재사용) · "스크롤 위치 → 대상 보이게 팬" 로직 1개. 팬은 scrollIntoView와 같은 동작이라 부담이 작다.' },
+  { id: 'E2', ref: '배지 없음 · DS selected 상태의 색 변형 1개', name: '상태형 · 페이지에서 동의', one: '배지 대신 항목 자체가 파란 추천 상태가 되고 나머지는 물러난다. 동의는 그 항목을 직접 누르는 것. 스트립은 이유만 말한다.',
+    mark: 'state', okOnPage: true,
+    surface: (T) => `<div class="surf"><div class="strip"><div class="hd">${HD(T)}</div><div class="ans">${THINK}<span class="txt" hidden>${T.why}. <b>${T.opt}</b>를 파랗게 표시했어요. 위에서 바로 눌러 선택하세요.</span></div><div class="chips" hidden><span class="bai">다른 것도 볼래</span><span class="bai">그냥 둘래</span></div></div></div>`,
+    notes: ['T 버튼 탭 → 입력창 모핑 + 키패드, 발화 타이핑', '전송 → 키패드 하강, 페이지가 대상이 보이게 올라오고 스트립 등장. 답이 오면 대상이 파란 추천 상태, 나머지 40%로 물러남, 항목에 "눌러서 선택" 말풍선', '페이지의 파란 항목을 직접 탭 → 검은 선택 상태로 (일반 선택과 같은 탭)', '스트립은 선택을 감지해 스스로 닫힘. T 버튼 복귀, CTA 다음 항목명'],
+    pro: '<b>새 UI가 거의 없다.</b> 이미 있는 selected(검은 테두리) 상태에 색만 다른 recommended(파란 테두리) 상태 하나를 추가하는 것으로 끝난다. 동의도 원래 페이지에서 하던 탭 그대로라 "AI 흐름"과 "직접 고르기" 흐름이 하나로 합쳐진다. 스트립에는 동의 버튼이 없으니 고객은 AI 말을 읽고 페이지를 본다. 추천을 무시하고 다른 걸 눌러도 그대로 정상 선택.',
+    fit: '<b>만드는 것:</b> 컴포넌트 상태 recommended 1개(색 토큰만 다름) · 스트립(3안 칩 재사용) · 팬 로직. 배지 슬롯 없음. "선택되면 스트립 닫기"는 이미 있는 선택 이벤트에 붙인다.' },
+  { id: 'E3', ref: '섹션 헤더 캡션 · 컴포넌트와 무관한 자리 1개', name: '섹션 캡션', one: '추천 표시를 항목이 아니라 섹션 헤더 아래 캡션 한 줄에 둔다. 항목은 얇은 파란 테두리만. 스트립은 한 단 더 얇고, 선택 뒤 캡션이 "AI 추천으로 선택"으로 남는다.',
+    mark: 'caption', okOnPage: false,
+    surface: (T) => `<div class="surf"><div class="strip mini"><div class="ans">${THINK}<span class="txt" hidden><b>${T.opt}</b> · ${T.why}.</span></div><div class="chips" hidden><span class="bai dark ok">${T.opt}로 선택</span><span class="bai">다른 것도 볼래</span></div></div></div>`,
+    notes: ['T 버튼 탭 → 입력창 모핑 + 키패드, 발화 타이핑', '전송 → 키패드 하강, 페이지가 대상이 보이게 올라오고 미니 스트립 등장. 답이 오면 섹션 헤더 아래 "✦ AI 추천 · 항목명" 캡션, 대상 항목에 얇은 파란 테두리', '스트립의 [항목명으로 선택] → 항목이 선택 상태로', '스트립 사라지고 캡션이 "AI 추천으로 선택했어요"로 바뀌어 남음. T 버튼 복귀, CTA 다음 항목명'],
+    pro: '<b>표시 자리가 컴포넌트와 무관하다.</b> 캡션은 섹션 헤더라는 공통 자리에만 들어가므로 캐러셀·리스트·스와치 어디든 같은 컴포넌트 하나로 끝난다. 선택 뒤에도 "AI가 골라준 항목"이라는 맥락이 섹션에 남아 나중에 다시 봐도 읽힌다. 항목이 여러 개 보일 때 "어느 것"을 캡션에서 항목으로 눈이 한 번 이동해야 한다.',
+    fit: '<b>만드는 것:</b> 섹션 헤더용 캡션 컴포넌트 1개(상태 2: 추천 · 선택됨) · 항목 recommended 상태(E-2와 공유 가능) · 미니 스트립 · 팬 로직. 스트립 헤더가 캡션으로 옮겨가 스트립이 얇아진다.' },
+]
+
+const BEAT_MS = [1400, 2400, 3000, 1500, 3200]
+const board = document.getElementById('board')
+const IDS = SCENES.map((s) => s.id)
+let players = [], focus = 'E1', target = 'plan'
+
+function build() {
+  board.innerHTML = ''; players = []
+  const T = TARGETS[target]
+  SCENES.forEach((sc) => {
+    const col = document.createElement('div'); col.className = 'col'
+    col.innerHTML = `
+      <div class="tag"><b>${sc.id.replace('E', 'E')}</b><span>${sc.ref}</span></div>
+      <h2>${sc.name}</h2>
+      <p class="one">${sc.one}</p>
+      <div class="stage">${phoneHTML(T, sc.surface(T))}</div>
+      <div class="beats"><button class="play" aria-label="재생">▶</button>${[0,1,2,3,4].map((b) => `<button data-b="${b}" aria-label="장면 ${b}"></button>`).join('')}</div>
+      <ol class="notes">${sc.notes.map((n, i) => `<li><i>${i + 1}</i><span>${n}</span></li>`).join('')}</ol>
+      <p class="pro">${sc.pro}</p>
+      <p class="fit">${sc.fit}</p>`
+    board.appendChild(col)
+    const ph = col.querySelector('.ph'); ph.classList.add(sc.id)
+    const screen = ph.querySelector('.screen'), finger = ph.querySelector('.finger'), content = ph.querySelector('.content')
+    const beatBtns = [...col.querySelectorAll('.beats [data-b]')], notes = [...col.querySelectorAll('.notes li')]
+    const comp = ph.querySelector('.compwrap'), rec = comp.querySelector('.opt.rec'), cap = ph.querySelector('.cap')
+    const surf = ph.querySelector('.surf'), think = surf.querySelector('.think')
+    const later = [...surf.querySelectorAll('[hidden]')]
+    let timer = null, cur = 0, inner = []
+    const clearInner = () => { inner.forEach(clearTimeout); inner = [] }
+    const pos = (el) => { const r = el.getBoundingClientRect(), s = screen.getBoundingClientRect(), k = s.width / 373; return [(r.left - s.left + r.width / 2) / k, (r.top - s.top + r.height / 2) / k] }
+    const fingerTo = (el, press) => { const [x, y] = pos(el); finger.style.left = `${x}px`; finger.style.top = `${y}px`; finger.classList.add('on'); if (press) inner.push(setTimeout(() => { finger.classList.add('press'); inner.push(setTimeout(() => finger.classList.remove('press'), 180)) }, 420)) }
+    // pan: how far the page must rise so the target sits 16px above the strip
+    const panAmount = () => {
+      const k = screen.getBoundingClientRect().width / 373
+      const prevT = content.style.transform; content.style.transform = 'none'
+      const hid = later.map((el) => el.hidden); later.forEach((el) => { el.hidden = false }); if (think) think.hidden = true
+      const c = comp.getBoundingClientRect(), s = surf.getBoundingClientRect()
+      later.forEach((el, i) => { el.hidden = hid[i] }); if (think) think.hidden = false
+      content.style.transform = prevT
+      return Math.max(0, Math.round((c.bottom - (s.top - 16)) / k))
+    }
+    const markRec = (b) => {
+      // b2: recommend, b3+: selected
+      rec.classList.toggle('hint', sc.mark === 'badge' && b >= 2)
+      comp.classList.toggle('dimmed', (sc.mark === 'badge' || sc.mark === 'state') && (b === 2 || b === 3))
+      rec.classList.toggle('recst', sc.mark === 'state' && b >= 2 && b < 4)
+      rec.classList.toggle('soft', sc.mark === 'caption' && b >= 2)
+      if (cap) { cap.classList.toggle('on', sc.mark === 'caption' && b >= 2); cap.classList.toggle('done', sc.mark === 'caption' && b >= 3) }
+      rec.classList.toggle('sel', b >= 3)
+    }
+    const setBeat = (b) => {
+      clearInner(); cur = b
+      if (b === 1) fingerTo(ph.querySelector('.dock'), true)
+      ph.classList.remove('b0', 'b1', 'b2', 'b3', 'b4'); ph.classList.add(`b${b}`)
+      beatBtns.forEach((x, i) => x.setAttribute('aria-current', i === b ? 'true' : 'false'))
+      notes.forEach((n, i) => n.classList.toggle('cur', i === b - 1))
+      if (b !== 1 && b !== 3) finger.classList.remove('on', 'press')
+      // common pan: from b2 on, page stays risen
+      content.style.transform = b >= 2 ? `translateY(-${panAmount()}px)` : 'none'
+      // strip: thinking → content
+      const showLater = b >= 3
+      if (think) think.hidden = showLater
+      later.forEach((el) => { el.hidden = !showLater })
+      if (b === 2) {
+        markRec(1) // not yet
+        inner.push(setTimeout(() => {
+          if (think) think.hidden = true
+          later.forEach((el, i) => { el.hidden = false; el.style.animation = `up .45s cubic-bezier(.65,0,.35,1) ${i * .35}s both` })
+          markRec(2)
+        }, 1000))
+      } else markRec(b)
+      if (b === 3) inner.push(setTimeout(() => fingerTo(sc.okOnPage ? rec : surf.querySelector('.ok'), true), 60))
+      // E2: strip closes itself right after selection
+      if (sc.okOnPage) surf.classList.toggle('leave3', false)
+      if (b === 3 && sc.okOnPage) inner.push(setTimeout(() => surf.classList.add('leave3'), 900))
+      // summary
+      const chosen = b >= 3
+      const pend = ph.querySelector('.pend'), tot = ph.querySelector('.tot'), dev = ph.querySelector('.dev')
+      if (T.sumKey === 'pend') { pend.textContent = chosen ? T.sumVal : '계산 전'; pend.classList.toggle('pending', !chosen); tot.textContent = chosen ? '월 151,417원' : '계산 전'; tot.classList.toggle('pending', !chosen) }
+      if (T.sumKey === 'dev') { dev.textContent = chosen ? T.sumVal : '계산 전'; dev.classList.toggle('pending', !chosen) }
+      if (!T.sumKey) { dev.textContent = '계산 전'; dev.classList.add('pending') }
+    }
+    const stop = () => { clearTimeout(timer); timer = null; clearInner(); col.querySelector('.play').textContent = '▶' }
+    const play = (from = 0) => { stop(); col.querySelector('.play').textContent = '❚❚'; const step = (b) => { setBeat(b); timer = setTimeout(() => step(b === 4 ? 0 : b + 1), BEAT_MS[b]) }; step(from) }
+    col.querySelector('.play').addEventListener('click', () => (timer ? stop() : play(cur === 4 ? 0 : cur)))
+    beatBtns.forEach((x) => x.addEventListener('click', () => { stop(); setBeat(Number(x.dataset.b)) }))
+    setBeat(0)
+    players.push({ play, stop, reset: () => { stop(); setBeat(0) }, toggle: () => (timer ? stop() : play(cur === 4 ? 0 : cur)) })
+  })
+  const ro = new ResizeObserver((es) => es.forEach((e) => e.target.style.setProperty('--k', (e.contentRect.width / 393).toFixed(4))))
+  document.querySelectorAll('.stage').forEach((st) => ro.observe(st))
+  setFocus(focus)
+}
+
+const tabs = document.getElementById('tabs'), tbl = document.getElementById('tbl'), tg = document.getElementById('targets')
+function setFocus(f) {
+  focus = f
+  ;[...board.children].forEach((c, i) => c.classList.toggle('active', IDS[i] === f))
+  tabs.querySelectorAll('button').forEach((b) => b.setAttribute('aria-selected', b.dataset.f === f ? 'true' : 'false'))
+  tbl.dataset.focus = f
+  const i = IDS.indexOf(f)
+  document.getElementById('focusTitle').textContent = `${f.replace('E', 'E-')} · ${SCENES[i].name}`
+  players.forEach((p) => p.stop()); players[i].reset(); players[i].play(0)
+}
+const shift = (d) => setFocus(IDS[(IDS.indexOf(focus) + d + IDS.length) % IDS.length])
+tabs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setFocus(b.dataset.f) })
+tg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; target = b.dataset.t; tg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false')); build() })
+document.getElementById('prev').addEventListener('click', () => shift(-1))
+document.getElementById('next').addEventListener('click', () => shift(1))
+document.getElementById('playAll').addEventListener('click', () => players[IDS.indexOf(focus)].play(0))
+document.getElementById('resetAll').addEventListener('click', () => players[IDS.indexOf(focus)].reset())
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'BUTTON' && e.key === ' ') return
+  if (e.key === 'ArrowRight') shift(1)
+  if (e.key === 'ArrowLeft') shift(-1)
+  if (e.key === ' ') { e.preventDefault(); players[IDS.indexOf(focus)].toggle() }
+})
+const qs = new URLSearchParams(location.search)
+const qf = (qs.get('f') || 'E1').toUpperCase().replace('-', ''); if (IDS.includes(qf)) focus = qf
+const qt = qs.get('t'); if (qt && TARGETS[qt]) { target = qt; tg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', x.dataset.t === qt ? 'true' : 'false')) }
+build()
+</script>
+
+</body>
+</html>

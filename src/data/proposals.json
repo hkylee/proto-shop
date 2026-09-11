@@ -1,0 +1,362 @@
+{
+  "proposals": [
+    {
+      "id": 1,
+      "title": "Static 중심 + AI Agent 일시 호출",
+      "short": "Static + 일시 호출",
+      "status": "E-1 구현 (6 스텝)",
+      "concept": "AI Agent 로 화면이 완전히 전환되지 않고, Static 페이지 안에서 Agent 를 잠깐 불러 쓴다. 고객 질문 → Agent 답변 → 다시 Static 에서 옵션을 직접 선택.",
+      "example": "Agent 가 \"이 옵션으로 선택해 드릴까요?\" 제안 → 고객 동의 → Agent 가 닫히며 Static 페이지에 값이 자동 선택됨",
+      "phases": [
+        {
+          "id": "shop",
+          "title": "상품 상세",
+          "steps": [
+            "a1-1"
+          ]
+        },
+        {
+          "id": "call",
+          "title": "AI 일시 호출 4회",
+          "steps": [
+            "a1-2",
+            "a1-3",
+            "a1-4"
+          ]
+        },
+        {
+          "id": "rest",
+          "title": "나머지 옵션·결제",
+          "steps": [
+            "a1-5",
+            "a1-6"
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "id": "a1-1",
+          "zone": "shop",
+          "screen": "상품 상세 진입",
+          "utterance": null,
+          "note": "3안과 같은 상품 상세. 좌하단 T+ 버튼 + 비활성 [주문하기]",
+          "purpose": [
+            "3안과 같은 페이지에서 시작해, Agent 를 '부르지 않은' 기본 상태가 어떻게 보이는지 확인",
+            "T+ 버튼이 페이지 전환 없이 '잠깐 부르는' 진입점으로 읽히는지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "top"
+          }
+        },
+        {
+          "id": "a1-2",
+          "zone": "shop",
+          "screen": "색상에서 T+ 호출 → 질의 → 배지 → [이 항목으로 선택]",
+          "utterance": "제일 인기 많은 색이 뭐야?",
+          "note": "T+ 가 입력창으로 모핑 · 답변 스트립 · 그라파이트에 [AI 추천] 배지 · 칩을 눌러야 selected, 그 순간 배지는 디졸브",
+          "purpose": [
+            "T+ → 입력창 모핑이 '페이지 안에서 잠깐 부른다'는 느낌을 주는지 (전환감 없이)",
+            "답변이 입력창 위 한 단 스트립으로 충분한지, 페이지의 배지와 함께 읽히는지",
+            "[이 항목으로 선택] 을 눌러야 선택되는 규칙이 통제감을 주는지, 한 탭이 더 드는 게 거슬리는지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "color"
+          }
+        },
+        {
+          "id": "a1-3",
+          "zone": "shop",
+          "screen": "수령·납부는 직접 → 다시 위로 → 용량 질의",
+          "utterance": "사진 많이 찍는데 용량은 뭐로 하는 게 좋아?",
+          "note": "단말기 납부 기간까지 직접 고르다가 위로 돌아와 용량에서 T+ 호출. 스트립에 가리면 페이지가 그만큼 올라옴",
+          "purpose": [
+            "직접 고르기와 AI 질의가 한 페이지에서 순서 없이 섞여도 헷갈리지 않는지",
+            "위로 되돌아가 질의할 때 스트립이 대상을 가리지 않는지 (자동 팬)",
+            "두 번째 호출부터 T+ 모핑이 반복돼도 지루하지 않은지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "storage"
+          }
+        },
+        {
+          "id": "a1-4",
+          "zone": "shop",
+          "screen": "사용자·가입 직접 → 요금제 질의",
+          "utterance": "이용 현황에 맞춰서 적합한 요금제 추천해줘",
+          "note": "요금제 캐러셀에서 T+ 호출. 추천 카드(AI PICK)에 파란 테두리, 선택 뒤 검은 테두리",
+          "purpose": [
+            "3안에서 Agent 로 넘어가던 지점(요금제)을 1안은 페이지 안에서 끝내는데, 근거가 한 줄로 충분한지",
+            "카드처럼 큰 컴포넌트에서도 배지·테두리·스트립 조합이 유지되는지",
+            "세 번의 호출 뒤 페이지에 남는 배지들이 'AI 가 고른 것' 으로 계속 읽히는지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "plan"
+          }
+        },
+        {
+          "id": "a1-5",
+          "zone": "shop",
+          "screen": "나머지 옵션 직접 선택 · 보험은 T 질의 → [주문하기] 활성화",
+          "utterance": "보험은 뭐가 제일 인기 많아?",
+          "note": "SIM·T 기프트·티다팩·반납은 직접 탭 → 보험에서 T+ 호출 → 질의 → T ALL케어+ 5 에 [AI 추천] → [이 항목으로 선택] → 부가서비스·제휴카드·추가 할인 직접 → 맨 아래서 비활성이던 [주문하기] 가 활성화 → 포인터 대기",
+          "purpose": [
+            "직접 고르기 사이에 네 번째 T 질의가 끼어도 리듬이 깨지지 않는지",
+            "'인기'처럼 근거가 통계인 질문에 한 줄 답 + 배지가 충분한지 (보험은 보상 범위 설명이 더 필요할 수 있음)",
+            "비활성이던 [주문하기] 가 켜지는 순간이 '다 골랐다' 는 신호로 읽히는지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "rest"
+          }
+        },
+        {
+          "id": "a1-6",
+          "zone": "shop",
+          "screen": "주문 정보 확인 (완료)",
+          "utterance": null,
+          "note": "[주문하기] 탭 → 주문 정보 확인 화면(Figma 134:60488: 상품 · 가입 정보 · 선택한 혜택 · USIM/eSIM과 수령 · 예상 월 청구금액 · [이대로 신청서 작성할게요])이 오른쪽에서 슬라이드 인 → 아래로 팬. 여기서 시나리오 종료",
+          "purpose": [
+            "직접 고른 것과 T 로 고른 것이 한 장의 주문 확인 화면에 섞여 정리될 때 빠진 것 없이 읽히는지",
+            "Agent 를 세 번만 부르고도 구매가 끝나는 1안의 전체 길이가 적절한지"
+          ],
+          "view": {
+            "type": "product1",
+            "stage": "payout"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "AI Agent 중심 + Bottom Sheet 선택",
+      "short": "Agent + 바텀시트",
+      "status": "바텀시트 구현 (14 스텝)",
+      "concept": "지금처럼 Agent 대화가 흐름을 끌고 간다. 다만 선택이 필요한 모듈은 대화 영역에 직접 깔지 않고 Bottom Sheet 로 올려 고른다 (Claude 식).",
+      "example": "\"요금제를 골라 주세요\" → 바텀시트에 요금제 목록 → 선택 → 시트가 내려가고 대화에 선택 결과만 한 줄로 남음",
+      "phases": [
+        {
+          "id": "shop",
+          "title": "상품 상세",
+          "steps": [
+            "pd-enter",
+            "pd-options"
+          ]
+        },
+        {
+          "id": "enter",
+          "title": "Agent 진입",
+          "steps": [
+            "agent-launch"
+          ]
+        },
+        {
+          "id": "plan",
+          "title": "요금제 추천 · 시트",
+          "steps": [
+            "a2-usage"
+          ]
+        },
+        {
+          "id": "opts",
+          "title": "옵션 선택 · 시트",
+          "steps": [
+            "a2-sim",
+            "a2-benefit",
+            "a2-discount",
+            "a2-pay"
+          ]
+        },
+        {
+          "id": "form",
+          "title": "신청서",
+          "steps": [
+            "agent-form",
+            "agent-addr",
+            "agent-contact",
+            "agent-review"
+          ]
+        },
+        {
+          "id": "auth",
+          "title": "인증·결제",
+          "steps": [
+            "agent-auth",
+            "agent-pay",
+            "agent-payout"
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "id": "pd-enter",
+          "ref": "pd-enter"
+        },
+        {
+          "id": "pd-options",
+          "ref": "pd-options"
+        },
+        {
+          "id": "agent-launch",
+          "ref": "agent-launch"
+        },
+        {
+          "id": "a2-usage",
+          "zone": "agent",
+          "screen": "이용현황 → 추천 문장 → 요금제 시트 → [전체보기] → 선택 · 적용",
+          "utterance": "이용 현황에 맞춰서 적합한 요금제 추천해줘",
+          "note": "타이틀 → 이용 현황 → 이용중 카드 → 추천은 문장으로 → 바텀 모달(추천 1장 + 전체보기) → 전체 요금제 팝업(탭 둘러보기) → 첫 카드 → [적용하기] → 대화에 요금제 카드 한 장",
+          "purpose": [
+            "추천을 카드 대신 문장으로 말하고, 선택은 바텀 모달 → 전체 팝업으로 넘길 때 대화가 가벼워지는지",
+            "모달 안 [전체보기]에서 팝업으로 한 단계 더 들어가는 깊이가 부담스럽지 않은지",
+            "적용 뒤 대화에 결과 카드 한 장만 남는 것이 3안(캐러셀 유지)보다 읽기 편한지"
+          ],
+          "view": {
+            "type": "agent-chat2",
+            "stage": "usage"
+          }
+        },
+        {
+          "id": "a2-sim",
+          "zone": "agent",
+          "screen": "SIM 안내 → 시트 → 선택 → 결과 한 줄",
+          "utterance": null,
+          "note": "생각 점 → 안내(가지고 있는 유심 추천) → 모달(3행) → 탭 → 모달 내려감 → 대화에 선택 결과 행",
+          "purpose": [
+            "안내 문장 → 모달 → 결과 한 줄 의 반복 리듬이 지루하지 않은지",
+            "결과 한 줄만 남는 대화가 뒤로 스크롤해 볼 때 '무엇을 골랐는지' 충분히 읽히는지"
+          ],
+          "view": {
+            "type": "agent-chat2",
+            "stage": "sim"
+          }
+        },
+        {
+          "id": "a2-benefit",
+          "zone": "agent",
+          "screen": "추가 혜택 안내 → 시트 → 선택",
+          "utterance": null,
+          "note": "청년 데이터 60GB 추가 추천 → 모달(3행) → 탭 → 결과 행",
+          "purpose": [
+            "추천 항목이 모달 첫 행에 있어도 추천 표시가 없는데, 문장만으로 어느 것을 골라야 할지 알 수 있는지"
+          ],
+          "view": {
+            "type": "agent-chat2",
+            "stage": "benefit"
+          }
+        },
+        {
+          "id": "a2-discount",
+          "zone": "agent",
+          "screen": "할인 수단 → 시트 → 쿠폰 → 시트",
+          "utterance": null,
+          "note": "쿠폰/이용권 추천 → 모달 → 선택 → 결과 → 50,000원 쿠폰 추천 → 모달 → 선택 → 결과",
+          "purpose": [
+            "한 스텝에 모달이 두 번 연속 올라올 때 피로하지 않은지",
+            "두 모달의 제목이 같을 때(추가로 할인받을 수 있는 수단) 헷갈리지 않는지"
+          ],
+          "view": {
+            "type": "agent-chat2",
+            "stage": "discount"
+          }
+        },
+        {
+          "id": "a2-pay",
+          "zone": "agent",
+          "screen": "결제 방법 → 시트 → 추가 혜택 → 시트 → 가입자 정보 조회 → [신청서 작성하기]",
+          "utterance": null,
+          "note": "24개월 할부 추천이지만 고객은 일시 결제 → T 안심보상 → 완료 안내 → 고객 정보 조회 타이틀 → 가입자 정보 카드 → [신청서 작성하기] 대기 (Figma 71:82028 → 71:82083)",
+          "purpose": [
+            "추천과 다른 항목을 골라도 흐름이 그대로 이어지는지",
+            "모든 선택이 끝난 뒤 신청서로 넘어가는 칩이 3안과 같은 자리에 오는지"
+          ],
+          "view": {
+            "type": "agent-chat2",
+            "stage": "pay"
+          }
+        },
+        {
+          "id": "agent-form",
+          "ref": "agent-form",
+          "view": {
+            "type": "agent-chat",
+            "stage": "form",
+            "mode": "an2",
+            "from": "opts2"
+          }
+        },
+        {
+          "id": "agent-addr",
+          "ref": "agent-addr",
+          "view": {
+            "type": "agent-chat",
+            "stage": "addr",
+            "mode": "an2"
+          }
+        },
+        {
+          "id": "agent-contact",
+          "ref": "agent-contact",
+          "view": {
+            "type": "agent-chat",
+            "stage": "contact",
+            "mode": "an2"
+          }
+        },
+        {
+          "id": "agent-review",
+          "ref": "agent-review",
+          "view": {
+            "type": "agent-chat",
+            "stage": "review",
+            "mode": "an2"
+          }
+        },
+        {
+          "id": "agent-auth",
+          "ref": "agent-auth",
+          "view": {
+            "type": "agent-chat",
+            "stage": "auth",
+            "mode": "an2"
+          }
+        },
+        {
+          "id": "agent-pay",
+          "ref": "agent-pay",
+          "view": {
+            "type": "agent-chat",
+            "stage": "pay",
+            "mode": "an2"
+          },
+          "screen": "신원 인증 → 요금 함께 납부? 시트 → 번호 인증 시트 → 결제",
+          "note": "실물 신분증 촬영(밖) → 복귀 → 신원 인증 완료 선 → 안내 → 시트 [요금을 함께 납부하시겠어요?] 네 → 결과 한 줄 → 시트 [사용 중인 번호로 인증] 번호 → 인증번호(타이머) → 번호 인증 완료 선 → 안내 → [결제하기] 시트 (Figma 90:92843 → 90:100465)",
+          "purpose": [
+            "3안의 납부 수단 카드·요금안내서 2×2 대신 예/아니요 시트 + 번호 인증 시트로 바뀐 것이 더 짧게 느껴지는지",
+            "시트 안에서 번호 → 인증번호로 장이 바뀌는 리듬이 신청서 시트(1/4~4/4)와 같은 언어로 읽히는지"
+          ]
+        },
+        {
+          "id": "agent-payout",
+          "ref": "agent-payout",
+          "view": {
+            "type": "agent-chat",
+            "stage": "payout",
+            "mode": "an2"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "현재 방향 + 개인정보 입력 분리",
+      "short": "현재 + 개인정보 분리",
+      "status": "구현 중 (15 스텝)",
+      "concept": "Agent 안에서 업무를 처리하는 현재 방식을 유지한다. 단, 주민등록번호·주소 등 개인정보 입력은 대화 카드가 아니라 Bottom Sheet 로 따로 처리.",
+      "example": "스텝 10·11 의 주민등록번호·주소 카드 → 바텀시트 입력으로 교체 예정"
+    }
+  ]
+}
