@@ -739,6 +739,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const last = turns[LAST_OPT], [lm, , lastCard] = optKids(last)
       if (last.classList.contains('on')) return true
       last.classList.add('on'); void last.offsetHeight
+      if (!await anchorTurnTop(last)) return false
       if (!await think(last, lm)) return false
       await follow(lm); if (!alive()) return false
       await wait(T.text); if (!alive()) return false
@@ -1125,6 +1126,17 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       // 꼬리는 되돌리지 않는다 — 되돌리는 순간 다시 클램프돼 아래 내용이 튄다. 이어지는 setTail 이 정상화한다 (2026-09-12)
       return alive()
     }
+    /* 접힘 뒤 화면의 기준 (html[data-foldanchor], 사용자 2026-09-12 "2안처럼 위로 고정으로 해볼까" · "공통적으로 적용해야 할 것")
+       K1 다음 턴을 시작선(199)에 고정 (2안 상단 앵커링과 같은 기조) / K2 방금 접힌 요약 줄을 시작선에 / K3 지금처럼 아래로만 따라가기 */
+    const foldAnchor = () => variant('foldanchor') || 'K1'
+    const anchorTurnTop = async (el) => { if (!el || foldAnchor() !== 'K1') return true; await scrollTo(scroll, anchorHeader(el)); return alive() }
+    const afterFold = async (rowEl) => {
+      const A = foldAnchor()
+      if (!rowEl) return alive()
+      if (A === 'K2') { await scrollTo(scroll, anchorHeader(rowEl)); return alive() }
+      if (A === 'K3') { await follow(rowEl); return alive() }
+      return alive()                                               // K1 은 다음 턴 시작에서 앵커
+    }
     const optFold = (i) => turns[i]?.querySelector('.opt-fold')
     const uncollapseOpt = (i) => { const c = turns[i]?.querySelector('.opt-card'), r = optFold(i); if (c) { c.style.cssText = ''; c.classList.remove('boxing', 'l3-start'); [...c.children].forEach((k) => { k.style.opacity = '' }) } if (r) { r.classList.remove('on', 'from-box'); r.style.opacity = '' } }
     const foldBox = async (mode) => {
@@ -1263,6 +1275,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const playOptSection = async (i, T) => {
       const t = turns[i], [m1, m2, card] = optKids(t), o = OPTS[i]
       t.classList.add('on'); void t.offsetHeight
+      if (!await anchorTurnTop(t)) return false                      // K1: 턴의 시작을 채팅 시작선에
       const W = variant('think'), gap = W === 'W3' ? 180 : T.text
       if (!await think(t, m1)) return false
       await follow(m1); if (!alive()) return false
@@ -1277,7 +1290,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(520); if (!alive()) return false
       ptr?.hide()
       if (!await collapseCard(t.querySelector('.opt-card'), optFold(i))) return false   // 고르면 요약 줄로 접힘
-      await follow(optFold(i)); if (!alive()) return false
+      if (!await afterFold(optFold(i))) return false
       return true
     }
     const playOpts1 = async () => {
@@ -1286,13 +1299,13 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setDiscPick(DISC_REC); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
       ptr?.hide()
       if (!await collapseCard(plansCardRef.current, penFoldRef.current)) return         // 재출력 카드도 요약 줄로 (§28)
-      await follow(penFoldRef.current); if (!alive()) return
+      if (!await afterFold(penFoldRef.current)) return
       optsEl.classList.add('on'); void optsEl.offsetHeight
       setTail(420)
       for (let i = 0; i < LAST_OPT; i++) { if (!await playOptSection(i, T)) return }
       ptr?.hide()
       setTail(TAIL)
-      await scrollTo(scroll, anchorBottom(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2])); if (!alive()) return   // 접힌 카드는 display:none → 요약 줄을 기준으로 (사용자 2026-09-11 '위로 앵커링돼')
+      await downTo(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2]); if (!alive()) return   // 아래로만 — 되감기면 §28-5 위반
     }
     const finalOpts1 = () => {
       setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
@@ -1313,7 +1326,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(700); if (!alive()) return
       ptr?.hide()
       if (!await collapseCard(card, optFold(LAST_OPT))) return                // T 안심보상도 요약 줄로 (Figma 271:125498)
-      await follow(optFold(LAST_OPT)); if (!alive()) return
+      if (!await afterFold(optFold(LAST_OPT))) return
       done.classList.add('on'); void done.offsetHeight
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return

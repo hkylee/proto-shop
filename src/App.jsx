@@ -105,7 +105,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: LAB ? (Q0.get('fa') || 'K1') : CONFIRMED.foldanchor })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -299,6 +299,12 @@ const PENFOLDS = [
   { id: 'A3', label: 'A-3 줄 두 개로 분리', desc: '카드에서 고른 두 가지를 각각의 줄로 남긴다. "선택한 요금제 / 5GX 프라임 플러스" 와 "선택한 할인 방법 / 통신요금 24개월 할인". 한 선택 = 한 줄이라 뒤따르는 옵션 줄들과 리듬이 같고, 각각 따로 되돌릴 수 있다' },
   { id: 'A2', label: 'A-2 한 상자에 두 쌍', desc: '한 상자 안에 요금제와 할인 방법을 위아래로 담는다. 카드 하나에서 고른 것이 상자 하나로 남아 "이 카드의 결과"라는 묶음이 유지되고, [다시 선택하기] 도 하나다' },
   { id: 'A1', label: 'A-1 요금제 줄만, 한 박자 뒤 접힘', desc: '남는 줄은 요금제 하나로 지금과 같고, 대신 고른 할인 방법의 선택 테두리를 0.9s 더 보여준 뒤 접는다. 애매함이 "고른 걸 못 보고 사라진다" 쪽이면 이것으로 해결되지만, 줄의 라벨과 실제로 고른 것(할인 방법)이 어긋난 문제는 남는다' },
+]
+// 접힘 뒤 화면의 기준 (html[data-foldanchor], 3안 공통) — 사용자 2026-09-12 "2안처럼 위로 고정으로 해볼까 · 공통적으로 적용"
+const FOLDANCHORS = [
+  { id: 'K1', label: 'K-1 다음 턴을 위에 고정 (2안 방식)', desc: '접힘이 끝나면 다음 턴이 시작될 때 그 턴의 첫 줄을 채팅 시작선(헤더 아래 199)에 맞춘다. 2안 상단 앵커링과 같은 기조로, 모든 턴이 늘 같은 높이에서 시작해 리듬이 일정하다. 접힌 결과들은 위로 흘러 쌓인다' },
+  { id: 'K2', label: 'K-2 접힌 줄을 위에 고정', desc: '방금 접힌 요약 줄을 시작선에 올리고 그 아래로 다음 턴이 펼쳐진다. 무엇을 고른 결과인지가 화면 맨 위에 남아 맥락이 이어지지만, 매번 방금 고른 것이 위로 올라가 시선이 한 번 되감긴다' },
+  { id: 'K3', label: 'K-3 아래로만 따라가기 (기존)', desc: '비교용. 접힘은 제자리에서 끝나고 다음 턴을 아래로만 따라간다. 화면이 위로 되감기는 일은 없지만 턴마다 시작 높이가 달라진다' },
 ]
 const LINES = [
   { id: 'D1', label: 'D-1 선만 좌→우', desc: '체크와 글은 함께 페이드로 뜨고, 가는 선이 왼콽에서 오른콽으로 0.6s 동안 그려진다. 가장 조용함' },
@@ -775,6 +781,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.selfade = selfadeV }, [selfadeV])
   const [penfoldV, setPenfoldV] = useState(() => (LAB ? (Q0.get('pn') || CONFIRMED.penfold) : CONFIRMED.penfold))
   useEffect(() => { document.documentElement.dataset.penfold = penfoldV }, [penfoldV])
+  const [foldanchorV, setFoldanchorV] = useState(() => (LAB ? (Q0.get('fa') || 'K1') : CONFIRMED.foldanchor))
+  useEffect(() => { document.documentElement.dataset.foldanchor = foldanchorV }, [foldanchorV])
   const [mobile, setMobile] = useState(() => FORCE_MOBILE || matchMedia(MOBILE_Q).matches)
   useEffect(() => { if (FORCE_MOBILE) return; const mq = matchMedia(MOBILE_Q); const f = () => setMobile(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f) }, [])
   const [mshellV] = useState(() => Q0.get('m') || 'M0')   // M0 풀페이지(컨트롤 없음) 기본 — 사용자 2026-09-10
@@ -1147,6 +1155,13 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">3안 · 접힘 뒤 화면의 기준 (공통, 스텝 6~8)</b>
+            {FOLDANCHORS.map((v) => (
+              <button key={v.id} aria-pressed={foldanchorV === v.id} onClick={() => { setFoldanchorV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{FOLDANCHORS.find((v) => v.id === foldanchorV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">3안 · 6→7 재출력 카드가 접힐 때 무엇이 남나 (스텝 6에서 → 스텝 7) — A-3 확정</b>
