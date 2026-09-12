@@ -1095,6 +1095,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       const hRow = row.offsetHeight
       row.classList.remove('on'); row.style.opacity = ''
+      /* 줄어드는 만큼 꼬리를 미리 늘려 둔다. 안 그러면 콘텐츠가 짧아지며 스크롤이 클램프됐다가
+         내용이 다시 늘어날 때 원래 값으로 튕겨, 카드가 아래로 흐르고 요약 줄이 위로 점프한다 (사용자 2026-09-12) */
+      const prevTail = tailRef.current?.style.height || ''
+      setTail((parseInt(prevTail, 10) || TAIL) + Math.max(0, h0 - hRow))
       card.style.overflow = 'hidden'
       card.classList.add('boxing', 'l3-start')
       await new Promise(afterLayout); if (!alive()) return false
@@ -1113,6 +1117,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       row.classList.remove('from-box')
       await wait(820)
+      if (tailRef.current) tailRef.current.style.height = prevTail || `${TAIL}px`   // 꼬리 원복
       return alive()
     }
     const optFold = (i) => turns[i]?.querySelector('.opt-fold')
@@ -1126,6 +1131,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       const hRow = row.offsetHeight
       row.classList.remove('on'); row.style.opacity = ''
+      const prevTail = tailRef.current?.style.height || ''                        // collapseCard 와 같은 이유: 클램프 방지 (2026-09-12)
+      setTail((parseInt(prevTail, 10) || TAIL) + Math.max(0, h0 - hRow))
       card.style.overflow = 'hidden'
       card.classList.add('boxing')                                  // 흰 박스 표면이 0.3s 로 켜짐 (agent.css)
       if (L === 'E3') { card.classList.add('l3-start'); await new Promise(afterLayout); if (!alive()) return false; card.classList.remove('l3-start') }
@@ -1161,6 +1168,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       row.classList.remove('from-box')
       await wait(variant('selfade') === 'N2' ? 820 : 780)          // 배경·글자 트랜지션이 끝날 때까지 (agent.css html[data-selfade])
+      if (tailRef.current) tailRef.current.style.height = prevTail || `${TAIL}px`
       return alive()
     }
     /* ── 풀팝업이 내려가는 것과 카드 → 흰 박스 → [선택됨] 을 어떻게 맞물리게 하나 (html[data-foldsync], 사용자 2026-09-11
