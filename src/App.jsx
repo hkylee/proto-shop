@@ -6,16 +6,16 @@ import { CONFIRMED } from './lib/variants.js'
 import { SCREEN_H, SCREEN_W, BASE_W, BASE_H, MAX_FILL_W as MAX_W, MFIT, MWIDTH, MS as MS0 } from './lib/screen.js'
 
 const { zones, persona } = data
-/* 1·2·3안 (prompt 파일, 2026-09-07): 3안 = 현재 구현(steps.json). 1·2안은 UI 준비 중 → 자리표시 스텝(placeholder 뷰)으로 구조만 보여준다.
+/* 1·2·3안 (prompt 파일, 2026-09-07 · 번호 교체 2026-09-12): 1안 = 현재 구현(steps.json). 1·2안은 UI 준비 중 → 자리표시 스텝(placeholder 뷰)으로 구조만 보여준다.
    웹 셸 시안 html[data-web]: WA 상단 탭 / WB 좌측 패널 계층 / WC 3안 나란히 비교 */
-// 1·2안 스텝 → 플레이어 스텝. ref: 3안 스텝을 그대로 빌려옴 / view: 실제 UI 가 있는 스텝 / 그 외: 자리표시
+// 2·3안 스텝 → 플레이어 스텝. ref: 1안(구현) 스텝을 그대로 빌려옴 / view: 실제 UI 가 있는 스텝 / 그 외: 자리표시
 const stepOf = (p, st) => {
-  if (st.ref) return { ...data.steps.find((s3) => s3.id === st.ref), ...(st.view ? { view: st.view } : {}), id: st.id }
+  if (st.ref) return { ...data.steps.find((s1) => s1.id === st.ref), ...(st.view ? { view: st.view } : {}), id: st.id }
   if (st.view) return { ...st, zone: st.zone || 'shop', utterance: st.utterance ?? null, utteranceNote: st.note, purpose: st.purpose || [p.concept, p.example] }
   return { ...st, zone: 'agent', utterance: null, utteranceNote: st.note, purpose: [p.concept, p.example], view: { type: 'placeholder', pid: p.id, title: p.short, screen: st.screen, note: st.note, status: p.status } }
 }
-const PROPOSALS = proposalsData.proposals.map((p) => p.id === 3 ? { ...p, steps: data.steps, phases: data.phases } : { ...p, steps: p.steps.map((st) => stepOf(p, st)) })
-const scOf = (pid) => PROPOSALS.find((p) => p.id === pid) || PROPOSALS[2]
+const PROPOSALS = proposalsData.proposals.map((p) => p.id === 1 ? { ...p, steps: data.steps, phases: data.phases } : { ...p, steps: p.steps.map((st) => stepOf(p, st)) })   // 2026-09-12 시안 번호 교체: 구현된 안(steps.json) 이 1안
+const scOf = (pid) => PROPOSALS.find((p) => p.id === pid) || PROPOSALS[0]
 // 아래 헬퍼들은 현재 시나리오(sc)에 대해 동작하도록 함수형으로
 const stepIdxIn = (sc, id) => sc.steps.findIndex((s) => s.id === id)
 const phaseOfIn = (sc, i) => sc.phases.findIndex((p) => p.steps.includes(sc.steps[i].id))
@@ -663,7 +663,7 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
 
 export default function App() {
   // 안 선택 = URL 경로로 구분 (/1 · /2 · /3, 사용자 2026-09-08 "vercel 내에서 링크 구분"). 예전 ?an= 도 계속 받는다. 기본 3안
-  const [pid, setPid] = useState(() => { const m = location.pathname.match(/^\/([123])\/?$/); const q = m ? Number(m[1]) : Number(Q0.get('an') || (LAB && import.meta.env.VITE_AN)); return [1, 2, 3].includes(q) ? q : 3 })
+  const [pid, setPid] = useState(() => { const m = location.pathname.match(/^\/([123])\/?$/); const q = m ? Number(m[1]) : Number(Q0.get('an') || (LAB && import.meta.env.VITE_AN)); return [1, 2, 3].includes(q) ? q : 1 })
   const sc = scOf(pid), steps = sc.steps
   const [webV, setWebV] = useState(() => (LAB ? (Q0.get('web') || 'WB') : 'WB'))
   useEffect(() => { document.documentElement.dataset.web = webV }, [webV])
