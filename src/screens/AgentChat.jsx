@@ -1271,7 +1271,6 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const T = rv()
       await ptr?.tap(discRow(), { move: 320, pause: 60 }); if (!alive()) return
       setDiscPick(DISC_REC); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
-      if (variant('penfold') === 'A1') { await wait(900); if (!alive()) return }       // A1: 선택 테두리를 한 박자 더 보여준 뒤 접는다
       ptr?.hide()
       if (!await collapseCard(plansCardRef.current, penFoldRef.current)) return         // 재출력 카드도 요약 줄로 (§28)
       await follow(penFoldRef.current); if (!alive()) return
