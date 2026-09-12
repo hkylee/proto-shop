@@ -162,13 +162,13 @@ const PEN_MSGS = ['지금 요금제를 변경해도 위약금이나 할인반환
 const DISC_REC = 2   // 재제시 카드에서 추천·탭하는 할인 = 선택약정 24개월
 // 옵션 순차 선택: 미리 선택하지 않고 안내문이 추천을 말하고 추천 행에 '추천' 배지, 사용자가 탭해 고른다 (사용자 방향 2026-09-07). rows = [이름, 설명, 우측값]
 const OPTS = [
-  { sum: '할인 방법', msg: '추가 할인을 받을 수 있어요. 적용할 할인 방법을 선택해 주세요.', rec: 0, rows: [['쿠폰/이용권'], ['제휴 포인트'], ['추가 할인 수단을 사용하지 않기']] },
-  { sum: '할인 방법', msg: '보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
+  { sum: '할인 쿠폰', msg: '이어서 추가 할인을 받을 수 있어요. 보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
   { sum: '결제 방법', msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
   { sum: '혜택', msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
 ]
 const REPLAN_PICK = 2   // 스텝 8 에서 바꿔 고르는 요금제 (Figma 는 0 청년 107)
-const OPT_RESELECT = { sec: 1, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
+const LAST_OPT = OPTS.length - 1, DONE_TURN = OPTS.length   // 마지막 옵션 턴(추가 혜택) · 완료 턴
+const OPT_RESELECT = { sec: 0, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
 const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
 
 /* ── 이어서 옵션 안내 (스텝 9·11, Figma ixGPs9 29:21972): 요금제 카드에 할인 방법이 묶여 들어와 할인방법 턴은 폐기(2026-09-07).
@@ -500,7 +500,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const resetForm = () => {
       resetReview(); resetAuth()
       resetTurn(formEl, formItems)
-      turns[4].querySelector('.button-ai')?.classList.remove('gone'); const cw = turns[4].querySelector('.cta-stack'); if (cw) cw.style.display = ''
+      turns[DONE_TURN].querySelector('.button-ai')?.classList.remove('gone'); const cw = turns[DONE_TURN].querySelector('.cta-stack'); if (cw) cw.style.display = ''
       setFsheet(0); setFpeek(false); setFv(FV0); setFfocus(''); setKbOpen(false); setKbField(false); setPenTyped(''); setPenTyping(false)
     }
     const resetReselect = () => {
@@ -733,7 +733,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     let reselectPrepDone = false
     const reselectIntro = async () => {
       const T = rv()
-      const last = turns[3], [lm, , lastCard] = optKids(last)
+      const last = turns[LAST_OPT], [lm, , lastCard] = optKids(last)
       if (last.classList.contains('on')) return true
       last.classList.add('on'); void last.offsetHeight
       if (!await think(last, lm)) return false
@@ -772,11 +772,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await collapseCard(card, optFold(sec))) return
       await follow(optFold(sec)); if (!alive()) return
       await wait(400); if (!alive()) return
-      ptr?.park(optRow(3, OPTS[3].rec), 450, '탭')
+      ptr?.park(optRow(LAST_OPT, OPTS[LAST_OPT].rec), 450, '탭')
     }
     const playReselectOld = async () => {
       // 8번: 마지막 안내("마지막으로… T 안심보상…")가 뜨자 → 쿠폰 섹션으로 올라가(H-3) 30,000원 쿠폰으로 바꾸고 → 하단 칩(K-2) 탭 → 내려옴(C-3)
-      const last = turns[3], [, , lastCard] = optKids(last)
+      const last = turns[LAST_OPT], [, , lastCard] = optKids(last)
       if (!await reselectIntro()) return
       const { sec, row } = OPT_RESELECT, target = optRow(sec, row), card = optKids(turns[sec])[2]
       if (!reselectPrepDone) {   // 사용자 탭 모드에서는 스텝 7 끝에 이미 올라와 쿠폰 위에서 기다렸다
@@ -788,7 +788,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setOptPick((p) => p.map((v, i) => (i === sec ? row : v))); await wait(300); if (!alive()) return
       ptr?.hide()
       await anchorDown(target, lastCard); if (!alive()) return
-      if (userTap()) ptr?.park(optRow(3, OPTS[3].rec))   // 다음 스텝의 첫 탭 = T 안심보상
+      if (userTap()) ptr?.park(optRow(LAST_OPT, OPTS[LAST_OPT].rec))   // 다음 스텝의 첫 탭 = T 안심보상
     }
     const planRow = (i) => plansCardRef.current.querySelectorAll('.plan-row')[i]
     // A-1 가로 캐러셀: i번째 카드가 좌측 20px 선에 오도록 가로 스크롤 (세로 팬과 같은 in-out)
@@ -971,7 +971,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       }
       setMsgPlanIdx(PLAN_RESELECT)
     }
-    const finalReselect = () => { setOptK(OPT.benefit); const last = turns[3], kids = optKids(last); last.classList.add('on'); showNow(kids); setOptPick((p) => p.map((v, i) => (i === OPT_RESELECT.sec ? OPT_RESELECT.row : v))); afterLayout(() => { scroll.scrollTop = anchorBottom(kids[2]) }) }
+    const finalReselect = () => { setOptK(OPT.benefit); const last = turns[LAST_OPT], kids = optKids(last); last.classList.add('on'); showNow(kids); setOptPick((p) => p.map((v, i) => (i === OPT_RESELECT.sec ? OPT_RESELECT.row : v))); afterLayout(() => { scroll.scrollTop = anchorBottom(kids[2]) }) }
     /* ── 10번: 위약금 질문 — SearchAi 탭 → 키패드 상승 → 타이핑(스텝 3과 같은 리듬) → 전송 → 키패드 하강 → 말풍선이 채팅 시작선에 (Figma 12349:37144 → 37232) */
     // 키패드가 열린 상태에서 마지막 카드 하단이 (키보드 위로 올라간) SearchAi 위 30px 에 오는 scrollTop.
     // K-1 처럼 채팅 영역이 키보드 높이만큼 줄어도 SearchAi 와 영역 하단이 같이 올라가므로 값은 같다
@@ -1255,7 +1255,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await follow(m1); if (!alive()) return false
       await wait(gap); if (!alive()) return false
       if (!m2.classList.contains('none')) { if (W === 'W2') { if (!await streamIn(m2)) return false } else reveal(m2); await follow(m2); if (!alive()) return false; await wait(gap); if (!alive()) return false }
-      setOptK([OPT.extra, OPT.coupon, OPT.pay, OPT.benefit][i])       // 섹션 i 컴포넌트가 뜨는 순간 헤더 '{옵션} 선택중 k/n'
+      setOptK([OPT.coupon, OPT.pay, OPT.benefit][i])       // 섹션 i 컴포넌트가 뜨는 순간 헤더 '{옵션} 선택중 k/n'
       if (!await revealCard(card, 120)) return false
       await follow(card, true); if (!alive()) return false
       await wait(650); if (!alive()) return false
@@ -1277,31 +1277,31 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await follow(penFoldRef.current); if (!alive()) return
       optsEl.classList.add('on'); void optsEl.offsetHeight
       setTail(420)
-      for (let i = 0; i < 3; i++) { if (!await playOptSection(i, T)) return }
+      for (let i = 0; i < LAST_OPT; i++) { if (!await playOptSection(i, T)) return }
       ptr?.hide()
       setTail(TAIL)
-      await scrollTo(scroll, anchorBottom(optFold(2) || optKids(turns[2])[2])); if (!alive()) return   // 접힌 카드는 display:none → 요약 줄을 기준으로 (사용자 2026-09-11 '위로 앵커링돼')
+      await scrollTo(scroll, anchorBottom(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2])); if (!alive()) return   // 접힌 카드는 display:none → 요약 줄을 기준으로 (사용자 2026-09-11 '위로 앵커링돼')
     }
     const finalOpts1 = () => {
       setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
       if (plansCardRef.current) plansCardRef.current.style.display = 'none'
       penFoldRef.current?.classList.add('on')
-      for (let i = 0; i < 3; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
-      setOptPick((p) => p.map((v, k) => (k < 3 ? OPTS[k].rec : v)))
-      afterLayout(() => { scroll.scrollTop = anchorBottom(optFold(2) || optKids(turns[2])[2]) })
+      for (let i = 0; i < LAST_OPT; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
+      setOptPick((p) => p.map((v, k) => (k < LAST_OPT ? OPTS[k].rec : v)))
+      afterLayout(() => { scroll.scrollTop = anchorBottom(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2]) })
     }
     /* ── 9번: 마지막 섹션의 행 → T 안심보상 탭 → 완료 안내 + [신청서 작성 시작하기] */
     const playOpts2 = async () => {
       const T = rv()
-      const last = turns[3], [, , card] = optKids(last), done = turns[4], [dm, , chipWrap] = optKids(done)
+      const last = turns[LAST_OPT], [, , card] = optKids(last), done = turns[DONE_TURN], [dm, , chipWrap] = optKids(done)
       setTail(420)
       if (!await reselectIntro()) return                              // 추가 혜택 턴 등장 (옛 재선택 스텝이 하던 몫, 스텝 8 폐기 2026-09-11)
-      await ptr?.tap(optRow(3, OPTS[3].rec)); if (!alive()) return
-      setOptPick((p) => p.map((v, k) => (k === 3 ? OPTS[3].rec : v)))
+      await ptr?.tap(optRow(LAST_OPT, OPTS[LAST_OPT].rec)); if (!alive()) return
+      setOptPick((p) => p.map((v, k) => (k === LAST_OPT ? OPTS[LAST_OPT].rec : v)))
       await wait(700); if (!alive()) return
       ptr?.hide()
-      if (!await collapseCard(card, optFold(3))) return                // T 안심보상도 요약 줄로 (Figma 271:125498)
-      await follow(optFold(3)); if (!alive()) return
+      if (!await collapseCard(card, optFold(LAST_OPT))) return                // T 안심보상도 요약 줄로 (Figma 271:125498)
+      await follow(optFold(LAST_OPT)); if (!alive()) return
       done.classList.add('on'); void done.offsetHeight
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return
@@ -1313,10 +1313,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalOpts2 = () => {
       setOptK(OPT.benefit)
-      turns[3].classList.add('on'); showNow(optKids(turns[3])); const c3 = turns[3].querySelector('.opt-card'); if (c3) c3.style.display = 'none'; optFold(3)?.classList.add('on')
-      turns[4].classList.add('on'); showNow(optKids(turns[4]))
-      setOptPick((p) => p.map((v, k) => (k === 3 ? OPTS[3].rec : v)))
-      afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[4])[2]) })
+      turns[LAST_OPT].classList.add('on'); showNow(optKids(turns[LAST_OPT])); const c3 = turns[LAST_OPT].querySelector('.opt-card'); if (c3) c3.style.display = 'none'; optFold(LAST_OPT)?.classList.add('on')
+      turns[DONE_TURN].classList.add('on'); showNow(optKids(turns[DONE_TURN]))
+      setOptPick((p) => p.map((v, k) => (k === LAST_OPT ? OPTS[LAST_OPT].rec : v)))
+      afterLayout(() => { scroll.scrollTop = anchorBottom(optKids(turns[DONE_TURN])[2]) })
     }
     /* ── 10번: [신청서 작성 시작하기] 탭 → 칩이 말풍선으로 → 개인정보 Alert → 화면 딤 + 신청서 AI 바텀시트 1/4 (주민등록번호) → 입력 → [다음] 위 대기
        (Figma 67:28493 → 51:37984 · 52:57568 키패드 · 52:58165 입력 완료). 시트 4장은 같은 시트 안에서 내용만 바뀐다 */
@@ -1655,7 +1655,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     let finalsOnly = true
     const run = (fn) => { finalsOnly = false; return fn() }
     const PARK_FOR = {
-      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(3, OPTS[3].rec), opts2: () => doneChipRef.current,
+      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current,
       form: () => fsEl('next'), addr: () => fsEl('next'), contact: () => fsEl('next'), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'),
     }
@@ -1717,7 +1717,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       }
       if (opts1) {
         if (prevRef.current === 'penalty' && !reduced) run(playOpts1)
-        else { resetReselect(); resetOpts(3); unstale(); upToPenalty(); finalOpts1() }
+        else { resetReselect(); resetOpts(LAST_OPT); unstale(); upToPenalty(); finalOpts1() }
         prevRef.current = 'opts1'; return
       }
       if (penalty) {
