@@ -468,12 +468,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const payEl = payRef.current, payItems = [...payEl.children].filter((c) => !c.classList.contains('thinking'))   // [완료 선, 안내 1, 안내 2, 납부 카드, 안내 3, 요금안내서, 안내 4]
     const discRow = () => plansCardRef.current.querySelectorAll('.plan-card')[planIdx].querySelectorAll('.pc-rc')[DISC_REC]
     const jumpChip = jumpChipRef.current
-    const setTail = (px) => { if (tailRef.current) tailRef.current.style.height = `${px}px` }
+    /* 꼬리(대화 아래 여백). 재생 중에는 **줄이지 않는다** — 줄이는 순간 스크롤이 클램프돼
+       화면에 있던 것이 통째로 튄다(사용자 2026-09-12 "접히는 감각에 따라 이전 위치 바뀌는 거"). 초기화 경로만 setTailHard 로 되돌린다 */
+    const setTailHard = (px) => { if (tailRef.current) tailRef.current.style.height = `${px}px` }
+    const setTail = (px) => { const el = tailRef.current; if (!el) return; const cur = parseInt(el.style.height, 10) || 0; el.style.height = `${Math.max(cur, px)}px` }
     const resetChip = () => {
       if (!jumpChip) return
       jumpChip.classList.remove('on', 'down', 'near', 'absorb', 'release', 'pressing'); jumpChip.style.top = ''; jumpChip.textContent = CHIP_UP
     }
-    const resetTurn = (el, turnItems) => { el.classList.remove('on'); unreveal(turnItems); resetFlat(el); unreveal([...el.querySelectorAll('.thinking')]); el.querySelectorAll('.thinking').forEach((d) => d.classList.remove('out')); setTail(TAIL) }
+    const resetTurn = (el, turnItems) => { el.classList.remove('on'); unreveal(turnItems); resetFlat(el); unreveal([...el.querySelectorAll('.thinking')]); el.querySelectorAll('.thinking').forEach((d) => d.classList.remove('out')); setTailHard(TAIL) }
     // 접힘 해제 (요금제 선택 앞 스텝으로 되돌아올 때)
     const unfold = () => {
       const card = usageCardRef.current
@@ -1117,7 +1120,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       row.classList.remove('from-box')
       await wait(820)
-      if (tailRef.current) tailRef.current.style.height = prevTail || `${TAIL}px`   // 꼬리 원복
+      // 꼬리는 되돌리지 않는다 — 되돌리는 순간 다시 클램프돼 아래 내용이 튄다. 이어지는 setTail 이 정상화한다 (2026-09-12)
       return alive()
     }
     const optFold = (i) => turns[i]?.querySelector('.opt-fold')
@@ -1168,7 +1171,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await new Promise(afterLayout); if (!alive()) return false
       row.classList.remove('from-box')
       await wait(variant('selfade') === 'N2' ? 820 : 780)          // 배경·글자 트랜지션이 끝날 때까지 (agent.css html[data-selfade])
-      if (tailRef.current) tailRef.current.style.height = prevTail || `${TAIL}px`
+      // 꼬리는 되돌리지 않는다 — 되돌리는 순간 다시 클램프돼 아래 내용이 튄다. 이어지는 setTail 이 정상화한다 (2026-09-12)
       return alive()
     }
     /* ── 풀팝업이 내려가는 것과 카드 → 흰 박스 → [선택됨] 을 어떻게 맞물리게 하나 (html[data-foldsync], 사용자 2026-09-11
