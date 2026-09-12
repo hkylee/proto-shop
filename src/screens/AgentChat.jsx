@@ -987,7 +987,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await ptr?.tap(applyRef.current, { move: 300, pause: 0 }); if (!alive()) return
       ptr?.hide(); hideSheet(); setOptK(OPT.disc)                  // 요금제 적용(전송) → 다음 옵션 = 할인 방법
       if (!await syncFold()) return                                 // 팝업 하강과 박스 변환을 맞물리는 방식 (§27-3)
-      await scrollTo(scroll, anchorBottom(planAnchorEl())); if (!alive()) return
+      /* 접힘이 끝난 자리를 다시 겨냥하지 않는다. 요약 줄은 대화 위쪽에 있어서 거기로 스크롤하면
+         맨 위(0)까지 올라갔다가 말풍선 때문에 다시 내려온다 — 사용자 2026-09-12 '위로 올라갔다가 내려가고 어색'.
+         접힘은 이미 제자리에서 끝났으니 멈춤만 두고 이어간다 (§28-5) */
       await wait(700); if (!alive()) return
       await ptr?.tap(searchRef.current, { move: 420, pause: 100 }); if (!alive()) return
       ptr?.hide()
