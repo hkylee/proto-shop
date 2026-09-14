@@ -911,6 +911,9 @@ html[data-selfade="N3"] .plan-fold > * { transition: opacity .4s cubic-bezier(.4
 /* 재선택 결과 (Figma ixGPs9 271:124668): 이전 블록은 흐려져 비활성으로 남고, 아래에 변경 안내 + 새 요약 줄 */
 .replan-out { display: none; flex-direction: column; gap: 8px; }
 .replan-out.on { display: flex; }
+/* [개통 이어가기] 뒤 신청서 카드가 물러날 때 남는 줄 (W-2, html[data-reviewaway]) */
+.review .review-fold { display: grid; }
+.review .review-fold.in { opacity: 1; }
 /* ── 스텝 9 끝맺음 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093) ──
    E1 바로 이어서 CTA / E2 한 마디 덧붙이고 CTA / E3 위의 흐려진 CTA 를 걷고 새로 / off 기존(CTA 없음) */
 /* 재선택 결과의 요약 줄은 .on 이 아니라 reveal 의 .in 으로 뜬다 — 이 규칙이 없어 새 요금제 줄이 display:none 으로 남아 있었다 (2026-09-14) */

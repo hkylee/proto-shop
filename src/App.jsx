@@ -107,7 +107,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -303,6 +303,13 @@ const PENFOLDS = [
   { id: 'A1', label: 'A-1 요금제 줄만, 한 박자 뒤 접힘', desc: '남는 줄은 요금제 하나로 지금과 같고, 대신 고른 할인 방법의 선택 테두리를 0.9s 더 보여준 뒤 접는다. 애매함이 "고른 걸 못 보고 사라진다" 쪽이면 이것으로 해결되지만, 줄의 라벨과 실제로 고른 것(할인 방법)이 어긋난 문제는 남는다' },
 ]
 // 접힘 뒤 화면의 기준 (html[data-foldanchor], 3안 공통) — 사용자 2026-09-12 "2안처럼 위로 고정으로 해볼까 · 공통적으로 적용"
+// 13 → 14 · [개통 이어가기] 를 누른 뒤 작성이 끝난 신청서 카드가 어떻게 물러나나 (html[data-reviewaway], Figma ixGPs9 90:88097) — 사용자 2026-09-14
+const REVIEWAWAYS = [
+  { id: 'W1', label: 'W-1 제자리에서 접혀 사라짐', desc: '카드가 높이 0 으로 접히며 흐려진다(0.45s). 바로 앞에서 개인정보 Alert 가 물러날 때 쓴 것과 같은 동작이라 "역할이 끝난 것은 제자리에서 접힌다"는 규칙이 이어진다. 가장 조용하고 짧다' },
+  { id: 'W2', label: 'W-2 [작성한 신청서 · 다시 보기] 줄로', desc: '카드가 접힌 자리에 요약 줄 하나가 남는다. 요금제·옵션이 모두 줄로 접혀 남는 것과 같은 규칙이고, 작성한 내용을 다시 볼 길이 대화에 남는다. 대신 인증 단계로 갈 때 줄이 하나 더 쌓인다' },
+  { id: 'W3', label: 'W-3 접힘과 말풍선이 겹침', desc: '카드가 접히기 시작하는 것과 거의 동시에 [개통 이어가기] 말풍선이 올라온다(0.16s 차). 두 동작이 한 호흡으로 읽혀 가장 빠르지만, 접히는 과정은 덜 보인다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 신청서 카드가 대화에 그대로 남고 칩만 사라진다 — 지금 배포된 상태' },
+]
 // 스텝 9 끝맺음 · 변경 안내 밑에 새 요금제 줄이 뜨고 [신청서 작성 시작하기] 가 이어진다 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093) — 사용자 2026-09-14
 const REPLANENDS = [
   { id: 'E1', label: 'E-1 바로 이어서 CTA', desc: 'Figma 구성 그대로. 되감아 올라와 있으므로 먼저 하단 핀 [변경 결과로 이동 ↓] 을 탭해 결과 자리로 내려온 뒤, "요금제가 5GX 프라임 플러스에서 베스트 109으로 변경되었어요." → [선택한 요금제 · 베스트 109 · 다시 선택하기] 줄 → 곧바로 [신청서 작성 시작하기]' },
@@ -711,6 +718,8 @@ export default function App() {
   }, [cur, pid, steps.length, replay])
   const nextTest = () => { userNav(); const n = pid === 3 ? 1 : pid + 1; setPid(n); setCur(0); setReplay((k) => k + 1) }
   // 확정 시안은 모듈 로드 시 <html data-*> 로 내려갔다. LAB 빌드에서는 스텝 탐색 UI(nav)만 바꿔볼 수 있다
+  const [reviewawayV, setReviewawayV] = useState(() => (LAB ? (Q0.get('ra') || CONFIRMED.reviewaway) : CONFIRMED.reviewaway))
+  useEffect(() => { document.documentElement.dataset.reviewaway = reviewawayV }, [reviewawayV])
   const [replanendV, setReplanendV] = useState(() => (LAB ? (Q0.get('re') || CONFIRMED.replanend) : CONFIRMED.replanend))
   useEffect(() => { document.documentElement.dataset.replanend = replanendV }, [replanendV])
   const [replanupV, setReplanupV] = useState(() => (LAB ? (Q0.get('ru') || CONFIRMED.replanup) : CONFIRMED.replanup))
@@ -1175,6 +1184,14 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           )}
+          <div className="variants v-reviewaway">
+            <b className="vtitle">1·2안 · [개통 이어가기] 뒤 신청서 카드 (스텝 13에서 → 14) — 시안 확인 중</b>
+            {REVIEWAWAYS.map((v) => (
+              <button key={v.id} aria-pressed={reviewawayV === v.id} onClick={() => { setReviewawayV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{REVIEWAWAYS.find((v) => v.id === reviewawayV)?.desc}</span>
+          </div>
+          {SHOW_ALL && (
           <div className="variants v-replanend">
             <b className="vtitle">1안 · 스텝 9 끝맺음 — 변경 안내 → 요금제 줄 → [신청서 작성 시작하기] (스텝 9) — E-1 확정</b>
             {REPLANENDS.map((v) => (
@@ -1182,6 +1199,7 @@ export default function App() {
             ))}
             <span className="vdesc">{REPLANENDS.find((v) => v.id === replanendV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants v-replanup">
             <b className="vtitle">1안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>

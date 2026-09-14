@@ -409,7 +409,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const fsheetRef = useRef(null), fsWrapRef = useRef(null)
   const [fv, setFv] = useState(FV0)                      // 시트 입력값
   const [ffocus, setFfocus] = useState('')               // 포커스(캐럿) 중인 필드 키
-  const reviewRef = useRef(null), reviewChipRef = useRef(null)
+  const reviewRef = useRef(null), reviewChipRef = useRef(null), reviewFoldRef = useRef(null)
   const authRef = useRef(null), tossItemRef = useRef(null)
   const [authSheet, setAuthSheet] = useState(0)          // 0 없음 / 1 본인인증 / 2 신원인증
   const [sheetToss, setSheetToss] = useState(false)      // X-2: 시트 안이 토스 화면으로 바뀜
@@ -464,7 +464,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
     const formEl = formRef.current, formItems = [...formEl.children]   // [말풍선, 개인정보 Alert]
-    const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking'))   // [안내, 완료 선, 안내 2, 신청서 카드, 칩]
+    const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('review-fold'))   // [안내, 완료 선, 안내 2, 신청서 카드, 칩]
     const reviewChipWrap = reviewItems[4]
     const authEl = authRef.current, authItems = [...authEl.children].filter((c) => !c.classList.contains('thinking'))   // [말풍선, 안내 1, 완료 선, 안내 2]
     const payEl = payRef.current, payItems = [...payEl.children].filter((c) => !c.classList.contains('thinking'))   // [완료 선, 안내 1, 안내 2, 납부 카드, 안내 3, 요금안내서, 안내 4]
@@ -498,7 +498,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setOptPick((p) => p.map((v, i) => (i >= from ? -1 : v)))
       resetForm()
     }
-    const resetReview = () => { resetTurn(reviewEl, reviewItems); reviewChipRef.current?.classList.remove('gone'); reviewChipWrap.style.display = '' }
+    const resetReview = () => { resetTurn(reviewEl, reviewItems); reviewChipRef.current?.classList.remove('gone'); reviewChipWrap.style.display = ''; const c = reviewItems[3]; if (c) c.style.cssText = ''; const rf = reviewFoldRef.current; if (rf) { rf.classList.remove('in'); rf.style.cssText = '' } }
     const resetPayout = () => { if (extKind === 'pay') { setExt(''); setExtKind('toss') } }
     const resetPay = () => { resetPayout(); resetTurn(payEl, payItems); setPayPick(false); setBillPick(-1); setP2sheet(0); setP2pick(-1); setP2step(1); setFv((o) => ({ ...o, p2phone: '', p2code: '' })) }
     const resetAuth = () => { resetPay(); resetTurn(authEl, authItems); setAuthSheet(0); setSheetToss(false); setExt(''); setExtKind('toss'); setExtBanner(false) }
@@ -1498,11 +1498,23 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
        X1 앱 전환 슬라이드: 토스 화면이 오른쪽에서 밀려 들어와 덮고(0.45s), 인증이 끝나면 오른쪽으로 빠지며 돌아옴
        X2 시트 안에서: 시트 내용이 토스 미니 화면으로 바뀌어 그 자리에서 인증되고 시트가 내려감 (앱을 떠나지 않음)
        X3 페이드 + 배너: 화면이 흐려지며 토스로 바뀌고(0.5s), 돌아올 때 위에서 '본인인증이 완료되어 돌아왔어요' 배너 */
+    /* [개통 이어가기] 를 누르면 작성이 끝난 신청서 카드(Figma ixGPs9 90:88097)는 대화에서 물러난다 (사용자 2026-09-14, 1·2안 공통)
+       html[data-reviewaway]: W1 제자리에서 접혀 사라짐 / W2 '작성한 신청서 · 다시 보기' 줄로 접힘 / W3 접힘과 말풍선이 겹침 / off 남겨 둠(기존) */
+    const reviewAway = async () => {
+      const W = variant('reviewaway')
+      const card = reviewItems[3], fold = reviewFoldRef.current
+      if (W === 'off' || !card) return true
+      if (W === 'W3') { collapseAway(card, 420); await wait(160); return alive() }   // 접히는 동안 말풍선이 이미 올라온다
+      await collapseAway(card, 450); if (!alive()) return false
+      if (W === 'W2' && fold) { reveal(fold); await wait(380); if (!alive()) return false }
+      return alive()
+    }
     const playAuth = async () => {
       const T = rv(), X = variant('ext'), [bubble, m1, doneLine, m2] = authItems
       await ptr?.tap(reviewChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
       ptr?.hide(); reviewChipRef.current.classList.add('gone'); await wait(220); if (!alive()) return
       reviewChipWrap.style.display = 'none'                            // 칩 자리까지 접어 말풍선이 카드 아래 16px 에 (Figma 26:41946)
+      if (!await reviewAway()) return
       authEl.classList.add('on'); void authEl.offsetHeight
       setTail(420)
       reveal(bubble); await follow(bubble); if (!alive()) return
@@ -1531,7 +1543,13 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setAuthSheet(2); setOptK(OPT.auth2); await wait(700);   // 신원 인증 시트 등장 if (!alive()) return
       ptr?.park(authEl.ownerDocument.querySelector('.ai-sheet.on .ai-sheet-item'))
     }
-    const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); reviewChipWrap.style.display = 'none'; authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems[3]) }) }
+    const finalAuthCard = () => {   // 직접 진입·되감기: 재생 없이 같은 결과 상태로
+      const W = variant('reviewaway'), card = reviewItems[3], fold = reviewFoldRef.current
+      if (W === 'off' || !card) return
+      card.style.display = 'none'
+      if (W === 'W2' && fold) showNow([fold])
+    }
+    const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); reviewChipWrap.style.display = 'none'; finalAuthCard(); authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems[3]) }) }
     /* ── 7번: 요금제 재선택 (Figma ixGPs9 271:126019). 대화에 남은 [다시 선택하기] → 전체 요금제 팝업(초기화 안내 띠, 현재 요금제 선택됨·적용 비활성)
        → 다른 요금제 탭 → [적용하기] 활성 → 탭 → '요금제를 변경하시겠어요?' 확인 모달 → [네] → 팝업 내려가고 줄의 요금제명이 바뀐다 */
     /* 스텝 9 진입 — 대화 위쪽에 남아 있는 '선택한 요금제 · 다시 선택하기' 줄까지 화면을 되감아 앵커링한다
@@ -1939,6 +1957,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <h3>신청서</h3>
               <div className="kv-list">{REVIEW_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{v}</b></div>)}</div>
             </Card>
+            {/* W-2: 카드가 접힌 자리에 남는 줄 */}
+            <div className="plan-fold review-fold" ref={reviewFoldRef}><span className="lbl">작성한 신청서</span><b>{REVIEW_ROWS[0][1]} · {PHONE}</b><em>다시 보기</em></div>
             <div className="cta-stack"><div className="button-ai" ref={reviewChipRef}>{REVIEW_CHIP}</div></div>
           </div>
 
