@@ -49,7 +49,7 @@ const ALT_COPY = {
   C2: '무제한 요금제 3개를 추천드려요. 할인 방법까지 한 번에 고를 수 있어요.',
   C3: '첫 번째가 하경님 사용량에 가장 잘 맞는 AI PICK이에요. 다른 요금제도 함께 비교해 보세요.',
 }
-const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓', CHIP_PLAN = '요금제 선택으로 이동 ↑'
+const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓', CHIP_PLAN = '요금제 선택으로 이동 ↑', CHIP_BACK = '변경 결과로 이동 ↓'
 
 // 추가혜택 (Figma 12120:33276) — RadioCard 3개, 미선택
 const BENEFITS = [
@@ -875,7 +875,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(220); ind.hide()
     }
     /* ── ② 선택 후: 하단에 앵커 칩('할인 방법 선택으로 ↓')이 뜨고 포인터가 탭 → 아래로 '쫘라락' (html[data-down] C1/C2/C3) */
-    const anchorDown = async (row, toEl) => {
+    const anchorDown = async (row, toEl, label = CHIP_DOWN) => {
       const C = variant('down')
       const K = variant('trigger')
       const to = anchorBottom(toEl)
@@ -883,7 +883,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         // K-2 (확정) 하단 앵커 칩 + 사용자 탭: 칩은 row 와 같은 가로 중심에 뜨므로 포인터는 수직으로만 내려가 탭.
         // 칩은 탭 뒤 제자리에서 페이드아웃만 하고, 문구·위치 초기화는 완전히 사라진 뒤에 한다 (옆으로 흔들림 방지).
         const FX = variant('chipfx')
-        jumpChip.textContent = CHIP_DOWN; jumpChip.classList.add('down', 'on')
+        jumpChip.textContent = label; jumpChip.classList.add('down', 'on')
         await wait(420); if (!alive()) return
         await ptr?.tap(jumpChip, { move: 380, pause: 110 }); if (!alive()) return
         ptr?.hide()
@@ -901,7 +901,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       } else {
         // K-1 손가락 아래 칩: 방금 탭한 row 바로 아래에 칩이 나타나 포인터가 조금만 내려가 탭
         const rs = ptr?.rectOf(row), root = rootRef.current.getBoundingClientRect()
-        jumpChip.textContent = CHIP_DOWN
+        jumpChip.textContent = label
         jumpChip.classList.add('near'); jumpChip.style.top = `${rs ? rs.y + rs.h - root.top + 6 : 400}px`
         jumpChip.classList.add('on'); await wait(400); if (!alive()) return
         await ptr?.tap(jumpChip, { move: 260, pause: 100 }); if (!alive()) return
@@ -1579,6 +1579,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const outEl = replanOutRef.current, [notice, newRow, ask, cta] = [...outEl.children]
       outEl.classList.add('on'); void outEl.offsetHeight
       setTail(TAIL)
+      /* 되감아 올라와 있으므로 내려갈 길을 손으로 준다 (사용자 2026-09-14 "밑으로 핀하는 거 하나 추가해서 그거 누르면 바로 밑으로").
+         스텝 7 과 같은 언어 — K-2 하단 앵커 칩 + E-2 눌림 → C-3 곡선으로 결과 자리까지 */
+      await new Promise(afterLayout); if (!alive()) return
+      await anchorDown(null, notice, CHIP_BACK); if (!alive()) return
       reveal(notice); await follow(notice); if (!alive()) return
       await wait(rv().text); if (!alive()) return
       reveal(newRow); await follow(newRow); if (!alive()) return
