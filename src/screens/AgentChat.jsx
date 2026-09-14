@@ -1784,10 +1784,21 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭') }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
     const dispatch = () => {
-      const upToPenalty = () => { finalUsage(); finalPenalty(); foldFinal() }
+      /* 2안(mode an2)은 스텝 9 까지를 AgentChat2 가 그렸고 여기서는 이력 블록(.an2-hist)만 보인다.
+         3안 대화(요금제 줄·옵션 줄)를 켜면 이력 아래에 '선택됨 · 5GX 프라임 플러스' 같은 남의 줄이 끼어들었다 (사용자 2026-09-14 "9→10 이 매끄럽지 않아") */
+      const an2 = mode === 'an2'
+      const histTop = () => {
+        if (!an2 || !histRef.current) return
+        setOptK(OPT.plan)
+        altEl.classList.add('on')                                  // 신청서·인증·결제 턴이 모두 이 컨테이너 안에 있다
+        showNow([histRef.current])
+        setTail(SCREEN_H)
+        afterLayout(() => { scroll.scrollTop = anchorHeader(histRef.current) })   // 이력 블록이 채팅 시작선에
+      }
+      const upToPenalty = () => { if (an2) return histTop(); finalUsage(); finalPenalty(); foldFinal() }
 
-      const upToOpts2 = () => { upToPenalty(); finalOpts1(); finalOpts2() }
-      const upToReplan = () => { upToOpts2(); finalReplan() }
+      const upToOpts2 = () => { upToPenalty(); if (an2) return; finalOpts1(); finalOpts2() }
+      const upToReplan = () => { upToOpts2(); if (an2) return; finalReplan() }
       const upToForm = () => { upToReplan(); finalForm() }
       if (payout) {
         if (prevRef.current === 'pay' && !reduced) run(playPayout)
@@ -1821,7 +1832,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         prevRef.current = 'addr'; return
       }
       if (form) {
-        if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); if (histRef.current) { setTail(SCREEN_H); scroll.scrollTop = anchorHeader(histRef.current) }; run(() => playForm(true)) }   // 2안: 스텝 8 마지막(말풍선이 시작선)이 보이는 상태에서 칩 탭 → 신청서   // 2안: 바텀시트 흐름 끝(AgentChat2) → 신청서 재생
+        if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); run(() => playForm(true)) }   // 2안: 바텀시트 흐름 끝(AgentChat2) 에서 넘어옴 — 이력 블록이 시작선에 놓인 채 [신청서 작성하기] 탭 → 신청서
         else if ((prevRef.current === 'opts2' || prevRef.current === 'replan') && !reduced) run(playForm)
         else { resetForm(); upToReplan(); finalForm(true) }
         prevRef.current = 'form'; return

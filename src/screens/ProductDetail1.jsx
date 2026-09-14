@@ -48,6 +48,9 @@ const DWELL_MS = 1500      // '머무름' 판정 (요건 1~2초)
 // 단계별 최종 선택 상태 (직접 고른 것 + AI 로 고른 것)
 // 지금 이용중인 요금제 (AgentChat 의 '이용중 요금제' 카드와 같은 값 — Figma 는 0 청년 99 더미)
 const CUR_PLAN = { badge: '지금 이용중인 요금제', name: '0 청년 69', price: '62,800원', caps: ['데이터 20GB', '통화 무제한', '문자 무제한'], more: '' }
+/* 질의 전 AI PICK 카드 (html[data-planmorph]="on") — Figma 302:104587 은 질의 전 0 청년 99 → 질의 뒤 0 청년 107 로 바뀐다.
+   우리 기준으로는 지금 쓰는 요금제가 들어가 있다가 추천 요금제로 교체된다. 할인 금액은 62,800원 × 25% × 기간 */
+const PRE_PICK = { badge: 'AI PICK', name: '0 청년 69', price: '62,800원', caps: ['데이터 20GB', '통화 무제한', '문자 무제한'], more: '', support: '400,000원', m12: '188,400원', m24: '376,800원' }
 const NONE = { color: -1, storage: -1, delivery: -1, term: -1, user: -1, join: -1, plan: -1, sim: -1, gift: -1, coupon: -1, tradein: -1, ins: -1, svc: -1, card: -1, extra: -1 }
 // 스텝 5 나머지 옵션: [섹션 키, 선택자, 값] 순서대로 쭉 내려가며 탭
 const REST_A = [['sim', '.radio-card:nth-child(1)', 0], ['gift', '.gift:nth-child(1)', 0], ['coupon', '.radio-card:nth-child(3)', 2], ['tradein', '.radio-card:nth-child(1)', 0]]   // 보험 앞: 직접
@@ -309,6 +312,8 @@ export default function ProductDetail1({ stage = 'top' }) {
   const pill = sel.plan >= 0 ? { b: '다음달 1,793,200원', t: '' } : sel.storage >= 0 ? { b: STORAGE[sel.storage].r.replace(/\s/g, ''), t: '' } : { b: '1,684,000원', t: '부터' }
   const dimKey = hint   // 질의 중인 섹션의 나머지 항목이 물러남 (배지도 같은 조건)
   const isBadge = (k) => hint === k
+  // 요금제명 교체 연출: 질의로 추천이 확정되기 전까지는 지금 쓰는 요금제가 AI PICK 카드에 들어 있다 (?pm=on)
+  const morphPre = variant('planmorph') === 'on' && sel.plan < 0
 
   return (
     <div className={`pd pd2 pd1 ${morph} dock-${dock} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
@@ -376,7 +381,7 @@ export default function ProductDetail1({ stage = 'top' }) {
           <div className="plan-stack">
             <div className="pcw cur"><PlanCard data={CUR_PLAN} nodisc /></div>
             <div className={`pcw opt ${isBadge('plan') ? 'hint ai-rec' : ''} ${sel.plan >= 0 ? 'sel' : ''}`}>
-              <PlanCard idx={ASKS.plan.rec} sel={sel.plan >= 0} disc={sel.plan >= 0 ? 0 : -1} />
+              <PlanCard key={morphPre ? 'pre' : 'rec'} idx={ASKS.plan.rec} data={morphPre ? PRE_PICK : undefined} sel={sel.plan >= 0} disc={sel.plan >= 0 ? 0 : -1} />
             </div>
             <button className="plan-more" type="button">나에게 맞는 요금제 더보기<i className="chev r" /></button>
           </div>
