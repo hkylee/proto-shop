@@ -302,7 +302,7 @@ const PENFOLDS = [
   { id: 'A1', label: 'A-1 요금제 줄만, 한 박자 뒤 접힘', desc: '남는 줄은 요금제 하나로 지금과 같고, 대신 고른 할인 방법의 선택 테두리를 0.9s 더 보여준 뒤 접는다. 애매함이 "고른 걸 못 보고 사라진다" 쪽이면 이것으로 해결되지만, 줄의 라벨과 실제로 고른 것(할인 방법)이 어긋난 문제는 남는다' },
 ]
 // 접힘 뒤 화면의 기준 (html[data-foldanchor], 3안 공통) — 사용자 2026-09-12 "2안처럼 위로 고정으로 해볼까 · 공통적으로 적용"
-// 스텝 9 진입 · 대화 위쪽의 '선택한 요금제 · 다시 선택하기' 줄로 화면을 되감는 방법 (html[data-replanup]) — 사용자 2026-09-14 "[다시 선택하기] 누르려면 화면이 거기로 앵커링이 되어 있는 상황에서"
+// 스텝 9 진입 · 대화 위쪽의 '선택한 요금제 · 다시 선택하기' 줄로 화면을 되감는 방법 (html[data-replanup], U-1 확정 2026-09-14) — 사용자 2026-09-14 "[다시 선택하기] 누르려면 화면이 거기로 앵커링이 되어 있는 상황에서"
 const REPLANUPS = [
   { id: 'U1', label: 'U-1 인디케이터 곡선 팬 (손가락 없음)', desc: '스크롤 인디케이터만 켜지고 화면이 P-1 곡선(가속-감속 대칭, 320→550px/s)으로 올라가 요금제 요약 줄을 채팅 시작선에 놓는다. 구 스텝 9 재선택에서 확정됐던 이동 언어 그대로 — 가장 짧고 조용하며, 스텝의 주제(팝업에서 요금제를 바꾸는 것)를 가리지 않는다' },
   { id: 'U2', label: 'U-2 손가락으로 끌어 올리기 (H-3)', desc: '손가락이 화면을 잡고 아래로 끌어 대화가 1:1 로 되감긴다(1.1~1.6s, 놓으면 14px 고무줄 안착). 인디케이터 함께. "사용자가 직접 지난 선택을 찾아 되돌아간다"가 가장 또렷하지만 거리가 멀어 진입이 길다' },
@@ -1165,13 +1165,15 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — 미확정</b>
+            <b className="vtitle">1안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>
             {REPLANUPS.map((v) => (
               <button key={v.id} aria-pressed={replanupV === v.id} onClick={() => { setReplanupV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{REPLANUPS.find((v) => v.id === replanupV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">3안 · 접힘 뒤 화면의 기준 (공통, 스텝 6~8) — K-2 확정</b>
