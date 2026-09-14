@@ -1194,7 +1194,7 @@ export default function App() {
           </div>
           )}
           <div className="variants v-autokb">
-            <b className="vtitle">1·2안 · 텍스트 입력이 있는 시트가 뜰 때 (스텝 10~12 신청서 · 2안 번호 인증) — 미확정</b>
+            <b className="vtitle">1·2안 · 텍스트 입력이 있는 시트가 뜰 때 (스텝 10~12 신청서 · 2안 번호 인증) — T-2 확정</b>
             {AUTOKBS.map((v) => (
               <button key={v.id} aria-pressed={autokbV === v.id} onClick={() => { setAutokbV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
