@@ -46,6 +46,8 @@ const AMBIENT = {
 }
 const DWELL_MS = 1500      // '머무름' 판정 (요건 1~2초)
 // 단계별 최종 선택 상태 (직접 고른 것 + AI 로 고른 것)
+// 지금 이용중인 요금제 (AgentChat 의 '이용중 요금제' 카드와 같은 값 — Figma 는 0 청년 99 더미)
+const CUR_PLAN = { badge: '지금 이용중인 요금제', name: '0 청년 69', price: '62,800원', caps: ['데이터 20GB', '통화 무제한', '문자 무제한'], more: '' }
 const NONE = { color: -1, storage: -1, delivery: -1, term: -1, user: -1, join: -1, plan: -1, sim: -1, gift: -1, coupon: -1, tradein: -1, ins: -1, svc: -1, card: -1, extra: -1 }
 // 스텝 5 나머지 옵션: [섹션 키, 선택자, 값] 순서대로 쭉 내려가며 탭
 const REST_A = [['sim', '.radio-card:nth-child(1)', 0], ['gift', '.gift:nth-child(1)', 0], ['coupon', '.radio-card:nth-child(3)', 2], ['tradein', '.radio-card:nth-child(1)', 0]]   // 보험 앞: 직접
@@ -272,7 +274,7 @@ export default function ProductDetail1({ stage = 'top' }) {
         if (!await tapIn(secs.user, '.radio-card:nth-child(1)', 'user', 0, { move: 300, pause: 80 })) return
         if (!await tapIn(secs.join, '.radio-card:nth-child(3)', 'join', 2, { move: 300, pause: 80 })) return
         await wait(350); if (!alive()) return
-        if (await askAI(ASKS.plan, '.pcw:nth-child(1)')) parkNext(); return
+        if (await askAI(ASKS.plan, '.pcw.opt')) parkNext(); return
       }
       if (stage === 'rest') {
         // 나머지 옵션을 쭉 내려가며 직접 탭 → 맨 아래 → 비활성 [주문하기] 가 활성화되고 포인터가 그 위에서 대기 (사용자가 눌러 다음 스텝)
@@ -367,14 +369,16 @@ export default function ProductDetail1({ stage = 'top' }) {
           <div className="stack">{JOIN.map((it, i) => <RadioCard key={it.t} {...it} selected={sel.join === i} />)}</div>
         </Section>
 
-        {/* 요금제 — AI 질의 3번째. 카드 자체의 AI PICK 배지는 그대로 두고, 추천 중엔 파란 테두리 + 나머지 물러남, 선택 뒤 검은 테두리(S-1) */}
+        {/* 요금제 — Figma ixGPs9 302:104587 그대로: 캐러셀이 아니라 세로 스택 2장.
+            ① [지금 이용중인 요금제] 카드(할인 행 없음) ② [AI PICK] 카드(할인 3행) ③ [나에게 맞는 요금제 더보기 ›]
+            AI 질의 3번째 — 추천 중엔 파란 테두리 + 나머지 물러남, 선택 뒤 검은 테두리(S-1)와 공통지원금 행 선택 */}
         <Section title="요금제를 선택해 주세요" refEl={secs.plan} className={dimKey === 'plan' ? 'dimmed' : ''}>
-          <div className="plan-carousel">
-            {[0, 1, 2].map((i) => (
-              <div className={`pcw opt ${isBadge('plan') && i === ASKS.plan.rec ? 'hint ai-rec' : ''} ${sel.plan === i ? 'sel' : ''}`} key={i}>
-                <PlanCard idx={i} sel={sel.plan === i} style={{ '--i': i }} />
-              </div>
-            ))}
+          <div className="plan-stack">
+            <div className="pcw cur"><PlanCard data={CUR_PLAN} nodisc /></div>
+            <div className={`pcw opt ${isBadge('plan') ? 'hint ai-rec' : ''} ${sel.plan >= 0 ? 'sel' : ''}`}>
+              <PlanCard idx={ASKS.plan.rec} sel={sel.plan >= 0} disc={sel.plan >= 0 ? 0 : -1} />
+            </div>
+            <button className="plan-more" type="button">나에게 맞는 요금제 더보기<i className="chev r" /></button>
           </div>
         </Section>
 

@@ -301,8 +301,9 @@ function PlanRow({ name, price, priceClass = 'price', desc, sel, className = '',
 // ListProductHorizontal (Figma 23:11235, ÷1.21): 배지 · 이름 · 가격/월 · 캡션 · 썸네일 64 · BadgeIconGroup · 할인 RadioCard×3(첫 항목 선택)
 // 루트에 plan-row 클래스를 함께 두어 스텝 6~9(적용 selected · 재선택 탭)가 그대로 동작한다. collapsed = A-3 (할인 카드 접힘)
 // disc: 선택된 할인 행 (-1 = 없음). 라디오 카드는 모두 default 로 시작하고 고객이 골라야 selected (Figma ixGPs9 117:53492, 사용자 2026-09-08 — 이전엔 공통지원금이 기본 선택)
-export function PlanCard({ idx, sel, collapsed = false, open = true, innerRef, style, disc = -1 }) {
-  const [name] = ALT_PLANS[idx], c = ALT_CARDS[idx]
+export function PlanCard({ idx, sel, collapsed = false, open = true, innerRef, style, disc = -1, data, nodisc = false }) {
+  // data: 카드 내용을 직접 넘길 때 (3안 상품 상세의 '지금 이용중인 요금제' 카드 — Figma ixGPs9 302:104587). nodisc: 할인 3행 없음
+  const [name] = data ? [data.name] : ALT_PLANS[idx], c = data || ALT_CARDS[idx]
   return (
     <div className={`plan-card plan-row ${sel ? 'sel' : ''} ${collapsed && !open ? 'collapsed' : ''}`} ref={innerRef} style={style}>
       {/* 선택 표현 시안 html[data-cardsel]: S2 는 배지가 '선택한 요금제 ✓' 로 바뀐다 */}
@@ -316,11 +317,11 @@ export function PlanCard({ idx, sel, collapsed = false, open = true, innerRef, s
         <div className="pc-thumb"><img src="/screens/pd2/plan-thumb.png" alt="" /></div>
       </div>
       <div className="badge-icon-group"><span className="badge-icon"><IcoBrand letter="N" />넷플릭스 무료</span><span className="badge-icon"><IcoBrand letter="F" />FLO 무료</span></div>
-      <div className="pc-discounts">
+      {!nodisc && <div className="pc-discounts">
         <div className={`pc-rc ${disc === 0 ? 'on' : ''}`}><div className="top"><span>공통지원금</span><b>{c.support}</b></div><div className="desc">휴대폰 가격에서 바로 할인</div></div>
         <div className={`pc-rc ${disc === 1 ? 'on' : ''}`}><div className="top"><span>선택약정 12개월</span><b>{c.m12}</b></div><div className="desc">12개월간 통신요금 25% 할인</div></div>
         <div className={`pc-rc ${disc === 2 ? 'on' : ''}`}><div className="top"><span>선택약정 24개월</span><b>{c.m24}</b></div><div className="desc">24개월간 통신요금 25% 할인</div></div>
-      </div>
+      </div>}
     </div>
   )
 }
@@ -1373,11 +1374,26 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(M === 'M2' ? 850 : 750); return alive()
     }
     const kbUp = async (k) => { setFfocus(k); setKbOpen(true); await wait(550); return alive() }
+    /* 텍스트 입력이 있는 시트는 뜨자마자 입력 상태로 (사용자 2026-09-14 "바로 typing 상태로 활성화 되는 거 어때?")
+       html[data-autokb]: T1 시트와 키패드가 함께 / T2 시트가 앉은 뒤 곧바로 / T3 커서 먼저, 키패드 뒤따라 / off 포인터가 필드를 탭(기존) */
+    let autoKbField = null
+    const autoKbBefore = (k) => { if (variant('autokb') !== 'T1') return; setFfocus(k); setKbOpen(true); autoKbField = k }
+    const autoKbAfter = async (k) => {
+      const A = variant('autokb')
+      if (A === 'off' || A === 'T1') return alive()
+      if (A === 'T3') { setFfocus(k); await wait(420); if (!alive()) return false; setKbOpen(true); await wait(480) }
+      else { await wait(150); setFfocus(k); setKbOpen(true); await wait(520) }
+      autoKbField = k
+      return alive()
+    }
     const kbDown = async () => { setFfocus(''); setKbOpen(false); await wait(450); return alive() }
     // 필드 탭 → 키패드(이미 열려 있으면 포커스만 이동) → 한 글자씩 → (마스킹). 키패드는 내리지 않는다 — [다음]은 키패드 위에서 바로 누른다 (사용자 2026-09-08)
     const fillField = async (k, text, per = 110, mask = '') => {
-      await ptr?.tap(fsEl(k), { move: 340, pause: 90 }); if (!alive()) return false
-      ptr?.hide(); if (kbOpenRef.current) { setFfocus(k); await wait(200) } else if (!await kbUp(k)) return false
+      if (autoKbField === k) { autoKbField = null; ptr?.hide() }   // 시트가 이미 입력 상태로 떴다 — 탭 없이 바로 타이핑
+      else {
+        await ptr?.tap(fsEl(k), { move: 340, pause: 90 }); if (!alive()) return false
+        ptr?.hide(); if (kbOpenRef.current) { setFfocus(k); await wait(200) } else if (!await kbUp(k)) return false
+      }
       if (!alive()) return false
       if (!await typeInto((v) => setF(k, v), text, per)) return false
       for (let i = 1; i <= mask.length; i++) { setF(k, text + mask.slice(0, i)); await wait(90); if (!alive()) return false }
@@ -1406,7 +1422,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(T.bubble); if (!alive()) return
       reveal(alert); await wait(T.card + 400); if (!alive()) return
       setOptK(OPT.rrn)                                                 // 주민등록번호 시트가 뜨는 순간 헤더 갱신
+      autoKbBefore('rrn')
       if (!await openFsheet(1)) return
+      if (!await autoKbAfter('rrn')) return
       if (!await fillField('rrn', FORM_VAL, 110, FORM_MASK)) return
       await wait(250); if (!alive()) return
       parkNext()
@@ -1449,11 +1467,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     /* ── 12번: [다음] → 3/4 이메일 → [다음] → 4/4 개통 시 연락받을 번호 → [다음] 위 대기 (52:60548 → 52:61515) */
     const playContact = async () => {
       if (!await tapNext()) return
+      autoKbBefore('email')
       if (!await openFsheet(3)) return
+      if (!await autoKbAfter('email')) return
       if (!await fillField('email', EMAIL, 70)) return
       await wait(300); if (!alive()) return
       if (!await tapNext()) return
+      autoKbBefore('phone')
       if (!await openFsheet(4)) return
+      if (!await autoKbAfter('phone')) return
       if (!await fillField('phone', PHONE, 100)) return
       await wait(250); if (!alive()) return
       parkNext()
@@ -1709,7 +1731,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await think(payEl, m3)) return
       await follow(m3, true); if (!alive()) return
       await wait(600); if (!alive()) return
-      setP2step(1); setP2sheet(2); setKbField(true); await wait(900); if (!alive()) return           // 시트 B: 번호 인증
+      setP2step(1); setP2sheet(2); setKbField(true); autoKbBefore('p2phone'); await wait(900); if (!alive()) return   // 시트 B: 번호 인증
+      if (!await autoKbAfter('p2phone')) return
       if (!await fillField('p2phone', PHONE, 70)) return
       if (!await tapNext()) return
       setP2step(2); await wait(500); if (!alive()) return

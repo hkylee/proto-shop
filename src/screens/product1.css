@@ -87,6 +87,14 @@
 .pd1 .radio-card.hint:not(.sel) { border-color: var(--blue-600); }
 .pd1 .radio-card.ins .ai-badge { left: auto; right: 14px; }   /* 보험 카드는 좌상단에 '많이 선택했어요' 미니 배지가 있어 AI 추천 배지는 우상단 */
 .pd1 .swatch.hint:not(.sel) i { box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--blue-600); }
+/* 요금제 = 세로 스택 2장 + 더보기 (Figma ixGPs9 302:104587, 2026-09-14) */
+.pd1 .plan-stack { display: flex; flex-direction: column; gap: 12px; }
+.pd1 .plan-stack .pcw { flex: none; }
+.pd1 .plan-stack .plan-card { width: 100%; box-sizing: border-box; transition: border-color .35s cubic-bezier(.65,0,.35,1); }
+.pd1 .plan-stack .pcw.cur .plan-card { background: rgba(39,59,157,.04); border-color: transparent; }
+.pd1 .plan-stack .pcw.cur .pc-thumb { display: none; }   /* Figma 302:104587 이용중 카드에는 썸네일이 없다 */
+.pd1 .plan-stack .plan-card.sel { border-color: var(--fg-neutral-solid); }
+.pd1 .plan-more { display: flex; align-items: center; justify-content: center; gap: 2px; width: 100%; height: 52px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font-size: 15px; font-weight: 600; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
 .pd1 .plan-carousel { scroll-snap-type: none; }   /* 자동 시퀀스만 있으므로 스냅 끔 — 선택 상태 전환 때 한 장 밀리는 재스냅 방지 */
 .pd1 .plan-carousel .pcw { flex: none; }
 .pd1 .plan-carousel .pcw .plan-card { scroll-snap-align: none; }   /* 스냅은 래퍼에만 — 카드에도 있으면 dim 전환 때 한 장 밀림 */
