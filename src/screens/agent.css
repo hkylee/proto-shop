@@ -911,6 +911,19 @@ html[data-selfade="N3"] .plan-fold > * { transition: opacity .4s cubic-bezier(.4
 /* 재선택 결과 (Figma ixGPs9 271:124668): 이전 블록은 흐려져 비활성으로 남고, 아래에 변경 안내 + 새 요약 줄 */
 .replan-out { display: none; flex-direction: column; gap: 8px; }
 .replan-out.on { display: flex; }
+/* ── 스텝 9 끝맺음 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093) ──
+   E1 바로 이어서 CTA / E2 한 마디 덧붙이고 CTA / E3 위의 흐려진 CTA 를 걷고 새로 / off 기존(CTA 없음) */
+/* 재선택 결과의 요약 줄은 .on 이 아니라 reveal 의 .in 으로 뜬다 — 이 규칙이 없어 새 요금제 줄이 display:none 으로 남아 있었다 (2026-09-14) */
+.replan-out .plan-fold { display: grid; }
+.replan-out .plan-fold.in { opacity: 1; }
+.replan-out .msg-ai, .replan-out .cta-stack { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+.replan-out .msg-ai.in, .replan-out .cta-stack.in { opacity: 1; transform: none; }
+.replan-out .re-ask { display: none; }
+html[data-replanend="E2"] .replan-out .re-ask { display: block; }
+.replan-out .re-cta { display: none; margin-top: 4px; }
+html[data-replanend="E1"] .replan-out .re-cta,
+html[data-replanend="E2"] .replan-out .re-cta,
+html[data-replanend="E3"] .replan-out .re-cta { display: flex; }
 .plan-fold.stale, .opts.stale { opacity: .45; pointer-events: none; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
 .plan-fold.stale em { color: var(--fg-neutral-subtle); text-decoration-color: transparent; }
 

@@ -106,7 +106,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -302,6 +302,13 @@ const PENFOLDS = [
   { id: 'A1', label: 'A-1 요금제 줄만, 한 박자 뒤 접힘', desc: '남는 줄은 요금제 하나로 지금과 같고, 대신 고른 할인 방법의 선택 테두리를 0.9s 더 보여준 뒤 접는다. 애매함이 "고른 걸 못 보고 사라진다" 쪽이면 이것으로 해결되지만, 줄의 라벨과 실제로 고른 것(할인 방법)이 어긋난 문제는 남는다' },
 ]
 // 접힘 뒤 화면의 기준 (html[data-foldanchor], 3안 공통) — 사용자 2026-09-12 "2안처럼 위로 고정으로 해볼까 · 공통적으로 적용"
+// 스텝 9 끝맺음 · 변경 안내 밑에 새 요금제 줄이 뜨고 [신청서 작성 시작하기] 가 이어진다 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093) — 사용자 2026-09-14
+const REPLANENDS = [
+  { id: 'E1', label: 'E-1 바로 이어서 CTA', desc: 'Figma 구성 그대로. "요금제가 5GX 프라임 플러스에서 베스트 109으로 변경되었어요." → [선택한 요금제 · 베스트 109 · 다시 선택하기] 줄 → 곧바로 [신청서 작성 시작하기]. 군더더기 없이 가장 짧고, 되돌린 뒤 갈 곳이 바로 보인다' },
+  { id: 'E2', label: 'E-2 한 마디 덧붙이고 CTA', desc: '줄이 뜬 뒤 "변경된 요금제로 신청서 작성을 이어갈게요." 한 줄을 더하고 CTA 를 낸다. 재선택이라는 곁길이 말로 닫히고 본 흐름으로 돌아왔다는 것이 분명하지만, 한 박자 길어진다' },
+  { id: 'E3', label: 'E-3 위의 흐려진 CTA 를 걷고 새로', desc: '재선택 전에 있던 [신청서 작성 시작하기] 가 먼저 걷히고(0.34s, 줄어든 높이만큼 스크롤 보정) 새 자리에 다시 뜬다. 대화에 CTA 가 언제나 하나만 있어 어디를 눌러야 하는지 헷갈리지 않는다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 변경 안내와 요금제 줄까지만 — 지금 배포된 상태(요금제 줄은 CSS 버그로 보이지도 않았다)' },
+]
 // 스텝 9 진입 · 대화 위쪽의 '선택한 요금제 · 다시 선택하기' 줄로 화면을 되감는 방법 (html[data-replanup], U-1 확정 2026-09-14) — 사용자 2026-09-14 "[다시 선택하기] 누르려면 화면이 거기로 앵커링이 되어 있는 상황에서"
 const REPLANUPS = [
   { id: 'U1', label: 'U-1 인디케이터 곡선 팬 (손가락 없음)', desc: '스크롤 인디케이터만 켜지고 화면이 P-1 곡선(가속-감속 대칭, 320→550px/s)으로 올라가 요금제 요약 줄을 채팅 시작선에 놓는다. 구 스텝 9 재선택에서 확정됐던 이동 언어 그대로 — 가장 짧고 조용하며, 스텝의 주제(팝업에서 요금제를 바꾸는 것)를 가리지 않는다' },
@@ -703,6 +710,8 @@ export default function App() {
   }, [cur, pid, steps.length, replay])
   const nextTest = () => { userNav(); const n = pid === 3 ? 1 : pid + 1; setPid(n); setCur(0); setReplay((k) => k + 1) }
   // 확정 시안은 모듈 로드 시 <html data-*> 로 내려갔다. LAB 빌드에서는 스텝 탐색 UI(nav)만 바꿔볼 수 있다
+  const [replanendV, setReplanendV] = useState(() => (LAB ? (Q0.get('re') || CONFIRMED.replanend) : CONFIRMED.replanend))
+  useEffect(() => { document.documentElement.dataset.replanend = replanendV }, [replanendV])
   const [replanupV, setReplanupV] = useState(() => (LAB ? (Q0.get('ru') || CONFIRMED.replanup) : CONFIRMED.replanup))
   useEffect(() => { document.documentElement.dataset.replanup = replanupV }, [replanupV])
   const [navV, setNavV] = useState(() => (LAB ? (Q0.get('n') || 'R1') : CONFIRMED.nav))
@@ -1165,6 +1174,13 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           )}
+          <div className="variants">
+            <b className="vtitle">1안 · 스텝 9 끝맺음 — 변경 안내 → 요금제 줄 → [신청서 작성 시작하기] (스텝 9) — 미확정</b>
+            {REPLANENDS.map((v) => (
+              <button key={v.id} aria-pressed={replanendV === v.id} onClick={() => { setReplanendV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{REPLANENDS.find((v) => v.id === replanendV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants">
             <b className="vtitle">1안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>

@@ -170,6 +170,7 @@ const REPLAN_PICK = 2   // 스텝 9 에서 바꿔 고르는 요금제 = 베스�
 const LAST_OPT = OPTS.length - 1, DONE_TURN = OPTS.length   // 마지막 옵션 턴(추가 혜택) · 완료 턴
 const OPT_RESELECT = { sec: 0, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
 const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
+const REPLAN_ASK = '변경된 요금제로 신청서 작성을 이어갈게요.'   // 스텝 9 끝맺음 E-2 에서만 쓰는 한 마디
 
 /* ── 이어서 옵션 안내 (스텝 9·11, Figma ixGPs9 29:21972): 요금제 카드에 할인 방법이 묶여 들어와 할인방법 턴은 폐기(2026-09-07).
    상품 상세의 남은 구매 옵션 8개를 Agent 가 바닥에 차례로 뿌린다. 각 섹션 = 제목 + RadioCard 행, AI PICK 행은 미리 선택.
@@ -397,6 +398,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const penVarRef = useRef(null)
   const optsRef = useRef(null)                  // 7~9번: 옵션 순차 선택 (4 섹션 + 완료)
   const doneChipRef = useRef(null)              // [신청서 작성 시작하기] (2안이면 이력 블록의 [신청서 작성하기])
+  const reChipRef = useRef(null)                // 스텝 9 끝의 [신청서 작성 시작하기] (재선택 결과 뒤에 다시 내주는 CTA)
   const histRef = useRef(null)                  // 2안 이력 블록 (.an2-hist)
   const [optPick, setOptPick] = useState([-1, -1, -1, -1])   // 섹션별 고른 행
   const formRef = useRef(null)
@@ -1574,7 +1576,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(500); if (!alive()) return
       staleAbove()                                                 // 위 블록(요약 줄 + 고른 옵션들)은 비활성으로 남는다
       await wait(450); if (!alive()) return
-      const outEl = replanOutRef.current, [notice, newRow] = [...outEl.children]
+      const outEl = replanOutRef.current, [notice, newRow, ask, cta] = [...outEl.children]
       outEl.classList.add('on'); void outEl.offsetHeight
       setTail(TAIL)
       reveal(notice); await follow(notice); if (!alive()) return
@@ -1582,7 +1584,23 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       reveal(newRow); await follow(newRow); if (!alive()) return
       setReplanIdx(REPLAN_PICK)
       await wait(400); if (!alive()) return
-      ptr?.park(doneChipRef.current, 450, '탭')   // 다음 스텝(신청서)의 첫 탭 자리
+      /* 끝맺음 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093 — 사용자 2026-09-14 "변경됐다 하면서 바로 밑에 이거 뜨고 신청서 이어서")
+         E1 바로 이어서 CTA / E2 한 마디 덧붙이고 CTA / E3 위의 흐려진 CTA 를 걷고 새로 / off 기존(CTA 없음) */
+      const E = variant('replanend')
+      if (E === 'off') { ptr?.park(doneChipRef.current, 450, '탭'); return }
+      if (E === 'E2') { reveal(ask); await follow(ask); if (!alive()) return; await wait(rv().text); if (!alive()) return }
+      if (E === 'E3') {   // 위의 흐려진 칩이 먼저 걷힌다. 걷히며 줄어드는 높이만큼 스크롤을 보정해 화면이 튀지 않게 (§28-3 과 같은 규칙)
+        const c = doneChipRef.current, wrap = c?.parentElement
+        if (wrap) {
+          c.classList.add('gone'); await wait(340); if (!alive()) return
+          const h = wrap.offsetHeight + 8
+          wrap.style.display = 'none'; scroll.scrollTop = Math.max(0, scroll.scrollTop - h)
+          await wait(120); if (!alive()) return
+        }
+      }
+      reveal(cta); await follow(cta, true); if (!alive()) return
+      await wait(300); if (!alive()) return
+      ptr?.park(reChipRef.current, 450, '탭')   // 다음 스텝(신청서)의 첫 탭 자리
     }
     // 위 블록을 비활성으로 (Figma 271:124668: 이전 요약 줄과 그때 고른 옵션들이 흐려지고 [다시 선택하기] 도 꺼진다)
     const staleAbove = () => { foldCardRef.current?.classList.add('stale'); optsRef.current?.classList.add('stale') }
@@ -1590,7 +1608,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const finalReplan = () => {
       setReplanIdx(REPLAN_PICK); setWarnBar(false); setConfirmPop(false); hideSheet()
       staleAbove()
-      const outEl = replanOutRef.current; outEl.classList.add('on'); showNow([...outEl.children])
+      const E = variant('replanend')
+      const outEl = replanOutRef.current; outEl.classList.add('on')
+      const kids = [...outEl.children]
+      showNow(E === 'off' ? kids.slice(0, 2) : kids)
+      if (E === 'E3') hideDoneChip()
     }
     /* ── 14번: 실물 신분증 촬영(밖으로, X-1) → 복귀 → 신원 인증 완료 선 → 납부 방식 → 요금안내서 → 결제 시트 */
     // 14·15번 공통 앞부분: 실물 신분증 촬영(밖) → 복귀 → 신원 인증 완료 선 → 생각 점 → 첫 안내
@@ -1859,11 +1881,6 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
           <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>다시 선택하기</em></div>
 
-          {/* 스텝 8 재선택 결과 (Figma ixGPs9 271:124668): 위 블록은 비활성으로 남고 아래에 변경 안내 + 새 요약 줄이 붙는다 */}
-          <div className="replan-out" ref={replanOutRef}>
-            <AiMessage>요금제가 {planName}에서 {POP_PLANS[REPLAN_PICK].name}으로 변경되었어요.</AiMessage>
-            <div className="plan-fold at-new" ref={foldNewRef}><span className="lbl">{foldLbl}</span><b>{POP_PLANS[REPLAN_PICK].name}</b><em>다시 선택하기</em></div>
-          </div>
           {/* 7~9번: 옵션 순차 선택 (Figma 26:31995 → 26:33289). 추천은 안내문 + '추천' 배지로만, 선택은 포인터 탭 */}
           <div className="opts" ref={optsRef}>
             {OPTS.map((o, i) => (
@@ -1884,6 +1901,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <AiMessage className="none" />
               <div className="cta-stack"><div className="button-ai" ref={mode === 'an2' ? undefined : doneChipRef}>{DONE_CHIP}</div></div>
             </div>
+          </div>
+          {/* 스텝 9 재선택 결과 (Figma ixGPs9 271:124668): 위 블록은 비활성으로 남고 아래에 변경 안내 + 새 요약 줄이 붙는다 */}
+          <div className="replan-out" ref={replanOutRef}>
+            <AiMessage>요금제가 {planName}에서 {POP_PLANS[REPLAN_PICK].name}으로 변경되었어요.</AiMessage>
+            {/* Figma 250:154093 은 이 줄의 라벨이 '선택한 요금제' — 위 줄(선택됨)과 달리 바꾼 결과를 다시 이름 붙여 준다 */}
+            <div className="plan-fold at-new" ref={foldNewRef}><span className="lbl">선택한 요금제</span><b>{POP_PLANS[REPLAN_PICK].name}</b><em>다시 선택하기</em></div>
+            {/* 끝맺음 (html[data-replanend]) — E2 에서만 보이는 한 마디 */}
+            <AiMessage className="re-ask">{REPLAN_ASK}</AiMessage>
+            <div className="cta-stack re-cta"><div className="button-ai" ref={reChipRef}>{DONE_CHIP}</div></div>
           </div>
 
           {/* 10번: 신청서 작성 시작 — 말풍선 → 개인정보 Alert (Figma 51:37984). 입력은 화면 하단의 신청서 AI 바텀시트에서 */}

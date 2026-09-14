@@ -31,11 +31,21 @@ def rpc(tok, sid, method, params, id_=1):
         text = r.read().decode()
     if text.lstrip().startswith('{'):
         return sid, json.loads(text)
-    for line in text.splitlines():           # SSE
-        if line.startswith('data:'):
-            msg = json.loads(line[5:].strip())
-            if msg.get('id') == id_:
-                return sid, msg
+    # SSE. data: 페이로드 안에 날것의 개행이 들어오는 경우가 있어 줄 단위로 자르지 않고 raw_decode 로 읽는다
+    pos = 0
+    while True:
+        i = text.find('data:', pos)
+        if i < 0:
+            break
+        body = text[i + 5:].lstrip()
+        try:
+            msg, end = json.JSONDecoder().raw_decode(body)
+        except ValueError:
+            pos = i + 5
+            continue
+        pos = text.index(body, i) + end
+        if msg.get('id') == id_:
+            return sid, msg
     raise SystemExit('no response: ' + text[:200])
 
 def call(tool, args):
