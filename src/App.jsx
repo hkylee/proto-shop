@@ -80,6 +80,7 @@ const LAB = import.meta.env.VITE_LAB === '1'
 // 아티팩트(단일 HTML)로 내보낸 시안 페이지는 주소창이 없다 → 빌드 후 주입한 window.__LAB_Q 를 쿼리처럼 읽는다 (scripts/build-single.mjs)
 const Q0 = new URLSearchParams(location.search.slice(1) || window.__LAB_Q || '')
 const SHOW_ALL = LAB && Q0.get('lab') === 'all'   // 확정된 시안 그룹까지 모두 보기
+if (LAB && Q0.get('only')) document.documentElement.dataset.only = Q0.get('only')   // 그 그룹의 토글만 남기고 나머지 시안 줄은 숨긴다
 /* 위치 복원 (2026-09-10). 브라우저(Chrome 메모리 절약·Safari)가 백그라운드 탭을 정리한 뒤 다시 로드하면 페이지 상태가 모두 사라진다.
    → 안·스텝을 URL(?step=) 과 sessionStorage 에 항상 기록하고, 재로드로 돌아온 경우 <html data-restored="1"> 을 세워 화면들이
    재생 대신 최종 상태(reducedMotion() 경로)로 바로 앉게 한다. 플래그는 사용자가 다음 이동을 하는 순간 지운다 */
@@ -1174,7 +1175,7 @@ export default function App() {
             <span className="vdesc">{FOLDSYNCS.find((v) => v.id === foldsyncV)?.desc}</span>
           </div>
           )}
-          <div className="variants">
+          <div className="variants v-replanend">
             <b className="vtitle">1안 · 스텝 9 끝맺음 — 변경 안내 → 요금제 줄 → [신청서 작성 시작하기] (스텝 9) — 미확정</b>
             {REPLANENDS.map((v) => (
               <button key={v.id} aria-pressed={replanendV === v.id} onClick={() => { setReplanendV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
@@ -1182,7 +1183,7 @@ export default function App() {
             <span className="vdesc">{REPLANENDS.find((v) => v.id === replanendV)?.desc}</span>
           </div>
           {SHOW_ALL && (
-          <div className="variants">
+          <div className="variants v-replanup">
             <b className="vtitle">1안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>
             {REPLANUPS.map((v) => (
               <button key={v.id} aria-pressed={replanupV === v.id} onClick={() => { setReplanupV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>

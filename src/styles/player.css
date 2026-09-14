@@ -134,6 +134,9 @@ html[data-nav="R3"] .stage .round { display: none; }
 .lab-groups { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; align-items: center; }
 .lab-groups .vtitle { font-size: 12px; color: var(--fg-neutral-mute); margin-right: 4px; }
 /* 시안 스위처 */
+/* ?only=<그룹> : 그 시안 줄만 남기고 나머지 토글은 숨긴다 (아티팩트로 한 가지만 보여줄 때) */
+html[data-only] .variants { display: none; }
+html[data-only="replanend"] .variants.v-replanend, html[data-only="replanup"] .variants.v-replanup { display: flex; }
 .variants { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .variants button { height: 30px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 12px; font-weight: 600; color: var(--fg-neutral-mute); }
 .variants button[aria-pressed="true"] { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }

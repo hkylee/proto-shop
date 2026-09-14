@@ -1613,6 +1613,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const kids = [...outEl.children]
       showNow(E === 'off' ? kids.slice(0, 2) : kids)
       if (E === 'E3') hideDoneChip()
+      // 직접 진입·되감기에서도 끝맺음이 화면에 들어오도록 (다른 스텝의 final* 과 같은 규칙)
+      const last = [...kids].reverse().find((k) => k.offsetParent !== null) || kids[1]
+      afterLayout(() => { scroll.scrollTop = anchorBottom(last) })
     }
     /* ── 14번: 실물 신분증 촬영(밖으로, X-1) → 복귀 → 신원 인증 완료 선 → 납부 방식 → 요금안내서 → 결제 시트 */
     // 14·15번 공통 앞부분: 실물 신분증 촬영(밖) → 복귀 → 신원 인증 완료 선 → 생각 점 → 첫 안내
