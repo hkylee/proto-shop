@@ -1185,7 +1185,7 @@ export default function App() {
           </div>
           )}
           <div className="variants v-reviewaway">
-            <b className="vtitle">1·2안 · [개통 이어가기] 뒤 신청서 카드 (스텝 13에서 → 14) — 시안 확인 중</b>
+            <b className="vtitle">1·2안 · [개통 이어가기] 뒤 신청서 카드 (스텝 13에서 → 14) — W-1 확정</b>
             {REVIEWAWAYS.map((v) => (
               <button key={v.id} aria-pressed={reviewawayV === v.id} onClick={() => { setReviewawayV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
