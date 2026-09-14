@@ -37,6 +37,10 @@ html = html.replace(/<script type="module"[^>]*src="(\/assets\/[^"]+\.js)"[^>]*>
 // 외부 폰트 링크 제거(아티팩트 CSP) + doctype/html/head/body/meta 래퍼 제거 — 한 패스
 html = html.replace(/<link rel="stylesheet" as="style" crossorigin href="https:\/\/cdn\.jsdelivr[^>]*>|<!doctype html>|<\/?html[^>]*>|<\/?head>|<\/?body>|<meta[^>]*>/gi, '')
 
+// 주소창이 없는 아티팩트용 기본 쿼리 (예: `node scripts/build-single.mjs out.html "lab=all&an=3&step=9&ru=U1"`)
+const q = process.argv[3]
+if (q) html = `<script>window.__LAB_Q=${JSON.stringify(q)}</script>` + html
+
 const out = process.argv[2] || join(root, 'dist', 'single.html')
 writeFileSync(out, html.trim())
 console.log('wrote', out, Math.round(html.length / 1024) + 'KB')

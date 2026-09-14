@@ -34,7 +34,7 @@ const POP_PLANS = [
   { name: '베스트 99', price: '99,000원', caps: ['데이터 무제한', '통화 무제한', '문자 무제한'] },
 ]
 const POP_PLANS_LIGHT = SHEET_PLANS_LIGHT.map(([name, price, desc]) => ({ name, price: price.replace('월 ', ''), caps: desc.split('・') }))
-const PLAN_DEFAULT = 0, PLAN_RESELECT = 2   // 5GX 프라임 플러스 → (스텝 9) 베스트 Pro
+const PLAN_DEFAULT = 0, PLAN_RESELECT = 2   // 5GX 프라임 플러스 → (스텝 9) 베스트 109
 // [다른 요금제 살펴보기] 결과를 ListProductHorizontal 카드로 (Figma ixGPs9 23:11234, html[data-altcard]). ALT_PLANS 앞 3개와 1:1
 //  할인 3종 금액 = 요금 × 25% × 기간 (선택약정), 공통지원금은 임의값. 실제 값은 Figma 가 99,999,999원 더미라 프로토타입용으로 채움
 const ALT_CARDS = [
@@ -49,7 +49,7 @@ const ALT_COPY = {
   C2: '무제한 요금제 3개를 추천드려요. 할인 방법까지 한 번에 고를 수 있어요.',
   C3: '첫 번째가 하경님 사용량에 가장 잘 맞는 AI PICK이에요. 다른 요금제도 함께 비교해 보세요.',
 }
-const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓'
+const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓', CHIP_PLAN = '요금제 선택으로 이동 ↑'
 
 // 추가혜택 (Figma 12120:33276) — RadioCard 3개, 미선택
 const BENEFITS = [
@@ -166,7 +166,7 @@ const OPTS = [
   { sum: '결제 방법', msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
   { sum: '혜택', msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
 ]
-const REPLAN_PICK = 2   // 스텝 8 에서 바꿔 고르는 요금제 (Figma 는 0 청년 107)
+const REPLAN_PICK = 2   // 스텝 9 에서 바꿔 고르는 요금제 = 베스트 109 (Figma 는 0 청년 107)
 const LAST_OPT = OPTS.length - 1, DONE_TURN = OPTS.length   // 마지막 옵션 턴(추가 혜택) · 완료 턴
 const OPT_RESELECT = { sec: 0, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
 const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
@@ -1528,9 +1528,32 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); reviewChipWrap.style.display = 'none'; authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems[3]) }) }
     /* ── 7번: 요금제 재선택 (Figma ixGPs9 271:126019). 대화에 남은 [다시 선택하기] → 전체 요금제 팝업(초기화 안내 띠, 현재 요금제 선택됨·적용 비활성)
        → 다른 요금제 탭 → [적용하기] 활성 → 탭 → '요금제를 변경하시겠어요?' 확인 모달 → [네] → 팝업 내려가고 줄의 요금제명이 바뀐다 */
+    /* 스텝 9 진입 — 대화 위쪽에 남아 있는 '선택한 요금제 · 다시 선택하기' 줄까지 화면을 되감아 앵커링한다
+       (사용자 2026-09-14 "[다시 선택하기] 누르려면 화면이 거기로 앵커링이 되어 있는 상황에서"). 재선택은 위아래 요동이 허용되는 유일한 구간.
+       U1 인디케이터 곡선 팬(G-2 + P-1, 손가락 없음) / U2 손가락으로 끌어 올리기(H-3 1:1 + 고무줄) / U3 앵커 칩 '요금제 선택으로 이동 ↑' 탭 → 점프 / off 올라가지 않음(기존) */
+    const replanUp = async (row) => {
+      const U = variant('replanup')
+      const target = Math.max(0, anchorHeader(row))
+      if (U === 'off' || scroll.scrollTop <= target + 2) return alive()
+      if (U === 'U2') { await swipeUp(target, 'H3'); return alive() }
+      if (U === 'U3' && jumpChip) {
+        jumpChip.textContent = CHIP_PLAN; jumpChip.classList.add('on')
+        await wait(450); if (!alive()) return false
+        await ptr?.tap(jumpChip, { move: 400, pause: 120 }); if (!alive()) return false
+        jumpChip.classList.add('release'); await wait(140); jumpChip.classList.remove('release', 'on')
+        setTimeout(() => { if (!jumpChip.classList.contains('on')) resetChip() }, 360)
+        await panTo(scroll, target, PANUP.P1); return alive()
+      }
+      const ind = showScrollInd()                                  // U1 (기본): G-2 인디케이터 + P-1 곡선
+      await panTo(scroll, target, PANUP[variant('panup')] || PANUP.P1, ind.place); if (!alive()) return false
+      await wait(250); ind.hide(); return alive()
+    }
     const playReplan = async () => {
       const row = foldRow()
       if (!row || !row.classList.contains('on')) { await wait(200) }
+      setTail(Math.max(TAIL, SCREEN_H - CHAT_TOP - row.offsetHeight))   // 줄을 시작선까지 올릴 수 있도록 꼬리를 늘려 둔다
+      await new Promise(afterLayout); if (!alive()) return
+      if (!await replanUp(row)) return
       await follow(row); if (!alive()) return
       await wait(500); if (!alive()) return
       await ptr?.tap(row.querySelector('em'), { move: 420, pause: 120 }); if (!alive()) return
