@@ -506,6 +506,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       resetReview(); resetAuth()
       resetTurn(formEl, formItems)
       turns[DONE_TURN].querySelector('.button-ai')?.classList.remove('gone'); const cw = turns[DONE_TURN].querySelector('.cta-stack'); if (cw) cw.style.display = ''
+      const rc = reChipRef.current; if (rc) { rc.classList.remove('gone'); if (rc.parentElement) rc.parentElement.style.display = '' }
       setFsheet(0); setFpeek(false); setFv(FV0); setFfocus(''); setKbOpen(false); setKbField(false); setPenTyped(''); setPenTyping(false)
     }
     const resetReselect = () => {
@@ -1388,9 +1389,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       ptr?.hide(); setFfocus(''); setKbOpen(false); await wait(300); return alive()
     }
     const parkNext = () => setTimeout(() => { if (alive()) ptr?.park(fsEl('next')) }, 60)   // 시트 내용이 렌더된 뒤 [다음] 위에
-    const hideDoneChip = () => { const c = doneChipRef.current; if (!c) return; c.classList.add('gone'); c.parentElement.style.display = 'none' }
+    const hideChipEl = (c) => { if (!c) return; c.classList.add('gone'); if (c.parentElement) c.parentElement.style.display = 'none' }
+    const hideDoneChip = () => hideChipEl(doneChipRef.current)
+    /* 스텝 9 를 지나왔다면 살아 있는 CTA 는 재선택 결과 아래의 것이다 (위의 것은 흐려졌거나 걷혔다) — 9 → 10 은 그 칩에서 이어진다 */
+    const liveDoneChip = () => (replanOutRef.current?.classList.contains('on') && variant('replanend') !== 'off' && reChipRef.current ? reChipRef.current : doneChipRef.current)
     const playForm = async (hold = false) => {
-      const T = rv(), chip = doneChipRef.current, [bubble, alert] = formItems
+      const T = rv(), chip = liveDoneChip(), [bubble, alert] = formItems
       if (hold) { await wait(1400); if (!alive()) return }   // 2안: 스텝 8 마지막 부분을 읽을 시간 뒤에 칩 탭 (사용자 2026-09-09)
       await ptr?.tap(chip, { move: 300, pause: 80 }); if (!alive()) return
       ptr?.hide(); chip.classList.add('gone'); await wait(220); if (!alive()) return
@@ -1408,7 +1412,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       parkNext()
     }
     const finalForm = (park = false) => {
-      setOptK(OPT.rrn); hideDoneChip()
+      setOptK(OPT.rrn); hideDoneChip(); hideChipEl(reChipRef.current)
       formEl.classList.add('on'); showNow(formItems); setTail(PEN_TAIL)
       setKbField(true); setFsheet(1); setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK })); setFfocus('rrn'); setKbOpen(true)
       afterLayout(() => { scroll.scrollTop = anchorHeader(formItems[0]) - 8 })
@@ -1732,7 +1736,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     let finalsOnly = true
     const run = (fn) => { finalsOnly = false; return fn() }
     const PARK_FOR = {
-      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current,
+      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current, /* 9 를 지났으면 아래의 새 CTA */
       form: () => fsEl('next'), addr: () => fsEl('next'), contact: () => fsEl('next'), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'),
     }
@@ -1777,7 +1781,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       }
       if (form) {
         if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); if (histRef.current) { setTail(SCREEN_H); scroll.scrollTop = anchorHeader(histRef.current) }; run(() => playForm(true)) }   // 2안: 스텝 8 마지막(말풍선이 시작선)이 보이는 상태에서 칩 탭 → 신청서   // 2안: 바텀시트 흐름 끝(AgentChat2) → 신청서 재생
-        else if (prevRef.current === 'opts2' && !reduced) run(playForm)
+        else if ((prevRef.current === 'opts2' || prevRef.current === 'replan') && !reduced) run(playForm)
         else { resetForm(); upToReplan(); finalForm(true) }
         prevRef.current = 'form'; return
       }
@@ -1789,7 +1793,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
 
       if (replan) {
         if (prevRef.current === 'opts2' && !reduced) run(playReplan)
-        else { upToOpts2(); finalReplan() }
+        else { resetForm(); upToOpts2(); finalReplan() }   // 10 에서 되감아 오면 신청서 시트·칩까지 되돌린다
         prevRef.current = 'replan'; return
       }
       if (opts1) {
