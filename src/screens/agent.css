@@ -871,6 +871,9 @@ html[data-mwidth="W2"] .altcard-A1 .alt-cards, html[data-mwidth="W3"] .altcard-A
 /* ── 요금제 선택 플로우의 끝 = 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma ixGPs9 261:117032 마지막 프레임, 2026-09-11) ── */
 .plan-fold { display: none; width: 353px; box-sizing: border-box; padding: 18px 20px; border-radius: 18px; background: var(--bg-neutral-subtle); grid-template-columns: 1fr auto; align-items: end; row-gap: 6px; column-gap: 12px; opacity: 0; transition: opacity .4s cubic-bezier(.65,0,.35,1); }
 .plan-fold.on { display: grid; opacity: 1; }
+/* .on 대신 턴의 등장 규칙(.in)으로 켜지는 자리 — 쓰는 곳마다 display 를 다시 열지 않도록 한 줄에 모은다.
+   (요금제 요약 줄 .at-card / .at-tail 은 .on 으로만 켜져야 하므로 여기 넣지 않는다) */
+.replan-out .plan-fold.in, .pay.fin .plan-fold.in { display: grid; }
 .plan-fold .lbl { grid-column: 1 / -1; justify-self: start; padding: 3px 8px; border-radius: 6px; background: rgba(39,59,157,.06); font-size: 11.5px; font-weight: 600; line-height: 15px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }   /* Figma: 알약 라벨 (271:125825) */
 .plan-fold b { grid-column: 1; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
 .plan-fold em { grid-column: 2; font-style: normal; font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-mute); text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
@@ -918,7 +921,6 @@ html[data-reviewaway="W2"] .review .review-fold { display: grid; }
 /* ── 스텝 9 끝맺음 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093) ──
    E1 바로 이어서 CTA / E2 한 마디 덧붙이고 CTA / E3 위의 흐려진 CTA 를 걷고 새로 / off 기존(CTA 없음) */
 /* 재선택 결과의 요약 줄은 .on 이 아니라 reveal 의 .in 으로 뜬다 — 이 규칙이 없어 새 요금제 줄이 display:none 으로 남아 있었다 (2026-09-14) */
-.replan-out .plan-fold { display: grid; }
 .replan-out .plan-fold.in { opacity: 1; }
 .replan-out .msg-ai, .replan-out .cta-stack { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
 .replan-out .msg-ai.in, .replan-out .cta-stack.in { opacity: 1; transform: none; }
@@ -948,15 +950,11 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 /* ══ 1안 신청서 바닥 플로우 (html[data-fform]="B1", Figma ixGPs9 360:81747 → 360:84842, 2026-09-15) ═══════
    시트·딤·페이저·[다음]이 사라지고 대화 안 흰 카드 하나에 필드 하나. 한 칸이 끝나면 카드가 접히고
    그 자리에 '│ … 입력이 완료되었어요 ─ 수정하기' 선만 남는다. */
-.alt > .contact { gap: 12px; }
 .alt > .form.fin, .alt > .addr.fin, .alt > .contact.fin, .alt > .review.fin { gap: 16px; }
 .form.fin .msg-user { margin-top: 0; }
 .form.fin .opening { margin-top: 0; }
 .ai-card.fin-card { gap: 12px; }
-.ai-card.fin-card h3 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
 .ai-card.fin-card .fs-slot { margin-top: 0; }
-/* 조회 결과 = 가입자 정보 카드 (신청서 카드와 같은 CellLeftTable) */
-.ai-card.lookup-card { gap: 16px; }
 /* 완료 선 뒤 안내문은 바로 붙는다 (Figma 360:79547) */
 .addr.fin .form-line, .contact.fin .form-line, .review.fin .form-line { margin: 0; }
 /* 바닥 플로우에서는 카드가 읽혀야 하므로 키패드 뒤 스크림 없음 — .kbf 규칙 그대로 */
@@ -965,7 +963,5 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 .ai-card.fin-card.drain > * { opacity: 0; transition: opacity .18s cubic-bezier(.65,0,.35,1); }            /* N2 내용 먼저 빠짐 */
 .ai-card.fin-card.sink { transform: translateY(6px); opacity: .5; transition: transform .26s cubic-bezier(.65,0,.35,1), opacity .26s cubic-bezier(.65,0,.35,1); }  /* N3 살짝 내려앉으며 */
 
-/* 1안 바닥 납부 (Figma 366:105450 → 366:105730): [네/아니요] 를 고르면 행이 접히고 답만 줄로 남는다.
-   .plan-fold 는 평소 .on 으로 켜지지만 여기서는 대화 턴의 등장 규칙(.in)을 그대로 타므로 display 만 열어 준다 */
-.pay.fin .plan-fold { display: grid; }
+/* 1안 바닥 납부 (Figma 366:105450 → 366:105730): [네/아니요] 를 고르면 행이 접히고 답만 줄로 남는다 */
 .pay.fin .ai-card.pay-ask { gap: 8px; }
