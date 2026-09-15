@@ -1846,17 +1846,21 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       /* 되감아 올라와 있으므로 내려갈 길을 손으로 준다 (사용자 2026-09-14 "밑으로 핀하는 거 하나 추가해서 그거 누르면 바로 밑으로").
          스텝 7 과 같은 언어 — K-2 하단 앵커 칩 + E-2 눌림 → C-3 곡선으로 결과 자리까지 */
       await new Promise(afterLayout); if (!alive()) return
-      await anchorDown(null, notice, CHIP_BACK); if (!alive()) return
-      reveal(notice); await follow(notice); if (!alive()) return
+      /* 결과 세 줄은 이미 자리를 잡고 흐리게 기다린다 — 핀을 누르면 그 자리까지 한 번에 가고,
+         도착한 뒤에는 제자리에서 차례로 나타난다. (도착 후 요소마다 또 팬을 하면 찔끔찔끔 내려가 걸린다, 사용자 2026-09-15) */
+      const E0 = variant('replanend')
+      const restAt = E0 === 'off' ? newRow : cta
+      await anchorDown(null, restAt, CHIP_BACK); if (!alive()) return
+      reveal(notice)
       await wait(rv().text); if (!alive()) return
-      reveal(newRow); await follow(newRow); if (!alive()) return
+      reveal(newRow)
       setReplanIdx(REPLAN_PICK)
       await wait(400); if (!alive()) return
       /* 끝맺음 (html[data-replanend], Figma ixGPs9 250:154086 + 250:154093 — 사용자 2026-09-14 "변경됐다 하면서 바로 밑에 이거 뜨고 신청서 이어서")
          E1 바로 이어서 CTA / E2 한 마디 덧붙이고 CTA / E3 위의 흐려진 CTA 를 걷고 새로 / off 기존(CTA 없음) */
-      const E = variant('replanend')
+      const E = E0
       if (E === 'off') { ptr?.park(doneChipRef.current, 450, '탭'); return }
-      if (E === 'E2') { reveal(ask); await follow(ask); if (!alive()) return; await wait(rv().text); if (!alive()) return }
+      if (E === 'E2') { reveal(ask); await wait(rv().text); if (!alive()) return }
       if (E === 'E3') {   // 위의 흐려진 칩이 먼저 걷힌다. 걷히며 줄어드는 높이만큼 스크롤을 보정해 화면이 튀지 않게 (§28-3 과 같은 규칙)
         const c = doneChipRef.current, wrap = c?.parentElement
         if (wrap) {
@@ -1866,8 +1870,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           await wait(120); if (!alive()) return
         }
       }
-      reveal(cta); await follow(cta, true); if (!alive()) return
-      await wait(300); if (!alive()) return
+      reveal(cta); await wait(300); if (!alive()) return
+      await follow(cta, true); if (!alive()) return          // 혹시 모자란 만큼만 마지막에 한 번
       ptr?.park(reChipRef.current, 450, '탭')   // 다음 스텝(신청서)의 첫 탭 자리
     }
     // 위 블록을 비활성으로 (Figma 271:124668: 이전 요약 줄과 그때 고른 옵션들이 흐려지고 [다시 선택하기] 도 꺼진다)
