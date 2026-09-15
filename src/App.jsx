@@ -79,6 +79,7 @@ const WEBS = [
 const LAB = import.meta.env.VITE_LAB === '1'
 // 아티팩트(단일 HTML)로 내보낸 시안 페이지는 주소창이 없다 → 빌드 후 주입한 window.__LAB_Q 를 쿼리처럼 읽는다 (scripts/build-single.mjs)
 const Q0 = new URLSearchParams(location.search.slice(1) || window.__LAB_Q || '')
+const CARDS = Q0.get('cards') === '1'   // 오른쪽 설명 카드(고객 발화 · STEP 목적)는 기본으로 걷는다 — 화면만 보고 싶다는 요청 (2026-09-15). ?cards=1 로 다시 켠다
 const SHOW_ALL = LAB && Q0.get('lab') === 'all'   // 확정된 시안 그룹까지 모두 보기
 if (LAB && Q0.get('only')) document.documentElement.dataset.only = Q0.get('only')   // 그 그룹의 토글만 남기고 나머지 시안 줄은 숨긴다
 // CSS 는 두 속성을 견줄 수 없어 화이트리스트로 두었더니 새 시안 줄이 걸러졌다 (2026-09-15) — 클래스 이름으로 직접 켠다
@@ -1418,6 +1419,7 @@ export default function App() {
         <div className="phone-wrap"><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
         <button className="round" onClick={() => go(cur + 1)} disabled={cur === steps.length - 1} aria-label="다음">→</button>
 
+        {CARDS && (
         <aside className="cards" key={step.id}>
           <div className="card fade">
             <div className="who">
@@ -1440,6 +1442,7 @@ export default function App() {
             </ul>
           </div>
         </aside>
+        )}
       </main>
       )}
     </>
