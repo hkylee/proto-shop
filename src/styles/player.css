@@ -173,6 +173,8 @@ html[data-only="replanend"] .variants.v-replanend, html[data-only="replanup"] .v
 :root[data-pointer="P2"] .ptr-dot svg { display: none; }
 :root[data-pointer="P2"] .ptr-layer.press .ptr-dot { transform: scale(.72); background: rgba(75,89,255,.6); }
 :root[data-pointer="P2"] .ptr-hovered { outline: 2px solid var(--blue-600); outline-offset: 3px; border-radius: 16px; animation: ptrPulse 1.1s ease-in-out infinite; }
+/* 바텀시트 항목은 링을 씌우지 않는다 — 인증 수단 목록에서 '선택된 것'처럼 읽혔다 (사용자 2026-09-15) */
+:root[data-pointer="P2"] .ai-sheet-item.ptr-hovered { outline: none; animation: none; }
 @keyframes ptrPulse { 50% { outline-color: rgba(75,89,255,.25); } }
 /* P-3 스포트라이트 */
 :root[data-pointer="P3"] .ptr-spot { opacity: 1; }

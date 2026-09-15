@@ -103,6 +103,9 @@ const FORCE_MOBILE = import.meta.env.VITE_MOBILE === '1'
 document.documentElement.dataset.tapmode = Q0.get('tap') === 'user' ? 'user' : 'auto'
 const AUTOPLAY = FORCE_MOBILE && Q0.get('tap') !== 'user' && Q0.get('auto') !== '0'   // 스텝 끝(포인터 대기) 1.5s 뒤 다음 스텝. 대기가 없는 스텝은 화면이 4.5s 멈추면
 const MOBILE_Q = '(max-width: 700px)'
+/* → 를 누르지 않아도 재생이 끝나면(포인터 대기 신호) 다음 스텝으로 넘어가는 구간 (사용자 2026-09-15).
+   2안: 5~8 할인·SIM·혜택·할인수단 · 10~13 신청서 · 14~16 인증·결제 — 값은 '이 스텝이 끝나면 넘어간다' 인 1-based 스텝 번호 */
+const AUTO_CHAIN = { 2: [5, 6, 7, 10, 11, 12, 14, 15] }
 const MSHELLS = [
   { id: 'M0', label: 'M-0 풀페이지', desc: '컨트롤 없음. 폰 폭에 맞춰 화면만. 옆으로 밀거나 좌우 가장자리를 탭해 스텝 이동, 상단 가운데(상태바 자리)를 탭하면 안·스텝·목적 시트' },
   { id: 'M3', label: 'M-3 하단 알약', desc: '아래 76px 띠에 알약 하나: ‹  1안 · 2/6 색상 질의  ›. 폰 화면을 가리지 않는다(0.9x). 가운데를 누르면 안·스텝·목적 시트' },
@@ -623,15 +626,18 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
   const stageRef = useRef(null)
   // 자동 재생 플로우: 스텝 끝 대기(ptr-park) → 1.5s → 다음 스텝. 대기 없이 끝나는 스텝은 폰 화면 DOM 이 4.5s 동안 멈추면 다음. 마지막 스텝은 완료 토스트에서 멈춤
   useEffect(() => {
-    if (!AUTOPLAY || cur >= n - 1 || !stageRef.current) return
+    const chained = (AUTO_CHAIN[pid] || []).includes(cur + 1)
+    if ((!AUTOPLAY && !chained) || cur >= n - 1 || !stageRef.current) return
     let t = 0
     const next = () => goRef.current(curRef2.current + 1)
     const arm = (ms) => { clearTimeout(t); t = setTimeout(next, ms) }
-    arm(4500)
     const onPark = () => arm(1500)
+    addEventListener('ptr-park', onPark)
+    // 체인 구간은 포인터 대기 신호로만 넘어간다 — DOM 정지 감지(4.5s)는 읽는 시간이 긴 스텝을 잘라 먹는다
+    if (!AUTOPLAY) return () => { clearTimeout(t); removeEventListener('ptr-park', onPark) }
+    arm(4500)
     const mo = new MutationObserver(() => { if (!document.querySelector('.ptr-layer.hover')) arm(4500) })
     mo.observe(stageRef.current, { subtree: true, childList: true, attributes: true, characterData: true })
-    addEventListener('ptr-park', onPark)
     return () => { clearTimeout(t); mo.disconnect(); removeEventListener('ptr-park', onPark) }
   }, [cur, pid, n])
   const chrome = mshell === 'M2' ? 128 : mshell === 'M3' ? 76 : 0   // M3: 알약이 폰 화면 하단(SearchAi·CTA)을 가리지 않게 아래 76px 띠를 비운다

@@ -1957,7 +1957,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     /* ── 14번: 실물 신분증 촬영(밖으로, X-1) → 복귀 → 신원 인증 완료 선 → 납부 방식 → 요금안내서 → 결제 시트 */
     // 14·15번 공통 앞부분: 실물 신분증 촬영(밖) → 복귀 → 신원 인증 완료 선 → 생각 점 → 첫 안내
     const afterIdVerify = async (line, m1) => {
-      const idItem = rootRef.current.querySelectorAll('.ai-sheet')[1]?.querySelector('.ai-sheet-item')
+      const idItem = rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item')   // 신원인증 시트의 [실물 신분증 촬영]
       await ptr?.tap(idItem, { move: 400, pause: 120 }); if (!alive()) return false
       ptr?.hide(); await wait(150); if (!alive()) return false
       setExtKind('id'); setExt('in'); await wait(2000); if (!alive()) return false
@@ -1974,7 +1974,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 공통 끝부분: [결제하기] 시트 등장 → 포인터 대기
     const showCheckout = async () => {
       setAuthSheet(3); setOptK(OPT.checkout); await wait(700)
-      ptr?.park(rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'))
+      ptr?.park(rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'))       // [결제하기]
     }
     const playPay = async () => {
       const T = rv(), [line, m1, m2, keepCard, m3, bills, m4] = payItems
@@ -2090,7 +2090,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const finalPay2 = () => { finalPayBase(); setP2pick(0); setP2sheet(0); setP2step(2); setFv((o) => ({ ...o, p2phone: PHONE, p2code: P2_CODE })) }
     /* ── 15번: [결제하기] 탭 → 결제 화면(외부)으로 슬라이드(X-1) → 끝 */
     const playPayout = async () => {
-      const item = rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item')
+      const item = rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item')     // [결제하기]
       await ptr?.tap(item, { move: 380, pause: 120 }); if (!alive()) return
       ptr?.hide(); await wait(150); if (!alive()) return
       setExtKind('pay'); setExt('in')
@@ -2118,7 +2118,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const PARK_FOR = {
       usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current, /* 9 를 지났으면 아래의 새 CTA */
       form: () => (inForm ? fsEl('rrn') : fsEl('next')), addr: () => (inForm ? fsEl('chk') : fsEl('next')), contact: () => (inForm ? fsEl('phone') : fsEl('next')), review: () => reviewChipRef.current,
-      auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'),
+      auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'),
     }
     const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭') }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
