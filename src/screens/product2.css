@@ -136,3 +136,17 @@
 /* E-3 (html[data-pdenter]): [직접 둘러볼게요] 를 누르지 않고 지나칠 때 AI 조합 카드가 뒤로 물러난다 — 고르지 않았다는 것이 화면에 남는다 */
 .pd2 .combo-card { transition: opacity .8s cubic-bezier(.4,0,.2,1), transform .8s cubic-bezier(.4,0,.2,1), filter .8s cubic-bezier(.4,0,.2,1); }
 .pd2 .combo-card.passed { opacity: .45; transform: scale(.985); filter: saturate(.6); }
+
+/* ── 요금제 카드를 옆으로 밀어 보다 Agent 호출 (html[data-planswipe], 1·2안 공통 · 2026-09-15) ─────────── */
+/* W-2: 카드 3장 뒤에 같은 크기로 놓이는 출구 카드 — 비교의 끝에서 손이 화면 아래로 내려가지 않는다 */
+.pd2 .plan-carousel .plan-ai-card { flex: none; width: 300px; box-sizing: border-box; scroll-snap-align: start; padding: 24px; border-radius: 20px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px; background: linear-gradient(152deg, #EEF1FF 0%, #F7F4FF 58%, #FFF 100%); border: 2px solid transparent; box-shadow: 0 2px 14px rgba(16,49,140,.06); }
+.pd2 .plan-carousel .plan-ai-card b { font-size: 19px; font-weight: 600; line-height: 26px; letter-spacing: -.05em; color: var(--fg-neutral-solid); }
+.pd2 .plan-carousel .plan-ai-card p { margin: 0; font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: -.04em; color: var(--fg-neutral-mute); word-break: keep-all; }
+.pd2 .plan-carousel .plan-ai-card .go { margin-top: 14px; padding: 10px 16px; border-radius: 999px; background: var(--fg-neutral-solid); color: #fff; font-size: 14px; font-weight: 600; letter-spacing: -.04em; }
+.pd2 .plan-carousel .plan-ai-card.tapped { animation: aiTap .32s cubic-bezier(.4,0,.2,1); }
+
+/* W-3: 한 장 밀고 머물면 캐러셀 위로 떠오르는 힌트. 1안 확정 R-1 과 같은 '숨 쉬는 그림자' */
+.pd2 .plan-hint { display: flex; align-items: center; gap: 6px; align-self: flex-start; margin: -4px 0 12px; padding: 10px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 14px; font-weight: 500; letter-spacing: -.04em; color: var(--fg-neutral-solid); opacity: 0; transform: translateY(6px); transition: opacity .45s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.22,1,.36,1); }
+.pd2 .plan-hint.on { opacity: 1; transform: none; animation: planHintBreath 1.8s ease-in-out infinite .45s; }
+.pd2 .plan-hint.tapped { animation: aiTap .32s cubic-bezier(.4,0,.2,1); }
+@keyframes planHintBreath { 0%, 100% { box-shadow: 0 2px 10px rgba(16,49,140,.10); } 50% { box-shadow: 0 6px 22px rgba(16,49,140,.20); } }

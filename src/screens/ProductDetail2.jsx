@@ -4,7 +4,7 @@ import { IcoSparkleAi, IcoBack } from '../components/Icons.jsx'
 import { StatusBar } from './AgentShell.jsx'
 import { PlanCard } from './AgentChat.jsx'
 import { variant } from '../lib/variants.js'
-import { wait, scrollTo, inOut, restart, reducedMotion } from '../lib/motion.js'
+import { wait, scrollTo, inOut, inOutSine, cubicOut, outExpo, tween, restart, reducedMotion } from '../lib/motion.js'
 import './product2.css'
 
 /* 상품 상세 Step 1·2 (Figma T1mhlbfql60C88mfLqCHNv 10547:16625, 360 → 393 환산 ×1.0917)
@@ -19,6 +19,10 @@ import './product2.css'
 export const px = (v) => Math.round(v * 393 / 360)
 export const SEC_PAD = 24
 export const anchorSec = (el) => el.offsetTop - SEC_PAD
+/* 요금제 카드를 옆으로 밀어 보다가 Agent 를 부른다 (1·2안 공통, 사용자 2026-09-15). 시안 html[data-planswipe]
+   W1 끝까지 밀어 보고 좌하단 AI 버튼 / W2 캐러셀 끝의 [AI 에게 추천받기] 카드 / W3 한 장 밀고 머물면 떠오르는 힌트 */
+const PLAN_AI_TITLE = 'AI 에게 추천받기', PLAN_AI_DESC = '이용 현황을 보고 맞는 요금제를 골라드려요'
+const PLAN_HINT = '어떤 요금제가 맞을지 물어볼까요?'
 
 export const NAME = '하경'
 export const COLORS = [
@@ -130,6 +134,8 @@ export default function ProductDetail2({ stage = 'top' }) {
   const rootRef = useRef(null), scrollRef = useRef(null), ptrLayerRef = useRef(null), ptrRef = useRef(null)
   const aiBtnRef = useRef(null), goBtnRef = useRef(null), browseRef = useRef(null), accRef = useRef(null), accGoRef = useRef(null)
   const comboRef = useRef(null)   // E-3: 지나칠 때 물러나는 AI 조합 카드
+  const carRef = useRef(null), planAiRef = useRef(null), planHintRef = useRef(null)   // 요금제 캐러셀 · W2 출구 카드 · W3 힌트
+  const [planHint, setPlanHint] = useState(false)
   const secs = { color: useRef(null), storage: useRef(null), delivery: useRef(null), term: useRef(null), acc: useRef(null), user: useRef(null), join: useRef(null), plan: useRef(null) }
   const picked = stage === 'options'
   const [sel, setSel] = useState(() => (picked ? PICKED : NONE))
@@ -142,7 +148,9 @@ export default function ProductDetail2({ stage = 'top' }) {
   // 2→3: App 이 'ai-tap' 을 보내면 좌하단 AI 버튼을 탭 (이어서 LaunchOverlay 가 덮는다)
   useEffect(() => {
     const onTap = async () => {
-      const btn = aiBtnRef.current; if (!btn) return
+      const X = variant('planexit')
+      const btn = (X === 'card' ? planAiRef.current : X === 'hint' ? planHintRef.current : null) || aiBtnRef.current
+      if (!btn) return
       restart(btn, 'tapped')
       await ptrRef.current?.press(btn)
       ptrRef.current?.hide()
@@ -158,9 +166,75 @@ export default function ProductDetail2({ stage = 'top' }) {
     const cancel = () => { seqRef.current++ }
     const flow = variant('pdflow')
     const pick = (k) => setSel((s) => ({ ...s, [k]: PICKED[k] }))
-    const parkAi = () => ptr?.park(aiBtnRef.current, 520, 'AI Agent 실행')   // 스텝 끝 대기 = 다음 탭 자리(AI 버튼). 사용자 탭 모드면 여기서 탭해야 다음 스텝
+    /* ── 요금제 카드를 옆으로 밀어 보다가 Agent 를 부른다 (html[data-planswipe], 1·2안 공통 · 사용자 2026-09-15)
+       손가락이 캐러셀을 잡고 왼쪽으로 끌면 카드가 1:1 로 따라오고, 놓으면 다음 카드에 스냅된다 — 세로 스와이프(H-3)와 같은 언어 */
+    const cardX = (i) => { const c = carRef.current?.children; return c?.[i] ? c[i].offsetLeft - c[0].offsetLeft : 0 }
+    const swipePlans = async (to, { dur = 600, ease = cubicOut, coast = 0, coastDur = 0, x0 = .8, x1 = .22, hold = false } = {}) => {
+      const car = carRef.current
+      if (!car) return alive()
+      if (!ptr) { car.scrollLeft = to; return alive() }
+      const r = ptr.rectOf(car), cy = r.y + r.h * .5, from = car.scrollLeft, dragTo = to + coast
+      await ptr.moveXY(r.x + r.w * x0, cy, 300); if (!alive()) return false
+      car.style.scrollSnapType = 'none'          // mandatory 스냅은 프로그램 스크롤도 매 프레임 끌어당겨 끌리는 동안 그림이 안 나온다 — 손을 뗄 때 다시 켠다
+      ptr.hold(); await wait(70)
+      await Promise.all([
+        tween(dur, (e) => { car.scrollLeft = from + (dragTo - from) * e }, ease),
+        tween(dur, (e) => ptr.setXY(r.x + r.w * (x0 + (x1 - x0) * e), cy), ease),
+      ]); if (!alive()) return false
+      ptr.release()
+      if (coast) { await tween(coastDur, (e) => { car.scrollLeft = dragTo + (to - dragTo) * e }, outExpo); if (!alive()) return false }
+      car.scrollLeft = to
+      if (!hold) car.style.scrollSnapType = ''   // hold: 스냅을 켜면 그 자리에서 끌려가 버린다 (엿보기처럼 중간에 멈춰 있어야 할 때)
+      return alive()
+    }
+    /* 미는 동작 3안 (html[data-planswipe])
+       S1 한 장씩 또박또박: 카드 폭만큼 끌고 놓으면 스냅. 카드마다 0.34s 머문다 (세로 H-2 와 같은 언어)
+       S2 한 번에 훑고 안착: 한 번 길게 끌어 지나치고 관성으로 흘러 마지막 카드에 고무줄 안착
+       S3 반쯤 엿보고 되돌아왔다 다시: 절반만 밀었다 놓아 되돌아오고(망설임) 한 박자 뒤 끝까지 */
+    const browsePlans = async () => {
+      const W = variant('planswipe')
+      if (W === 'off') return alive()
+      const last = variant('planexit') === 'card' ? 3 : 2      // 출구 카드가 있으면 그 카드까지
+      await wait(520); if (!alive()) return false
+      if (variant('planexit') === 'hint') {
+        if (!await swipePlans(cardX(1), { dur: 720, ease: inOutSine, coast: -14, coastDur: 380 })) return false
+        ptr?.hide(); await wait(760); if (!alive()) return false
+        setPlanHint(true); await wait(620); return alive()
+      }
+      if (W === 'S2') {
+        // 한 번에 훑기: 손가락이 화면 밖까지 길게 끌고, 놓은 뒤 남은 거리를 관성으로. 끝에서 살짝 넘겼다 되돌아온다
+        if (!await swipePlans(cardX(last), { dur: 760, ease: cubicOut, coast: 46, coastDur: 620, x0: .92, x1: .06 })) return false
+        await wait(560); if (!alive()) return false
+      } else if (W === 'S3') {
+        // 엿보기: 다음 카드를 절반만 당겼다 놓으면 원래 자리로 되돌아온다
+        const peek = cardX(1) * .46
+        if (!await swipePlans(peek, { dur: 560, ease: inOutSine, x0: .8, x1: .46, hold: true })) return false
+        await wait(260); if (!alive()) return false
+        const back = carRef.current
+        await tween(420, (e) => { if (back) back.scrollLeft = peek * (1 - e) }, outExpo); if (!alive()) return false
+        if (back) { back.scrollLeft = 0; back.style.scrollSnapType = '' }
+        ptr?.hide(); await wait(520); if (!alive()) return false
+        for (let i = 1; i <= last; i++) {
+          if (!await swipePlans(cardX(i), { dur: i === last ? 700 : 520, coast: 12, coastDur: 300 })) return false
+          await wait(i === last ? 520 : 300); if (!alive()) return false
+        }
+      } else {
+        for (let i = 1; i <= last; i++) {
+          if (!await swipePlans(cardX(i), { dur: i === last ? 700 : 560, coast: 12, coastDur: 320 })) return false
+          await wait(i === last ? 520 : 340); if (!alive()) return false
+        }
+      }
+      ptr?.hide(); return alive()
+    }
+    // 스텝 끝 대기 = 다음 탭 자리. 사용자 탭 모드면 여기서 탭해야 다음 스텝
+    const parkAi = () => {
+      const X = variant('planexit')
+      const t = (X === 'card' ? planAiRef.current : X === 'hint' ? planHintRef.current : null) || aiBtnRef.current
+      ptr?.park(t, 520, 'AI Agent 실행')
+    }
     const finish = async () => {
       await scrollTo(el, anchorSec(secs.plan.current), 800, inOut); if (!alive()) return
+      if (!await browsePlans()) return
       parkAi()
     }
     /* 옵션 영역으로 들어가는 방식 (html[data-pdenter], 사용자 2026-09-11 "버튼 선택 안 하고 그냥 스크롤 내려서 컬러 영역으로")
@@ -192,6 +266,8 @@ export default function ProductDetail2({ stage = 'top' }) {
     // 즉시 상태 (2번 직접 진입 · 3→2 복귀)
     if (prevRef.current !== 'top' || reducedMotion()) {
       setSel(PICKED); setComboOn(flow !== 'P1'); setAccOpen(flow === 'P3'); ptr?.hide(); el.scrollTop = anchorSec(secs.plan.current); prevRef.current = 'options'
+      const X = variant('planexit')
+      if (variant('planswipe') !== 'off') { setPlanHint(X === 'hint'); requestAnimationFrame(() => { if (carRef.current) carRef.current.scrollLeft = cardX(X === 'hint' ? 1 : X === 'card' ? 3 : 2) }) }
       if (userTap()) setTimeout(() => { if (alive()) parkAi() }, 400)
       return cancel
     }
@@ -205,6 +281,7 @@ export default function ProductDetail2({ stage = 'top' }) {
         setSel(PICKED); setComboOn(true)
         await wait(700); if (!alive()) return
         await scrollTo(el, anchorSec(secs.plan.current), 2400, inOut); if (!alive()) return
+        if (!await browsePlans()) return
         parkAi(); return
       }
       if (flow === 'P3') {
@@ -218,6 +295,7 @@ export default function ProductDetail2({ stage = 'top' }) {
         await ptr?.tap(accGoRef.current); if (!alive()) return
         setSel(PICKED); setComboOn(true); await wait(600); if (!alive()) return
         await scrollTo(el, anchorSec(secs.plan.current), 1600, inOut); if (!alive()) return
+        if (!await browsePlans()) return
         parkAi(); return
       }
       // P1 직접 둘러보기 (기존 흐름): 링크 탭 → 섹션마다 탭
@@ -301,8 +379,22 @@ export default function ProductDetail2({ stage = 'top' }) {
         </Section>
 
         {/* 요금제 — 자동 시퀀스가 멈추는 곳. Agent 가 도울 영역이므로 미선택 (Figma 10547:16764) */}
+        {/* 요금제 — 자동 시퀀스가 카드를 옆으로 밀어 보다 Agent 를 부르는 곳 (html[data-planswipe]) */}
         <Section title="요금제를 선택해 주세요" refEl={secs.plan}>
-          <div className="plan-carousel">{[0, 1, 2].map((i) => <PlanCard key={i} idx={i} sel={false} style={{ '--i': i }} />)}</div>
+          {variant('planexit') === 'hint' && (
+            <div className={`plan-hint ${planHint ? 'on' : ''}`} ref={planHintRef}><IcoSparkleAi size={16} /><span>{PLAN_HINT}</span></div>
+          )}
+          <div className="plan-carousel" ref={carRef}>
+            {[0, 1, 2].map((i) => <PlanCard key={i} idx={i} sel={false} style={{ '--i': i }} />)}
+            {variant('planexit') === 'card' && (
+              <div className="plan-ai-card" ref={planAiRef}>
+                <IcoSparkleAi size={30} />
+                <b>{PLAN_AI_TITLE}</b>
+                <p>{PLAN_AI_DESC}</p>
+                <span className="go">추천받기</span>
+              </div>
+            )}
+          </div>
         </Section>
 
         <Section title="어떤 SIM으로 개통하시겠어요?">
