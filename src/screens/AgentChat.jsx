@@ -131,11 +131,42 @@ const P2_MSGS = ['신원인증 처리가 완료되었어요. 휴대폰 개통을
 const P2_SHEET_A = { title: '요금을 함께 납부하시겠어요?', rows: ['네', '아니요'] }
 const P2_SHEET_B = '사용 중인 번호로 인증해주세요.'
 const P2_DONE = '번호 인증 완료', P2_CODE = '000000'
+/* ── 1안 15번 바닥 납부 (Figma ixGPs9 366:107271, 2026-09-15): 기존 '납부 수단 카드 + 요금안내서 4종' 을 폐기하고
+   2안의 '함께 납부하시겠어요?' 흐름을 바닥으로 옮겼다. 시트 없이 대화 안 행 2개 → 고른 답만 줄로 남고 → 번호 카드 한 장 → 확인 선 → 결제 시트 */
+const PAY1_ASK = '요금을 함께 납부하시겠어요?'
+const PAY1_ROWS = ['네', '아니요']
+const PAY1_FOLD = '함께 납부 선택 여부'
+const PAY1_NEED = '요금을 함께 납부하시려면, 사용 중인 번호 인증이 필요해요. 요금안내서는 함께 보내드릴게요.'
+const PAY1_LABEL = '사용 중인 번호'
+const PAY1_LINE = '사용 중인 번호 입력이 완료되었어요.'
+const PAY1_CHK = '번호 확인 완료'
+const PAY1_AFTER = ['번호 확인이 완료되었어요. 요금안내서는 바로 보는 요금안내서에 함께 안내드릴게요.', '결제를 마무리하면 개통이 완료돼요. 결제 과정을 이어가볼까요?']
 const FORM_INTRO = ['가입자 정보를 확인해주세요.', '앞에서 확인한 정보가 맞다면 가입자 정보를 입력해주세요.']
 const FORM_DONE = '개통 신청서 작성이 완료되었어요.', FORM_REDO = '수정하기'   // Figma 52:62418 ButtonText (사용자 2026-09-08: 재입력 → 수정하기)
 const REVIEW_MSG = '신청서 작성이 완료되었어요. 작성된 내용이 맞는지 확인해주세요.'
 const REVIEW_ROWS = [['가입자 이름', '김하경'], ['휴대폰 번호', PHONE], ['주소', `${ADDR_LINE} ${ADDR_DETAIL}`], ['이메일 주소', EMAIL], ['개통 시 연락받을 수 있는 번호', PHONE]]
 const REVIEW_CHIP = '개통 이어가기'
+/* ── 1안 신청서 바닥 플로우 (Figma ixGPs9 360:81747 → 360:84842, 사용자 2026-09-15 "지금은 모달형식인데 바닥으로 바꿨어")
+   스텝 10~13 을 통째로 대체한다. 바텀시트(‹n/4› · [다음] · 딤)는 사라지고 대화 안 흰 카드 하나에 필드 하나.
+   10 가입자 정보 조회 → 가입자 정보 카드 → [신청서 작성하기] → 말풍선 → 안내 2줄 + 개인정보 Alert → 주민등록번호 카드
+   11 주소(우편번호+[검색] · 상세 주소 2 · 5G 안내 체크) — [검색]은 기존 Z-1 풀페이지 팝업 그대로
+   12 이메일 주소 → 개통 시 연락받을 번호
+   13 신청서 카드 + [개통 이어가기]
+   한 칸이 끝나면 그 카드는 접혀 사라지고 자리에 '│ … 입력이 완료되었어요 ─ 수정하기' 선만 남는다 (html[data-fincard]) */
+const LOOKUP_STATUS = '고객 정보 조회 중', LOOKUP_TITLE = ['고객님의 정보를', '조회하고 있어요']
+const LOOKUP_ASK = ['가입자 정보를 확인해주세요.', '확인한 정보가 맞다면 신청서 작성을 시작해볼까요?']
+const LOOKUP_ROWS = [['가입자 이름', '김하경'], ['휴대폰 번호', PHONE]]   // Figma 더미(김티월드·010-1234-5678) 대신 페르소나 하경
+const LOOKUP_CHIP = '신청서 작성하기'
+const FIN_DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성을 위한 가입자 정보 확인이 필요한데, 먼저 조회해볼게요.'
+const FIN_START = '신청서 작성을 시작할게요.'
+const FIN_GUIDE = '개통을 위해서는 개인정보 입력이 필요해요. 주민등록번호, 주소, 이메일 주소, 개통시 연락받을 번호를 순차적으로 입력해주세요.'
+const FIN_LABEL = ['주민등록번호', '주소', '이메일 주소', '개통 시 연락받을 번호']
+const FIN_DONE = FIN_LABEL.map((t) => `${t} 입력이 완료되었어요.`)
+const FIN_NEXT = [
+  ['주민등록번호가 저장되었어요.', '주소를 입력하고 안내사항을 확인해주세요.'],
+  ['주소가 저장되었어요.', '이메일 주소를 입력해주세요.'],
+  ['이메일 주소가 저장되었어요.', '개통이 되었을 때 연락 받을 수 있는 번호 입력이 필요해요.'],
+]
 const AUTH_MSG1 = '개통을 하기 앞서 본인 인증이 필요해요. 어떤 방법으로 인증할까요?'
 const AUTH_DONE = '본인 인증 완료'
 const AUTH_MSG2 = '본인인증 처리가 완료되었어요. 휴대폰 개통을 이어서 하려면 신원인증이 필요해요. 어떤 방법으로 인증할까요?'
@@ -403,6 +434,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const histRef = useRef(null)                  // 2안 이력 블록 (.an2-hist)
   const [optPick, setOptPick] = useState([-1, -1, -1, -1])   // 섹션별 고른 행
   const formRef = useRef(null)
+  // 1안 바닥 신청서 (html[data-fform] B1): 스텝 10~13 이 시트 대신 대화 안 카드로 흐른다. 2안(an2)은 계속 시트
+  const inForm = mode !== 'an2' && variant('fform') !== 'off'
+  const lookupOpRef = useRef(null), lookupChipRef = useRef(null)   // 가입자 정보 조회 타이틀 · [신청서 작성하기]
+  const finAddrRef = useRef(null), finContactRef = useRef(null)    // 11 주소 · 12 이메일·연락 번호 턴
   const [kbField, setKbField] = useState(false)          // 신청서 시트 입력 중 (SearchAi 숨김, 키패드 스크림 없음 — 시트 딤이 대신)
   const [fsheet, setFsheet] = useState(0)                // 신청서 AI 바텀시트: 0 없음 / 1 주민등록번호 / 2 주소 / 3 이메일 / 4 연락 번호
   const { shown: fsShow, out: fsOut } = useSheetOut(fsheet, { closed: 0 })   // 내려가는 동안 내용 유지 + .out (src/lib/sheet.js)
@@ -458,7 +493,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const scroll = scrollRef.current, op = openingRef.current
     if (!scroll || !op) return
     const altEl = altRef.current, ptr = ptrRef.current
-    const altItems = [...altEl.children].filter((el) => !['pen', 'opts', 'form', 'addr', 'review', 'auth', 'pay'].some((c) => el.classList.contains(c))) // [요금제 카드 캐러셀]; 이후 턴은 별도 시퀀스
+    const altItems = [...altEl.children].filter((el) => !['pen', 'opts', 'form', 'addr', 'contact', 'review', 'auth', 'pay'].some((c) => el.classList.contains(c))) // [요금제 카드 캐러셀]; 이후 턴은 별도 시퀀스
     const turnKids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))   // 생각 점(N-2)은 순서 배열에서 제외
     const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold-host'))                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
     const optsEl = optsRef.current, turns = [...optsEl.children]                 // .opt-turn × 4 + .done, 각각 [msg, msg2|none, card]
@@ -466,7 +501,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
     const formEl = formRef.current, formItems = [...formEl.children]   // [말풍선, 개인정보 Alert]
     const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('review-fold'))   // [안내, 완료 선, 안내 2, 신청서 카드, 칩]
-    const reviewChipWrap = reviewItems[4]
+    const rvCardIdx = inForm ? 2 : 3, rvChipIdx = inForm ? 3 : 4   // 바닥 플로우는 '안내 + 완료 선' 두 줄이 완료 선 하나로 줄었다
+    const reviewChipWrap = reviewItems[rvChipIdx]
     const authEl = authRef.current, authItems = [...authEl.children].filter((c) => !c.classList.contains('thinking'))   // [말풍선, 안내 1, 완료 선, 안내 2]
     const payEl = payRef.current, payItems = [...payEl.children].filter((c) => !c.classList.contains('thinking'))   // [완료 선, 안내 1, 안내 2, 납부 카드, 안내 3, 요금안내서, 안내 4]
     const discRow = () => plansCardRef.current.querySelectorAll('.plan-card')[planIdx].querySelectorAll('.pc-rc')[DISC_REC]
@@ -499,9 +535,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setOptPick((p) => p.map((v, i) => (i >= from ? -1 : v)))
       resetForm()
     }
-    const resetReview = () => { resetTurn(reviewEl, reviewItems); reviewChipRef.current?.classList.remove('gone'); reviewChipWrap.style.display = ''; const c = reviewItems[3]; if (c) c.style.cssText = ''; const rf = reviewFoldRef.current; if (rf) { rf.classList.remove('in'); rf.style.cssText = '' } }
+    const resetReview = () => { resetTurn(reviewEl, reviewItems); reviewChipRef.current?.classList.remove('gone'); reviewChipWrap.style.display = ''; const c = reviewItems[rvCardIdx]; if (c) c.style.cssText = ''; const rf = reviewFoldRef.current; if (rf) { rf.classList.remove('in'); rf.style.cssText = '' } }
     const resetPayout = () => { if (extKind === 'pay') { setExt(''); setExtKind('toss') } }
-    const resetPay = () => { resetPayout(); resetTurn(payEl, payItems); setPayPick(false); setBillPick(-1); setP2sheet(0); setP2pick(-1); setP2step(1); setFv((o) => ({ ...o, p2phone: '', p2code: '' })) }
+    const resetPay = () => { resetPayout(); resetTurn(payEl, payItems); payItems.forEach((el) => { el.style.cssText = '' }); setPayPick(false); setBillPick(-1); setP2sheet(0); setP2pick(-1); setP2step(1); setFv((o) => ({ ...o, p2phone: '', p2code: '' })) }
     const resetAuth = () => { resetPay(); resetTurn(authEl, authItems); setAuthSheet(0); setSheetToss(false); setExt(''); setExtKind('toss'); setExtBanner(false) }
     const resetForm = () => {
       resetReview(); resetAuth()
@@ -509,6 +545,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       turns[DONE_TURN].querySelector('.button-ai')?.classList.remove('gone'); const cw = turns[DONE_TURN].querySelector('.cta-stack'); if (cw) cw.style.display = ''
       const rc = reChipRef.current; if (rc) { rc.classList.remove('gone'); if (rc.parentElement) rc.parentElement.style.display = '' }
       setFsheet(0); setFpeek(false); setFv(FV0); setFfocus(''); setKbOpen(false); setKbField(false); setPenTyped(''); setPenTyping(false)
+      if (inForm) resetFin()
     }
     const resetReselect = () => {
       setRecalc(false)
@@ -1349,7 +1386,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     /* ── 10번: [신청서 작성 시작하기] 탭 → 칩이 말풍선으로 → 개인정보 Alert → 화면 딤 + 신청서 AI 바텀시트 1/4 (주민등록번호) → 입력 → [다음] 위 대기
        (Figma 67:28493 → 51:37984 · 52:57568 키패드 · 52:58165 입력 완료). 시트 4장은 같은 시트 안에서 내용만 바뀐다 */
-    const fsEl = (k) => rootRef.current?.querySelector(`.ai-sheet.fs [data-f="${k}"]`)
+    const fsEl = (k) => rootRef.current?.querySelector(inForm ? `.fin-card [data-f="${k}"]` : `.ai-sheet.fs [data-f="${k}"]`)
     const setF = (k, v) => setFv((o) => ({ ...o, [k]: v }))
     const typeInto = async (setter, text, per) => { for (let i = 1; i <= text.length; i++) { setter(text.slice(0, i)); await wait(per); if (!alive()) return false } return true }
     /* 시트 열기/장 넘기기 — 높이 변화 시안 html[data-fsh]
@@ -1481,6 +1518,190 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       parkNext()
     }
     const finalContact = (park = false) => { setFsheet(4); setFv((o) => ({ ...o, email: EMAIL, phone: PHONE })); setFfocus('phone'); setKbOpen(true); if (park) parkNext() }
+
+    /* ══ 1안 바닥 신청서 (html[data-fform] B1, Figma 360:81747 → 360:84842) ══════════════════════════════
+       시트가 없으므로 [다음]도 없다. 한 칸을 다 채우면 다음 스텝이 그 카드를 접고 자리에 완료 선을 남긴다. */
+    const finBlocks = () => [formRef.current, finAddrRef.current, finContactRef.current]
+    const finCard = (n) => rootRef.current?.querySelectorAll('.fin-card')[n]   // 0 주민등록번호 / 1 주소 / 2 이메일 / 3 연락 번호
+    // 카드가 키패드에 가리지 않게 (K-1 과 같은 규칙 — 카드 통째로 키패드 위로)
+    const kbFit = async (el, dur = 420) => { if (!el) return alive(); await scrollTo(scroll, Math.max(0, el.offsetTop + el.offsetHeight - (KB_TOP - 20)), dur, inOut); return alive() }
+    /* 입력 카드가 나오는 순간 = 키패드가 올라오는 순간 (스텝 10 확정 리듬 T-2 와 같은 박자).
+       카드를 SearchAi 위로 한 번 팬했다가 키패드 때문에 또 올리면 두 번 움직여 어색하다 — 팬은 키패드 위 자리로 한 번만 */
+    const kbCard = async (card, k) => {
+      reveal(card); await wait(200); if (!alive()) return false
+      setKbField(true)                                   // SearchAi 가 먼저 물러나고
+      const pan = kbFit(card, 560)                       // 카드가 키패드 자리 위로 올라가는 동안
+      await wait(180); if (!alive()) return false
+      setFfocus(k); setKbOpen(true)                      // 키패드가 그 빈자리로 올라온다
+      await pan; if (!alive()) return false
+      await wait(180); return alive()
+    }
+    /* 입력이 끝난 카드 → 완료 선 (html[data-fincard])
+       N1 제자리 접힘: 카드가 그 자리에서 높이를 잃고 사라진다 (요금제 카드 접힘과 같은 언어)
+       N2 선으로 수축: 내용이 먼저 빠지고(0.18s) 남은 틀이 선 높이까지 줄어든 뒤 사라진다
+       N3 먼저 물러나고 선이 따라옴: 카드가 살짝 내려앉으며 지워지고, 한 박자 뒤 완료 선이 온다 */
+    const finFold = async (n) => {
+      const card = finCard(n), F = variant('fincard')
+      if (!card || card.style.display === 'none') return alive()
+      if (F === 'N2') {
+        card.classList.add('drain'); await wait(180); if (!alive()) return false
+        await collapseAway(card, 380); return alive()
+      }
+      if (F === 'N3') {
+        card.classList.add('sink'); await wait(260); if (!alive()) return false
+        await collapseAway(card, 320); if (!alive()) return false
+        await wait(220); return alive()
+      }
+      await collapseAway(card, 450); return alive()
+    }
+    const finFoldNow = (n) => { const c = finCard(n); if (c) { c.style.display = 'none' } }
+    // 카드 한 장 = [완료 선, 안내, 카드] 묶음 하나를 내보낸다
+    const finEmit = async (el, items, T, card, holdCard = false) => {
+      el.classList.add('on'); void el.offsetHeight
+      for (let i = 0; i < items.length; i++) {
+        if (holdCard && items[i] === card) return alive()      // 카드는 kbCard 가 키패드와 한 호흡으로 내보낸다
+        reveal(items[i]); await follow(items[i]); if (!alive()) return false
+        await wait(items[i] === card ? T.card : T.text); if (!alive()) return false
+      }
+      return alive()
+    }
+    /* ── 10번: [신청서 작성 시작하기] 탭 → 가입자 정보 조회 → 가입자 정보 카드 → [신청서 작성하기] → 말풍선
+       → '신청서 작성을 시작할게요' + 개인정보 안내 + Alert → 주민등록번호 카드 → 키패드 입력 (Figma 360:79418 → 360:79497) */
+    const playFormIn = async (hold = false) => {
+      const T = rv(), chip = liveDoneChip()
+      const [op, ask, card1, chipWrap, bubble, start, guide, alert, rrnCard] = formItems
+      if (hold) { await wait(1400); if (!alive()) return }
+      await ptr?.tap(chip, { move: 300, pause: 80 }); if (!alive()) return
+      ptr?.hide(); chip.classList.add('gone'); await wait(220); if (!alive()) return
+      chip.parentElement.style.display = 'none'
+      formEl.classList.add('on'); void formEl.offsetHeight
+      setTail(PEN_TAIL)
+      setOptK(OPT.rrn)
+      reveal(op); await new Promise(afterLayout); if (!alive()) return                       // .form 이 방금 켜졌다 — 레이아웃이 잡힌 뒤 위치를 읽는다
+      await scrollTo(scroll, Math.max(scroll.scrollTop, anchorHeader(op) - OPENING_MT)); if (!alive()) return
+      await wait(1500); if (!alive()) return                                   // '고객님의 정보를 조회하고 있어요'
+      await collapseOpening(op); if (!alive()) return
+      await wait(T.settle); if (!alive()) return
+      reveal(ask); await follow(ask); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(card1); await follow(card1); if (!alive()) return
+      await wait(T.card); if (!alive()) return
+      reveal(chipWrap); await follow(chipWrap, true); if (!alive()) return
+      await wait(T.tail); if (!alive()) return
+      // [신청서 작성하기] → 말풍선부터가 본격적인 작성
+      await ptr?.tap(lookupChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
+      ptr?.hide(); lookupChipRef.current.classList.add('gone'); await wait(220); if (!alive()) return
+      chipWrap.style.display = 'none'
+      reveal(bubble); await follow(bubble); if (!alive()) return
+      await wait(T.bubble); if (!alive()) return
+      reveal(start); await follow(start); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(guide); await follow(guide); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(alert); await follow(alert); if (!alive()) return
+      await wait(T.card); if (!alive()) return
+      if (!await kbCard(rrnCard, 'rrn')) return
+      if (!await fillField('rrn', FORM_VAL, 110, FORM_MASK)) return
+      setFfocus('')
+    }
+    const finalFormIn = () => {
+      setOptK(OPT.rrn); hideDoneChip(); hideChipEl(reChipRef.current)
+      formEl.classList.add('on'); showNow(formItems); setTail(PEN_TAIL)
+      hideOpening(formItems[0]); hideChipEl(lookupChipRef.current)
+      setKbField(true); setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK })); setFfocus('rrn'); setKbOpen(true)
+      afterLayout(() => { const c = finCard(0); if (c) scroll.scrollTop = Math.max(0, c.offsetTop + c.offsetHeight - (KB_TOP - 20)) })
+    }
+    /* ── 11번: 주민등록번호 카드가 접히고 완료 선 → 안내 → 주소 카드 → [검색] 풀페이지 팝업 → 상세 주소 → 5G 안내 확인 (Figma 360:79547 → 360:79864) */
+    const playAddrIn = async () => {
+      const T = rv(), el = finAddrRef.current, items = [...el.children], card = items[2]
+      setFfocus(''); setKbOpen(false); await wait(380); if (!alive()) return
+      if (!await finFold(0)) return
+      setOptK(OPT.addr)
+      if (!await finEmit(el, items, T, card)) return
+      await ptr?.tap(fsEl('zipbtn'), { move: 340, pause: 90 }); if (!alive()) return
+      ptr?.hide(); setZipPop(true); setZipQ(''); setZipList(false)
+      await wait(520); if (!alive()) return
+      setKbOpen(true); await wait(500); if (!alive()) return
+      if (!await typeInto(setZipQ, ZIP_Q, 85)) return
+      await wait(250); if (!alive()) return
+      setZipList(true)
+      await wait(900); if (!alive()) return
+      await ptr?.tap(rootRef.current?.querySelector('.zip-item'), { move: 360, pause: 90 }); if (!alive()) return
+      ptr?.hide(); setZipPop(false); setF('zip', ADDR_ZIP); setF('line', ADDR_LINE); setFfocus('detail')
+      setKbField(true)
+      await kbFit(card); if (!alive()) return
+      await wait(400); if (!alive()) return
+      if (!await fillField('detail', ADDR_DETAIL, 120)) return
+      setFfocus(''); setKbOpen(false); await wait(420); if (!alive()) return
+      await ptr?.tap(fsEl('chk'), { move: 300, pause: 80 }); if (!alive()) return
+      ptr?.hide(); setF('chk', true); setKbField(false)
+      await wait(350); if (!alive()) return
+      await follow(card, true)
+    }
+    const finalAddrIn = (park = false) => {
+      setZipPop(false); setZipList(false); setZipQ('')
+      setOptK(OPT.addr); finFoldNow(0)
+      const el = finAddrRef.current; el.classList.add('on'); showNow([...el.children])
+      setKbField(false); setKbOpen(false); setFfocus('')
+      setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK, zip: ADDR_ZIP, line: ADDR_LINE, detail: ADDR_DETAIL, chk: true }))
+      afterLayout(() => { scroll.scrollTop = anchorBottom([...el.children][2]) })
+      if (park) setTimeout(() => { if (alive()) ptr?.park(fsEl('chk')) }, 60)
+    }
+    /* ── 12번: 주소 카드 접힘 → 이메일 주소 → 다시 접힘 → 개통 시 연락받을 번호 (Figma 360:79595 → 360:84478) */
+    const playContactIn = async () => {
+      const T = rv(), el = finContactRef.current, items = [...el.children]
+      const mail = items.slice(0, 3), phone = items.slice(3), mailCard = items[2], phoneCard = items[5]
+      if (!await finFold(1)) return
+      if (!await finEmit(el, mail, T, mailCard, true)) return
+      if (!await kbCard(mailCard, 'email')) return
+      if (!await fillField('email', EMAIL, 70)) return
+      setFfocus(''); setKbOpen(false); await wait(420); if (!alive()) return
+      if (!await finFold(2)) return
+      if (!await finEmit(el, phone, T, phoneCard, true)) return
+      if (!await kbCard(phoneCard, 'phone')) return
+      if (!await fillField('phone', PHONE, 100)) return
+      setFfocus('')
+    }
+    const finalContactIn = (park = false) => {
+      finFoldNow(1); finFoldNow(2)
+      const el = finContactRef.current; el.classList.add('on'); showNow([...el.children])
+      setFv((o) => ({ ...o, email: EMAIL, phone: PHONE }))
+      setKbField(true); setFfocus('phone'); setKbOpen(true)
+      afterLayout(() => { const c = finCard(3); if (c) scroll.scrollTop = Math.max(0, c.offsetTop + c.offsetHeight - (KB_TOP - 20)) })
+      if (park) setTimeout(() => { if (alive()) ptr?.park(fsEl('phone')) }, 60)
+    }
+    /* ── 13번: 연락 번호 카드 접힘 → 완료 선 → '신청서 작성이 완료되었어요' → 신청서 카드 → [개통 이어가기] (Figma 360:84406) */
+    const playReviewIn = async () => {
+      const T = rv(), [line, msg, card] = reviewItems
+      setFfocus(''); setKbOpen(false); setKbField(false)
+      await wait(520); if (!alive()) return
+      if (!await finFold(3)) return
+      reviewEl.classList.add('on'); void reviewEl.offsetHeight
+      setTail(420)
+      reveal(line); await follow(line); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(msg); await follow(msg); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(card); await follow(card); if (!alive()) return
+      await wait(T.card); if (!alive()) return
+      reveal(reviewChipWrap); await wait(T.tail); if (!alive()) return
+      setTail(TAIL)
+      await follow(reviewChipWrap, true); if (!alive()) return
+      ptr?.park(reviewChipRef.current)
+    }
+    const finalReviewIn = () => {
+      setOptK(OPT.addr); setZipPop(false); setKbField(false); setFfocus(''); setKbOpen(false)
+      finFoldNow(3)
+      reviewEl.classList.add('on'); showNow(reviewItems); setTail(TAIL)
+      afterLayout(() => { scroll.scrollTop = anchorBottom(reviewChipWrap) })
+    }
+    const resetFin = () => {
+      for (const el of finBlocks()) { if (!el) continue; el.classList.remove('on'); unreveal([...el.children]) }
+      rootRef.current?.querySelectorAll('.fin-card').forEach((c) => { c.style.cssText = ''; c.classList.remove('drain', 'sink') })
+      const op = formItems[0]; if (op) op.style.cssText = ''
+      lookupChipRef.current?.classList.remove('gone')
+      const lw = lookupChipRef.current?.parentElement; if (lw) lw.style.display = ''
+    }
     /* ── 13번: [다음] → 시트 내려감·딤 해제 → 개인정보 Alert 가 제자리에서 접히고 → 안내 → '개통 신청서 작성이 완료되었어요 · 재입력' 선 → 안내 2 → 신청서 카드 → [개통 이어가기] (52:62418) */
     const collapseAway = async (el, dur = 450) => {
       const h = el.offsetHeight
@@ -1524,7 +1745,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
        html[data-reviewaway]: W1 제자리에서 접혀 사라짐 / W2 '작성한 신청서 · 다시 보기' 줄로 접힘 / W3 접힘과 말풍선이 겹침 / off 남겨 둠(기존) */
     const reviewAway = async () => {
       const W = variant('reviewaway')
-      const card = reviewItems[3], fold = reviewFoldRef.current
+      const card = reviewItems[rvCardIdx], fold = reviewFoldRef.current
       if (W === 'off' || !card) return true
       if (W === 'W3') { collapseAway(card, 420); await wait(160); return alive() }   // 접히는 동안 말풍선이 이미 올라온다
       await collapseAway(card, 450); if (!alive()) return false
@@ -1749,6 +1970,52 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(600); if (!alive()) return
       await showCheckout()
     }
+    /* ── 1안 15번 (바닥): 신분증 촬영 → 복귀 → '신원 인증 완료' 선 → 안내 2 → 질문 → 행 [네/아니요] 탭 → 행이 접히고 '함께 납부 선택 여부 · 네' 줄
+       → 안내 → '사용 중인 번호' 카드 입력 → 완료 선 → '번호 확인 완료' 선 → 안내 2 → 결제 시트 (Figma 366:105450 → 366:105730) */
+    const playPay1 = async () => {
+      const T = rv(), [line, m1, m2, ask, rows, fold, m3, card, doneLine, chkLine, m4, m5] = payItems
+      if (!await afterIdVerify(line, m1)) return
+      reveal(m2); await follow(m2); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(ask); await follow(ask); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      setOptK(OPT.method)
+      reveal(rows); await follow(rows, true); if (!alive()) return
+      await wait(T.card); if (!alive()) return
+      await ptr?.tap(rows.querySelector('.plan-row'), { move: 420, pause: 120 }); if (!alive()) return
+      setP2pick(0); await wait(560); if (!alive()) return
+      ptr?.hide()
+      await collapseAway(rows, 450); if (!alive()) return            // 고른 뒤에는 답만 줄로 남는다 (요금제·옵션과 같은 규칙)
+      reveal(fold); await follow(fold); if (!alive()) return
+      await wait(700); if (!alive()) return
+      if (!await think(payEl, m3)) return
+      await follow(m3); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      if (!await kbCard(card, 'p2phone')) return
+      if (!await fillField('p2phone', PHONE, 70)) return
+      setFfocus(''); setKbOpen(false); setKbField(false)
+      await wait(460); if (!alive()) return
+      if (!await finFold(4)) return                                   // 번호 카드도 다른 입력 카드처럼 접히고 자리에 완료 선
+      reveal(doneLine); await follow(doneLine); if (!alive()) return
+      await wait(700); if (!alive()) return
+      reveal(chkLine); await follow(chkLine); if (!alive()) return
+      await wait(1500); if (!alive()) return
+      if (!await think(payEl, m4)) return
+      await follow(m4); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(m5); setTail(TAIL); await follow(m5, true); if (!alive()) return
+      await wait(600); if (!alive()) return
+      await showCheckout()
+    }
+    const finalPay1 = () => {
+      setOptK(OPT.checkout); payEl.classList.add('on'); showNow(payItems)
+      payEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' })
+      setP2pick(0); setFv((o) => ({ ...o, p2phone: PHONE })); setAuthSheet(3)
+      setKbField(false); setKbOpen(false); setFfocus('')
+      if (payItems[4]) payItems[4].style.display = 'none'             // [네/아니요] 행은 접힌 상태
+      finFoldNow(4)
+      afterLayout(() => { scroll.scrollTop = anchorBottom(payItems[11]) })
+    }
     const finalPay2 = () => { setOptK(OPT.checkout); payEl.classList.add('on'); showNow(payItems); payEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setP2pick(0); setP2sheet(0); setP2step(2); setFv((o) => ({ ...o, p2phone: PHONE, p2code: P2_CODE })); setAuthSheet(3); afterLayout(() => { scroll.scrollTop = anchorBottom(payItems[7]) }) }
     /* ── 15번: [결제하기] 탭 → 결제 화면(외부)으로 슬라이드(X-1) → 끝 */
     const playPayout = async () => {
@@ -1778,7 +2045,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const run = (fn) => { finalsOnly = false; return fn() }
     const PARK_FOR = {
       usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current, /* 9 를 지났으면 아래의 새 CTA */
-      form: () => fsEl('next'), addr: () => fsEl('next'), contact: () => fsEl('next'), review: () => reviewChipRef.current,
+      form: () => (inForm ? fsEl('rrn') : fsEl('next')), addr: () => (inForm ? fsEl('chk') : fsEl('next')), contact: () => (inForm ? fsEl('phone') : fsEl('next')), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelectorAll('.ai-sheet')[2]?.querySelector('.ai-sheet-item'),
     }
     const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭') }
@@ -1795,46 +2062,49 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         setTail(SCREEN_H)
         afterLayout(() => { scroll.scrollTop = anchorHeader(histRef.current) })   // 이력 블록이 채팅 시작선에
       }
+      const finPay = mode === 'an2' ? finalPay2 : inForm ? finalPay1 : finalPay
       const upToPenalty = () => { if (an2) return histTop(); finalUsage(); finalPenalty(); foldFinal() }
 
       const upToOpts2 = () => { upToPenalty(); if (an2) return; finalOpts1(); finalOpts2() }
       const upToReplan = () => { upToOpts2(); if (an2) return; finalReplan() }
-      const upToForm = () => { upToReplan(); finalForm() }
+      const fForm = inForm ? finalFormIn : finalForm, fAddr = inForm ? finalAddrIn : finalAddr
+      const fContact = inForm ? finalContactIn : finalContact, fReview = inForm ? finalReviewIn : finalReview
+      const upToForm = () => { upToReplan(); fForm() }
       if (payout) {
         if (prevRef.current === 'pay' && !reduced) run(playPayout)
-        else { upToForm(); finalAddr(); finalContact(); finalReview(); finalAuth(); (mode === 'an2' ? finalPay2 : finalPay)(); finalPayout() }
+        else { upToForm(); fAddr(); fContact(); fReview(); finalAuth(); finPay(); finalPayout() }
         prevRef.current = 'payout'; return
       }
       if (pay) {
-        const play = mode === 'an2' ? playPay2 : playPay, fin = mode === 'an2' ? finalPay2 : finalPay
+        const play = mode === 'an2' ? playPay2 : inForm ? playPay1 : playPay, fin = finPay
         if (prevRef.current === 'auth' && !reduced) play()
-        else { resetPayout(); upToForm(); finalAddr(); finalContact(); finalReview(); finalAuth(); fin() }
+        else { resetPayout(); upToForm(); fAddr(); fContact(); fReview(); finalAuth(); fin() }
         prevRef.current = 'pay'; return
       }
       if (auth) {
         if (prevRef.current === 'review' && !reduced) run(playAuth)
-        else { resetPay(); upToForm(); finalAddr(); finalContact(); finalReview(); finalAuth() }
+        else { resetPay(); upToForm(); fAddr(); fContact(); fReview(); finalAuth() }
         prevRef.current = 'auth'; return
       }
       if (review) {
-        if (prevRef.current === 'contact' && !reduced) run(playReview)
-        else { resetAuth(); upToForm(); finalAddr(); finalContact(); finalReview() }
+        if (prevRef.current === 'contact' && !reduced) run(inForm ? playReviewIn : playReview)
+        else { resetAuth(); upToForm(); fAddr(); fContact(); fReview() }
         prevRef.current = 'review'; return
       }
       if (contact) {
-        if (prevRef.current === 'addr' && !reduced) run(playContact)
-        else { resetReview(); resetAuth(); upToForm(); finalAddr(); finalContact(true) }
+        if (prevRef.current === 'addr' && !reduced) run(inForm ? playContactIn : playContact)
+        else { resetReview(); resetAuth(); upToForm(); fAddr(); fContact(true) }
         prevRef.current = 'contact'; return
       }
       if (addr) {
-        if (prevRef.current === 'form' && !reduced) run(playAddr)
-        else { resetReview(); resetAuth(); upToForm(); finalAddr(true) }
+        if (prevRef.current === 'form' && !reduced) run(inForm ? playAddrIn : playAddr)
+        else { resetReview(); resetAuth(); upToForm(); fAddr(true) }
         prevRef.current = 'addr'; return
       }
       if (form) {
-        if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); run(() => playForm(true)) }   // 2안: 바텀시트 흐름 끝(AgentChat2) 에서 넘어옴 — 이력 블록이 시작선에 놓인 채 [신청서 작성하기] 탭 → 신청서
-        else if ((prevRef.current === 'opts2' || prevRef.current === 'replan') && !reduced) run(playForm)
-        else { resetForm(); upToReplan(); finalForm(true) }
+        if (prevRef.current === null && from === 'opts2' && !reduced) { resetForm(); upToOpts2(); run(() => (inForm ? playFormIn : playForm)(true)) }   // 2안: 바텀시트 흐름 끝(AgentChat2) 에서 넘어옴 — 이력 블록이 시작선에 놓인 채 [신청서 작성하기] 탭 → 신청서
+        else if ((prevRef.current === 'opts2' || prevRef.current === 'replan') && !reduced) run(inForm ? playFormIn : playForm)
+        else { resetForm(); upToReplan(); inForm ? fForm() : finalForm(true) }
         prevRef.current = 'form'; return
       }
       if (opts2) {
@@ -1976,16 +2246,73 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           </div>
 
           {/* 10번: 신청서 작성 시작 — 말풍선 → 개인정보 Alert (Figma 51:37984). 입력은 화면 하단의 신청서 AI 바텀시트에서 */}
+          {inForm ? (
+            /* 1안 바닥 플로우 (Figma 360:79418 → 360:79371): 조회 → 가입자 정보 카드 → [신청서 작성하기] → 말풍선 → 안내 2줄 + Alert → 주민등록번호 카드 */
+            <div className="form fin" ref={formRef}>
+              <Opening className="lookup" status={LOOKUP_STATUS} title={<>{LOOKUP_TITLE[0]}<br />{LOOKUP_TITLE[1]}</>} innerRef={lookupOpRef} />
+              <AiMessage>{LOOKUP_ASK[0]}<br />{LOOKUP_ASK[1]}</AiMessage>
+              <Card className="review-card lookup-card">
+                <h3>가입자 정보</h3>
+                <div className="kv-list">{LOOKUP_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{v}</b></div>)}</div>
+              </Card>
+              <div className="cta-stack"><div className="button-ai" ref={lookupChipRef}>{LOOKUP_CHIP}</div></div>
+              <UserMessage>{DONE_CHIP}</UserMessage>
+              <AiMessage>{FIN_START}</AiMessage>
+              <AiMessage>{FIN_GUIDE}</AiMessage>
+              <div className="alert form-alert"><b><i>i</i>{FORM_ALERT[0]}</b><p>{FORM_ALERT[1]}</p></div>
+              <Card className="form-card fin-card">
+                <h3>{FIN_LABEL[0]}</h3>
+                <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="rrn" ph={FORM_PH} /></div>
+              </Card>
+            </div>
+          ) : (
           <div className="form" ref={formRef}>
             <UserMessage>{mode === 'an2' ? PRE_CHIP : DONE_CHIP}</UserMessage>
             <div className="alert form-alert"><b><i>i</i>{FORM_ALERT[0]}</b><p>{FORM_ALERT[1]}</p></div>
           </div>
+          )}
+          {inForm && <>
+            {/* 11번: 주민등록번호 완료 선 → 안내 → 주소 카드 (Figma 360:79547) */}
+            <div className="addr fin" ref={finAddrRef}>
+              <div className="form-line"><span>{FIN_DONE[0]}</span><a>{FORM_REDO}</a></div>
+              <AiMessage>{FIN_NEXT[0][0]}<br />{FIN_NEXT[0][1]}</AiMessage>
+              <Card className="form-card fin-card">
+                <h3>{FIN_LABEL[1]}</h3>
+                <div className="fs-slot">
+                <div className="input-row"><FsField fv={fv} ffocus={ffocus} k="zip" ph="우편번호" /><div className="input-btn" data-f="zipbtn">검색</div></div>
+                <FsField fv={fv} ffocus={ffocus} k="line" ph="상세 주소" />
+                <FsField fv={fv} ffocus={ffocus} k="detail" ph="상세 주소" />
+                <div className={`fs-chk ${fv.chk ? 'on' : ''}`} data-f="chk"><i className="ck" /><span>{ADDR_CHK}</span><i className="chev r" /></div>
+                </div>
+              </Card>
+            </div>
+            {/* 12번: 주소 완료 선 → 이메일 카드 → 이메일 완료 선 → 개통 시 연락받을 번호 카드 (Figma 360:79595 → 360:79648) */}
+            <div className="contact fin" ref={finContactRef}>
+              <div className="form-line"><span>{FIN_DONE[1]}</span><a>{FORM_REDO}</a></div>
+              <AiMessage>{FIN_NEXT[1][0]}<br />{FIN_NEXT[1][1]}</AiMessage>
+              <Card className="form-card fin-card">
+                <h3>{FIN_LABEL[2]}</h3>
+                <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="email" ph={EMAIL_PH} /></div>
+              </Card>
+              <div className="form-line"><span>{FIN_DONE[2]}</span><a>{FORM_REDO}</a></div>
+              <AiMessage>{FIN_NEXT[2][0]}<br />{FIN_NEXT[2][1]}</AiMessage>
+              <Card className="form-card fin-card">
+                <h3>{FIN_LABEL[3]}</h3>
+                <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="phone" ph={PHONE_PH} /></div>
+              </Card>
+            </div>
+          </>}
 
-          {/* 13번: 시트 닫힘 → Alert 자리에 안내 + 완료 선(재입력) → 안내 2 → 신청서 카드 → [개통 이어가기] (52:62418) */}
-          <div className="review" ref={reviewRef}>
-            <Thinking />
-            <AiMessage>{FORM_INTRO[0]}<br />{FORM_INTRO[1]}</AiMessage>
-            <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>
+          {/* 13번: 시트 닫힘 → Alert 자리에 안내 + 완료 선(재입력) → 안내 2 → 신청서 카드 → [개통 이어가기] (52:62418)
+              1안 바닥(B1)에서는 마지막 완료 선 → 안내 → 신청서 카드 → [개통 이어가기] 로 줄어든다 (Figma 360:84406) */}
+          <div className={`review ${inForm ? 'fin' : ''}`} ref={reviewRef}>
+            {!inForm && <Thinking />}
+            {inForm
+              ? <div className="form-line"><span>{FIN_DONE[3]}</span><a>{FORM_REDO}</a></div>
+              : <>
+                <AiMessage>{FORM_INTRO[0]}<br />{FORM_INTRO[1]}</AiMessage>
+                <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>
+              </>}
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
@@ -2019,6 +2346,28 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <AiMessage>{P2_MSGS[3]}</AiMessage>
             <AiMessage>{P2_MSGS[4]}</AiMessage>
           </div>
+          ) : inForm ? (
+            /* 1안 바닥 납부 (Figma 366:105450 → 366:105730) */
+            <div className="pay fin" ref={payRef}>
+              <div className="done-line"><i className="chk" /><span>{PAY_DONE}</span><em /></div>
+              <Thinking />
+              <AiMessage>{P2_MSGS[0]}</AiMessage>
+              <AiMessage>{P2_MSGS[1]}</AiMessage>
+              <AiMessage>{PAY1_ASK}</AiMessage>
+              <Card className="plans flatable pay-ask">
+                {PAY1_ROWS.map((t, i) => <PlanRow key={t} name={t} sel={p2pick === i} style={{ '--i': i }} />)}
+              </Card>
+              <div className="plan-fold at-new"><span className="lbl">{PAY1_FOLD}</span><b>{PAY1_ROWS[Math.max(p2pick, 0)]}</b><em>다시 선택하기</em></div>
+              <AiMessage>{PAY1_NEED}</AiMessage>
+              <Card className="form-card fin-card">
+                <h3>{PAY1_LABEL}</h3>
+                <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="p2phone" ph={PHONE_PH} /></div>
+              </Card>
+              <div className="form-line"><span>{PAY1_LINE}</span><a>{FORM_REDO}</a></div>
+              <div className="done-line"><i className="chk" /><span>{PAY1_CHK}</span><em /></div>
+              <AiMessage>{PAY1_AFTER[0]}</AiMessage>
+              <AiMessage>{PAY1_AFTER[1]}</AiMessage>
+            </div>
           ) : (
           <div className="pay" ref={payRef}>
             <div className="done-line"><i className="chk" /><span>{PAY_DONE}</span><em /></div>

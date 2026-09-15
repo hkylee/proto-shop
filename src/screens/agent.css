@@ -78,10 +78,10 @@ html[data-reveal="S3"] { --rv-dur: .55s; --rv-y: 16px; --rv-blur: 6px; --rv-scal
 }
 .chat-scroll > .s5.in, .ai-screen .rec > .in, .alt > .in, .ben > .in, .dis > .in { opacity: 1; transform: none; filter: none; }
 /* 7번 후반(추가혜택) · 8번(할인방법) 턴 컨테이너 (자식이 개별 등장) */
-.alt > .ben, .alt > .dis, .alt > .pen, .alt > .stream, .stream > .strm-turn, .alt > .opts, .opts > .opt-turn, .alt > .form, .alt > .addr, .alt > .review, .alt > .auth, .alt > .pay { opacity: 1; transform: none; filter: none; transition: none; display: none; flex-direction: column; gap: 8px; }
-.alt > .ben.on, .alt > .dis.on, .alt > .pen.on, .alt > .stream.on, .stream > .strm-turn.on, .alt > .opts.on, .opts > .opt-turn.on, .alt > .form.on, .alt > .addr.on, .alt > .review.on, .alt > .auth.on, .alt > .pay.on { display: flex; }
-.pen > *, .strm-turn > *, .opt-turn > *, .form > *, .addr > *, .review > *, .auth > *, .pay > * { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
-.pen > .in, .strm-turn > .in, .opt-turn > .in, .form > .in, .addr > .in, .review > .in, .auth > .in, .pay > .in { opacity: 1; transform: none; }
+.alt > .ben, .alt > .dis, .alt > .pen, .alt > .stream, .stream > .strm-turn, .alt > .opts, .opts > .opt-turn, .alt > .form, .alt > .addr, .alt > .contact, .alt > .review, .alt > .auth, .alt > .pay { opacity: 1; transform: none; filter: none; transition: none; display: none; flex-direction: column; gap: 8px; }
+.alt > .ben.on, .alt > .dis.on, .alt > .pen.on, .alt > .stream.on, .stream > .strm-turn.on, .alt > .opts.on, .opts > .opt-turn.on, .alt > .form.on, .alt > .addr.on, .alt > .contact.on, .alt > .review.on, .alt > .auth.on, .alt > .pay.on { display: flex; }
+.pen > *, .strm-turn > *, .opt-turn > *, .form > *, .addr > *, .contact > *, .review > *, .auth > *, .pay > * { opacity: 0; transform: translateY(var(--rv-y)); transition: opacity var(--rv-dur) var(--rv-ease), transform var(--rv-dur) var(--rv-ease); }
+.pen > .in, .strm-turn > .in, .opt-turn > .in, .form > .in, .addr > .in, .contact > .in, .review > .in, .auth > .in, .pay > .in { opacity: 1; transform: none; }
 .pen .msg-user { margin-top: 16px; }
 /* 위약금 답변 카드 (Figma 12370:42010): CellRightTable 3행(15reg) · DividerInset · 예상 할인 반환금(18Semi) */
 .ai-card.kvcard { gap: 14px; }
@@ -943,3 +943,29 @@ html[data-penfold="A2"] .pen-fold-host.on { background: var(--bg-neutral-subtle)
 html[data-penfold="A2"] .pen-fold-host.from-box { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
 html[data-penfold="A2"] .pen-fold-host .plan-fold { background: none; padding: 0; border-radius: 0; box-shadow: none; width: auto; }
 html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
+
+
+/* ══ 1안 신청서 바닥 플로우 (html[data-fform]="B1", Figma ixGPs9 360:81747 → 360:84842, 2026-09-15) ═══════
+   시트·딤·페이저·[다음]이 사라지고 대화 안 흰 카드 하나에 필드 하나. 한 칸이 끝나면 카드가 접히고
+   그 자리에 '│ … 입력이 완료되었어요 ─ 수정하기' 선만 남는다. */
+.alt > .contact { gap: 12px; }
+.alt > .form.fin, .alt > .addr.fin, .alt > .contact.fin, .alt > .review.fin { gap: 16px; }
+.form.fin .msg-user { margin-top: 0; }
+.form.fin .opening { margin-top: 0; }
+.ai-card.fin-card { gap: 12px; }
+.ai-card.fin-card h3 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
+.ai-card.fin-card .fs-slot { margin-top: 0; }
+/* 조회 결과 = 가입자 정보 카드 (신청서 카드와 같은 CellLeftTable) */
+.ai-card.lookup-card { gap: 16px; }
+/* 완료 선 뒤 안내문은 바로 붙는다 (Figma 360:79547) */
+.addr.fin .form-line, .contact.fin .form-line, .review.fin .form-line { margin: 0; }
+/* 바닥 플로우에서는 카드가 읽혀야 하므로 키패드 뒤 스크림 없음 — .kbf 규칙 그대로 */
+
+/* 입력이 끝난 카드 → 완료 선 (html[data-fincard]) — collapseAway 가 높이를 지우는 동안의 표정만 바꾼다 */
+.ai-card.fin-card.drain > * { opacity: 0; transition: opacity .18s cubic-bezier(.65,0,.35,1); }            /* N2 내용 먼저 빠짐 */
+.ai-card.fin-card.sink { transform: translateY(6px); opacity: .5; transition: transform .26s cubic-bezier(.65,0,.35,1), opacity .26s cubic-bezier(.65,0,.35,1); }  /* N3 살짝 내려앉으며 */
+
+/* 1안 바닥 납부 (Figma 366:105450 → 366:105730): [네/아니요] 를 고르면 행이 접히고 답만 줄로 남는다.
+   .plan-fold 는 평소 .on 으로 켜지지만 여기서는 대화 턴의 등장 규칙(.in)을 그대로 타므로 display 만 열어 준다 */
+.pay.fin .plan-fold { display: grid; }
+.pay.fin .ai-card.pay-ask { gap: 8px; }

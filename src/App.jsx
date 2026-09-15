@@ -107,7 +107,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -309,6 +309,13 @@ const AUTOKBS = [
   { id: 'T2', label: 'T-2 시트가 앉은 뒤 곧바로', desc: '시트가 완전히 앉고 0.15s 뒤에 포커스 + 키패드가 올라온다. 시트 등장과 키패드 상승이 겹치지 않아 각각 또렷하지만, 시트가 한 번 앉았다가 키패드 위로 다시 올라가는 움직임이 남는다' },
   { id: 'T3', label: 'T-3 커서 먼저, 키패드는 뒤따라', desc: '시트가 앉으면 입력칸에 커서가 먼저 깜빡이고(0.42s) 그 다음 키패드가 올라온다. 어디에 쓰는지를 먼저 알려주고 도구가 따라오는 순서 — 가장 차분하지만 전체가 길다' },
   { id: 'off', label: '없음 (기존)', desc: '비교용. 시트가 뜨고 포인터가 입력칸을 탭해야 키패드가 올라온다 — 지금 배포된 상태' },
+]
+/* 1안 신청서 · 입력이 끝난 카드가 완료 선으로 바뀌는 방식 (html[data-fincard], Figma ixGPs9 360:81747 → 360:84842) — 사용자 2026-09-15
+   Figma 는 정지 화면이라 '카드가 사라지고 선이 남는다'는 결과만 정해져 있고, 그 사이 움직임은 열려 있다 */
+const FINCARDS = [
+  { id: 'N1', label: 'N-1 제자리에서 접힘', desc: '카드가 그 자리에서 높이 0 으로 접히며 흐려지고(0.45s), 아래에 있던 완료 선이 자연스럽게 그 자리로 올라온다. 요금제 카드·개인정보 Alert 가 물러날 때 쓰는 것과 같은 동작이라 "역할이 끝난 것은 제자리에서 접힌다"는 규칙이 신청서에서도 그대로 이어진다. 가장 조용하고 짧다' },
+  { id: 'N2', label: 'N-2 내용이 먼저 빠지고 틀이 수축', desc: '카드 안의 제목·입력칸이 먼저 사라지고(0.18s) 남은 흰 틀이 선 높이까지 줄어든 뒤 사라진다(0.38s). 두 박자로 끊어 읽혀 "이 칸은 끝났다 → 기록만 남는다" 가 또렷하다. 대신 한 칸마다 0.2s 쯤 길어진다' },
+  { id: 'N3', label: 'N-3 먼저 물러나고 선이 따라옴', desc: '카드가 6px 내려앉으며 반투명해졌다가(0.26s) 접히고, 한 박자 쉰 뒤(0.22s) 완료 선이 온다. 카드가 "대화 뒤로 물러난" 느낌이 가장 크고 다음 항목의 시작이 분명해지지만, 네 번 반복되면 전체가 늘어진다' },
 ]
 // 13 → 14 · [개통 이어가기] 를 누른 뒤 작성이 끝난 신청서 카드가 어떻게 물러나나 (html[data-reviewaway], Figma ixGPs9 90:88097) — 사용자 2026-09-14
 const REVIEWAWAYS = [
@@ -727,6 +734,8 @@ export default function App() {
   // 확정 시안은 모듈 로드 시 <html data-*> 로 내려갔다. LAB 빌드에서는 스텝 탐색 UI(nav)만 바꿔볼 수 있다
   const [autokbV, setAutokbV] = useState(() => (LAB ? (Q0.get('ak') || CONFIRMED.autokb) : CONFIRMED.autokb))
   useEffect(() => { document.documentElement.dataset.autokb = autokbV }, [autokbV])
+  const [fincardV, setFincardV] = useState(() => (LAB ? (Q0.get('fc') || CONFIRMED.fincard) : CONFIRMED.fincard))
+  useEffect(() => { document.documentElement.dataset.fincard = fincardV }, [fincardV])
   const [reviewawayV, setReviewawayV] = useState(() => (LAB ? (Q0.get('ra') || CONFIRMED.reviewaway) : CONFIRMED.reviewaway))
   useEffect(() => { document.documentElement.dataset.reviewaway = reviewawayV }, [reviewawayV])
   const [replanendV, setReplanendV] = useState(() => (LAB ? (Q0.get('re') || CONFIRMED.replanend) : CONFIRMED.replanend))
@@ -1199,6 +1208,13 @@ export default function App() {
               <button key={v.id} aria-pressed={autokbV === v.id} onClick={() => { setAutokbV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{AUTOKBS.find((v) => v.id === autokbV)?.desc}</span>
+          </div>
+          <div className="variants v-fincard">
+            <b className="vtitle">1안 · 입력이 끝난 카드 → 완료 선 (스텝 10~13) — 미확정</b>
+            {FINCARDS.map((v) => (
+              <button key={v.id} aria-pressed={fincardV === v.id} onClick={() => { setFincardV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{FINCARDS.find((v) => v.id === fincardV)?.desc}</span>
           </div>
           {SHOW_ALL && (
           <div className="variants v-reviewaway">
