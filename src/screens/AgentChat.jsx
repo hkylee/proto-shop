@@ -505,7 +505,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [p2sheet, setP2sheet] = useState(0), [p2pick, setP2pick] = useState(-1), [p2step, setP2step] = useState(1)
   const { out: p2Out } = useSheetOut(p2sheet, { closed: 0 }), { out: authOut } = useSheetOut(authSheet, { closed: 0 })   // 2안 납부 시트: 1 함께 납부? / 2 번호 인증 (step 1 번호 → 2 인증번호)
   const [optK, setOptK] = useState(7)                    // 헤더 k/n: 지금 고르는 옵션 번호 (7 = 요금제). 해당 옵션의 컴포넌트가 화면에 뜨는 순간 바뀐다 (사용자 2026-09-07)
-  const OPT = { plan: 7, disc: 8, extra: 9, coupon: 10, pay: 11, benefit: 12, rrn: 13, addr: 14, auth1: 15, auth2: 16, method: 17, bill: 18, checkout: 19 }
+  const OPT = { plan: 7, disc: 8, benefit: 9, extra: 10, coupon: 11, pay: 12, gift: 13, rrn: 14, addr: 15, auth1: 16, auth2: 17, method: 18, bill: 19, checkout: 20 }   // AgentShell OPTIONS 와 1:1
   const searchRef = useRef(null)
   const [kbOpen, setKbOpen] = useState(false)   // 키패드 열림 (SearchAi 가 키보드 위로)
   const kbOpenRef = useRef(false); kbOpenRef.current = kbOpen
@@ -833,7 +833,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await think(last, lm)) return false
       await follow(lm); if (!alive()) return false
       await wait(T.text); if (!alive()) return false
-      setOptK(OPT.benefit)
+      setOptK(OPT.gift)
       if (!await revealCard(lastCard, 120)) return false                    // 행까지 다 나온 상태에서 (사용자 2026-09-07)
       await follow(lastCard, true); if (!alive()) return false
       await wait(1100); return alive()                                       // 읽다가 "쿠폰 다른 걸로 할까" 하는 틈
@@ -1065,7 +1065,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       }
       setMsgPlanIdx(PLAN_RESELECT)
     }
-    const finalReselect = () => { setOptK(OPT.benefit); const last = turns[LAST_OPT], kids = optKids(last); last.classList.add('on'); showNow(kids); setOptPick((p) => p.map((v, i) => (i === OPT_RESELECT.sec ? OPT_RESELECT.row : v))); afterLayout(() => { scroll.scrollTop = anchorBottom(kids[2]) }) }
+    const finalReselect = () => { setOptK(OPT.gift); const last = turns[LAST_OPT], kids = optKids(last); last.classList.add('on'); showNow(kids); setOptPick((p) => p.map((v, i) => (i === OPT_RESELECT.sec ? OPT_RESELECT.row : v))); afterLayout(() => { scroll.scrollTop = anchorBottom(kids[2]) }) }
     /* ── 10번: 위약금 질문 — SearchAi 탭 → 키패드 상승 → 타이핑(스텝 3과 같은 리듬) → 전송 → 키패드 하강 → 말풍선이 채팅 시작선에 (Figma 12349:37144 → 37232) */
     // 키패드가 열린 상태에서 마지막 카드 하단이 (키보드 위로 올라간) SearchAi 위 30px 에 오는 scrollTop.
     // K-1 처럼 채팅 영역이 키보드 높이만큼 줄어도 SearchAi 와 영역 하단이 같이 올라가므로 값은 같다
@@ -1387,7 +1387,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await follow(m1); if (!alive()) return false
       await wait(gap); if (!alive()) return false
       if (!m2.classList.contains('none')) { if (W === 'W2') { if (!await streamIn(m2)) return false } else reveal(m2); await follow(m2); if (!alive()) return false; await wait(gap); if (!alive()) return false }
-      setOptK([OPT.coupon, OPT.pay, OPT.benefit][i])       // 섹션 i 컴포넌트가 뜨는 순간 헤더 '{옵션} 선택중 k/n'
+      setOptK([OPT.benefit, OPT.extra, OPT.coupon, OPT.pay, OPT.gift][i])   // 섹션 i 컴포넌트가 뜨는 순간 헤더 '{옵션} 선택중 k/n'
       if (!await revealCard(card, 120)) return false
       await follow(card, true); if (!alive()) return false
       await wait(650); if (!alive()) return false
@@ -1414,7 +1414,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await downTo(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2]); if (!alive()) return   // 아래로만 — 되감기면 §28-5 위반
     }
     const finalOpts1 = () => {
-      setDiscPick(DISC_PICK); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
+      setDiscPick(DISC_PICK); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')   // 스텝 7 끝 = 결제 방법까지
       if (plansCardRef.current) plansCardRef.current.style.display = 'none'
       penFoldRef.current?.classList.add('on')
       for (let i = 0; i < LAST_OPT; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
@@ -1443,7 +1443,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       ptr?.park(doneChipRef.current)
     }
     const finalOpts2 = () => {
-      setOptK(OPT.benefit)
+      setOptK(OPT.gift)
       turns[LAST_OPT].classList.add('on'); showNow(optKids(turns[LAST_OPT])); const c3 = turns[LAST_OPT].querySelector('.opt-card'); if (c3) c3.style.display = 'none'; optFold(LAST_OPT)?.classList.add('on')
       turns[DONE_TURN].classList.add('on'); showNow(optKids(turns[DONE_TURN]))
       setOptPick((p) => p.map((v, k) => (k === LAST_OPT ? OPTS[LAST_OPT].rec : v)))
