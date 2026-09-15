@@ -966,3 +966,32 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 
 /* 1안 바닥 납부 (Figma 366:105450 → 366:105730): [네/아니요] 를 고르면 행이 접히고 답만 줄로 남는다 */
 .pay.fin .ai-card.pay-ask { gap: 8px; }
+
+/* ══ 스텝 4~7 여정 (html[data-journey]="J1", Figma ixGPs9 435:179973, 2026-09-15) ═════════════════ */
+/* 4번 요금제 리스트 카드 (Figma 435:172477) — AiAgentCard 안 CellTitle + RadioCard 3장 + [전체보기].
+   행: 추천 배지 → 이름 + 우측 chevron 한 줄 → 설명 → 월 가격. 추천 행은 2px 검은 테두리 */
+.ai-card.plan-picks { gap: 4px; padding: 28px; }
+.ai-card.plan-picks .pp-title { margin: 0 0 12px; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; color: var(--fg-neutral-solid); }
+.plan-pick { display: flex; flex-direction: column; padding: 24px; border-radius: 16px; border: 2px solid transparent; background: rgba(39,59,157,.04); box-sizing: border-box; transition: border-color .3s cubic-bezier(.65,0,.35,1), background .3s cubic-bezier(.65,0,.35,1); }
+.plan-pick.pp-rec, .plan-pick.sel { border-color: var(--fg-neutral-solid); background: #fff; }
+.plan-pick .rec-badge { align-self: flex-start; margin-bottom: 4px; padding: 2px 8px; border-radius: 6px; background: rgba(39,59,157,.06); font-size: 11.5px; font-weight: 600; line-height: 14px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }
+.plan-pick .pp-top { display: flex; align-items: center; gap: 12px; }
+.plan-pick .pp-name { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
+.plan-pick .pp-top .chev { flex: none; color: var(--fg-neutral-subtle); }
+.plan-pick .pp-caps { margin-top: 2px; font-size: 13.5px; font-weight: 400; line-height: 18px; letter-spacing: -.04em; color: var(--fg-neutral-subtle); }
+.plan-pick .pp-price { margin-top: 4px; font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); }
+.ai-card.plan-picks .plan-all { margin-top: 8px; height: 48px; border-radius: 12px; background: rgba(39,59,157,.05); display: grid; place-items: center; font-size: 14px; font-weight: 500; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+
+/* 할인 방법 한 줄 — 이름 · 우측 할인액 · 설명 (바닥 리스트, F-2 캐스케이드를 탄다) */
+.disc-row .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.disc-row .amt { font-size: 16px; font-weight: 600; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-solid); white-space: nowrap; }
+.disc-row .desc { margin-top: 2px; }
+
+/* 추가 혜택 행 (Figma 435:179905): RadioCard 96h · 왼쪽 썸네일 48 · 오른쪽 (+) 32 */
+.plan-row.with-ico .row-ico { width: 48px; height: 48px; border-radius: 12px; background: rgba(39,59,157,.05); flex: none; align-self: center; }
+.plan-row.with-ico { align-items: center; gap: 16px; padding: 24px; }
+.plan-row .row-plus { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: var(--fg-neutral-solid); flex: none; }
+.plan-row .row-plus::before, .plan-row .row-plus::after { content: ""; position: absolute; left: 50%; top: 50%; background: #fff; border-radius: 1px; }
+.plan-row .row-plus::before { width: 14px; height: 2px; transform: translate(-50%, -50%); }
+.plan-row .row-plus::after { width: 2px; height: 14px; transform: translate(-50%, -50%); }
+.plan-row.with-ico:has(.row-plus) .body { padding-right: 44px; }

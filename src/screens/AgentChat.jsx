@@ -192,18 +192,13 @@ const USAGE_MSG = '현재 이용 패턴을 고려하면 데이터를 제한 없�
 const PEN_MSGS = ['지금 요금제를 변경해도 위약금이나 할인반환금은 발생하지 않아요. 안심하고 변경하셔도 돼요.', '이어서 요금제와 할인 방법을 확인해볼까요?']
 const DISC_REC = 2   // 재제시 카드에서 추천·탭하는 할인 = 선택약정 24개월
 // 옵션 순차 선택: 미리 선택하지 않고 안내문이 추천을 말하고 추천 행에 '추천' 배지, 사용자가 탭해 고른다 (사용자 방향 2026-09-07). rows = [이름, 설명, 우측값]
-const OPTS = [
-  { sum: '할인 쿠폰', msg: '이어서 추가 할인을 받을 수 있어요. 보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
-  { sum: '결제 방법', msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
-  { sum: '혜택', msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 추가 혜택을 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
-]
 /* ── 스텝 4~7 여정 (Figma ixGPs9 435:179973, 사용자 2026-09-15) ────────────────────────────────────
    4 추천 문단 → 이용중 요금제 카드 → **요금제 세로 리스트 카드**(3행 + [전체보기])   ← 가로 캐러셀 A-1 을 대체
    5 [전체보기] → 풀페이지 팝업 → 선택 → [적용하기] → 카드가 접히고 '선택한 요금제' 줄 → **할인 방법 턴**(바닥 3행)
    6 끼어든 질문(위약금) → 조회 타이틀 → 답변 2줄 → 할인 방법 재제시(바닥 3행, 공통지원금 추천)
    7 할인 선택 → '선택한 할인방법' 줄 → **추가 혜택 턴**(바닥 3행) */
 const CUR_PLAN = { name: '0플랜 미디엄', price: '월 49,000원', caps: '데이터 20GB・통화 무제한・문자 무제한' }
-const PLAN_ALL = '전체보기'
+const PLAN_ALL = '전체보기', PLAN_PICK_TITLE = '요금제를 선택해주세요'
 const DISC_MSG = '공통지원금으로 할인 받으시는걸 추천드려요. 24개월동안 사용하면서 가격 할인을 가장 많이 받으실 수 있어요.'
 const DISC_LIST = [
   ['공통지원금', '-300,000원', '휴대폰 가격에서 바로 할인'],
@@ -220,9 +215,17 @@ const BEN_LIST = [
   ['추가 혜택을 선택하지 않을게요', '나중에 Tworld에서 신청할 수 있어요'],
 ]
 const BEN_PICK = 0
+
+const OPTS = [
+  { sum: '혜택', ico: true, plus: 2, msg: BEN_MSG, rec: BEN_PICK, rows: BEN_LIST.map(([n, d]) => [n, d]) },
+  { sum: '할인 방법', msg: '추가 할인을 받을 수 있어요. 적용할 할인 방법을 선택해 주세요. 현재 보유하고 있는 쿠폰/이용권을 사용하는 것을 권장드려요.', rec: 0, rows: [['쿠폰/이용권', ''], ['제휴 포인트', ''], ['추가 할인 수단을 사용하지 않기', '']] },
+  { sum: '할인 방법', msg: '보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요.', rec: 0, rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']] },
+  { sum: '결제 방법', msg: '휴대폰 대금을 결제할 방법을 선택해 주세요.', msg2: '월 부담을 줄이고 싶다면 18개월 할부를 추천해요. 월 53,667원 정도 결제하게 돼요.', rec: 3, rows: [['한번에 결제할게요', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 71,566원'], ['18개월 할부로 할게요', '월 휴대폰 가격 53,667원'], ['36개월 할부로 할게요', '월 휴대폰 가격 35,778원']] },
+  { sum: '기프트', msg: '마지막으로, 휴대폰 구매와 함께 받을 수 있는 기프트를 선택해 주세요. 쓰던 휴대폰을 반납하고 보상받을 수 있는 T 안심보상을 가장 많이 선택해요.', rec: 0, rows: [['T 안심보상', '쓰던 휴대폰, 반납부터 보상까지 간편하게'], ['무이자 할부 카드', '쓰던 카드 그대로, 할부 수수료 부담 없이'], ['라이트 할부 카드', '휴대폰 할부금을 카드 혜택으로 더 가볍게'], ['통신 요금 할인 카드', '매달 내는 통신 요금도 꾸준히 아껴보세요']] },
+]
 const REPLAN_PICK = 2   // 스텝 9 에서 바꿔 고르는 요금제 = 베스트 109 (Figma 는 0 청년 107)
 const LAST_OPT = OPTS.length - 1, DONE_TURN = OPTS.length   // 마지막 옵션 턴(추가 혜택) · 완료 턴
-const OPT_RESELECT = { sec: 0, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
+const OPT_RESELECT = { sec: 2, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
 const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
 const REPLAN_ASK = '변경된 요금제로 신청서 작성을 이어갈게요.'   // 스텝 9 끝맺음 E-2 에서만 쓰는 한 마디
 
@@ -330,6 +333,27 @@ function Thinking() {
 }
 function Card({ children, className = '', innerRef }) {
   return <section className={`ai-card ${className}`} ref={innerRef}>{children}</section>
+}
+/* 4번 요금제 리스트 한 줄 = RadioCard (Figma 435:172477): 추천 배지 → 이름 + 우측 chevron 한 줄 → 설명 → 월 가격 */
+function PlanPickRow({ idx, sel, rec, style }) {
+  const [name, price, caps] = ALT_PLANS[idx]
+  return (
+    <div className={`plan-pick ${rec ? 'pp-rec' : ''} ${sel ? 'sel' : ''}`} style={style}>
+      {rec && <span className="rec-badge">추천</span>}
+      <div className="pp-top"><span className="pp-name">{name}</span><i className="chev r" /></div>
+      <div className="pp-caps">{caps}</div>
+      <div className="pp-price">{price}</div>
+    </div>
+  )
+}
+/* 할인 방법 한 줄 (Figma 435:177019) — 이름 · 우측 할인액 · 설명 */
+function DiscRow({ name, amt, desc, sel, style }) {
+  return (
+    <div className={`plan-row disc-row ${sel ? 'sel' : ''}`} style={style}>
+      <div className="top"><span className="name">{name}</span><b className="amt">{amt}</b></div>
+      <div className="desc">{desc}</div>
+    </div>
+  )
 }
 // Figma 12120:34071 · 12132:37495: 카드 상단 CellTitle + CellDescription
 function CardHead({ title, desc }) {
@@ -449,13 +473,14 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const plansCardRef = useRef(null)             // 6번: 위약금 답변 뒤 재제시 캐러셀 (할인 탭 대상)
   const foldCardRef = useRef(null), foldTailRef = useRef(null), foldNewRef = useRef(null), replanOutRef = useRef(null), penFoldRef = useRef(null)   // 6번: 요금제 선택이 끝나면 카드가 접히고 남는 요약 줄 (html[data-planfold], Figma 261:117032)
   const [discPick, setDiscPick] = useState(-1)  // 적용된 요금제 카드의 할인 선택 (-1 없음 → 스텝 6에서 고객이 24개월 탭)
+  const disRef = useRef(null)                   // 5번 끝: 첫 할인 방법 턴 (Figma 435:177019)
   const penRef = useRef(null)                   // 6번: 위약금 질문 말풍선 + 답변 턴 컨테이너
   const penVarRef = useRef(null)
   const optsRef = useRef(null)                  // 7~9번: 옵션 순차 선택 (4 섹션 + 완료)
   const doneChipRef = useRef(null)              // [신청서 작성 시작하기] (2안이면 이력 블록의 [신청서 작성하기])
   const reChipRef = useRef(null)                // 스텝 9 끝의 [신청서 작성 시작하기] (재선택 결과 뒤에 다시 내주는 CTA)
   const histRef = useRef(null)                  // 2안 이력 블록 (.an2-hist)
-  const [optPick, setOptPick] = useState([-1, -1, -1, -1])   // 섹션별 고른 행
+  const [optPick, setOptPick] = useState(() => OPTS.map(() => -1))   // 섹션별 고른 행 (섹션 수가 바뀌어도 따라간다)
   const formRef = useRef(null)
   // 1안 바닥 신청서 (html[data-fform] B1): 스텝 10~13 이 시트 대신 대화 안 카드로 흐른다. 2안(an2)은 계속 시트
   const inForm = mode !== 'an2' && variant('fform') !== 'off'
@@ -528,7 +553,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const reviewChipWrap = reviewEl.querySelector('.cta-stack')
     const authEl = authRef.current, authItems = [...authEl.children].filter((c) => !c.classList.contains('thinking'))   // [말풍선, 안내 1, 완료 선, 안내 2]
     const payEl = payRef.current, payItems = [...payEl.children].filter((c) => !c.classList.contains('thinking'))   // [완료 선, 안내 1, 안내 2, 납부 카드, 안내 3, 요금안내서, 안내 4]
-    const discRow = () => plansCardRef.current.querySelectorAll('.plan-card')[planIdx].querySelectorAll('.pc-rc')[DISC_REC]
+    const discRow = () => plansCardRef.current?.querySelectorAll('.disc-row')[DISC_PICK]
     const jumpChip = jumpChipRef.current
     /* 꼬리(대화 아래 여백). 재생 중에는 **줄이지 않는다** — 줄이는 순간 스크롤이 클램프돼
        화면에 있던 것이 통째로 튄다(사용자 2026-09-12 "접히는 감각에 따라 이전 위치 바뀌는 거"). 초기화 경로만 setTailHard 로 되돌린다 */
@@ -546,6 +571,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       for (const r of [foldCardRef.current, foldTailRef.current]) { if (r) { r.classList.remove('on', 'from-box', 'keep-box'); r.style.opacity = '' } }
     }
     const resetPen = () => {
+      const de = disRef.current; if (de) { de.classList.remove('on'); unreveal([...de.children]); resetFlat(de) }
       resetTurn(penEl, penItems); penItems[1].style.cssText = ''
       if (plansCardRef.current) { plansCardRef.current.style.cssText = ''; plansCardRef.current.classList.remove('boxing', 'l3-start'); [...plansCardRef.current.children].forEach((k) => { k.style.opacity = '' }) }
       penFoldRef.current?.classList.remove('on', 'from-box')
@@ -1046,6 +1072,21 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     // 요금제 카드가 접히면(§27) 그 자리의 요약 줄이 기준이 된다 — 접힌 카드는 display:none 이라 offsetTop 이 0
     const planAnchorEl = () => { const c = usageCardRef.current; return c && c.style.display !== 'none' ? c : foldRow() || c }
     const kbScrollTarget = () => { const row = planAnchorEl(); return row.offsetTop + row.offsetHeight - (SEARCH_TOP_KB - GAP) }
+    /* 5번 끝 · 첫 할인 방법 출력 (Figma 435:177019) — 안내 한 줄 + 바닥 3행. 곧 위약금 질문이 이 위로 끼어든다 */
+    const playDisc = async () => {
+      const T = rv(), el = disRef.current
+      if (!el) return alive()
+      const [msg, card] = [...el.children]
+      el.classList.add('on'); void el.offsetHeight
+      setOptK(OPT.disc); setTail(420)
+      reveal(msg); await follow(msg); if (!alive()) return false
+      await wait(T.text); if (!alive()) return false
+      if (!await revealCard(card, T.card)) return false
+      await wait(T.tail); if (!alive()) return false
+      setTail(TAIL)
+      await follow(card, true); return alive()
+    }
+    const finalDisc = () => { const el = disRef.current; if (el) { el.classList.add('on'); showNow([...el.children]) } }
     const playPenalty = async () => {
       // 6번 앞부분: 시트의 [적용하기] 탭 → 시트 내려감 → 4번 캐러셀의 카드가 선택됨 → 그 다음 고객이 끼어들어 질문
       // Figma T1mhl 10906:6356 → 4864: 시트만 닫히고 카드는 아직 선택 표시 없음(사용자 2026-09-07). 화면이 아래에 정착한 뒤에야 입력 시작 — 모션 교차 방지
@@ -1056,6 +1097,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
          맨 위(0)까지 올라갔다가 말풍선 때문에 다시 내려온다 — 사용자 2026-09-12 '위로 올라갔다가 내려가고 어색'.
          접힘은 이미 제자리에서 끝났으니 멈춤만 두고 이어간다 (§28-5) */
       await wait(700); if (!alive()) return
+      if (!await playDisc()) return                                 // 요금제를 적용하면 할인 방법이 곧바로 이어진다 (Figma 435:177019)
       await ptr?.tap(searchRef.current, { move: 420, pause: 100 }); if (!alive()) return
       ptr?.hide()
       setKbOpen(true)                                            // 키패드 상승. 채팅은 제자리(K-2 스크림), 스크롤 이동 없음
@@ -1360,7 +1402,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const playOpts1 = async () => {
       const T = rv()
       await ptr?.tap(discRow(), { move: 320, pause: 60 }); if (!alive()) return
-      setDiscPick(DISC_REC); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
+      setDiscPick(DISC_PICK); setApplied(true); await wait(700); if (!alive()) return   // 이 순간 요금제 카드가 선택됨(S-1), 할인 방법 전송 → 추가 할인 수단
       ptr?.hide()
       if (!await collapseCard(plansCardRef.current, penFoldRef.current)) return         // 재출력 카드도 요약 줄로 (§28)
       if (!await afterFold(penFoldRef.current)) return
@@ -1372,7 +1414,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await downTo(optFold(LAST_OPT - 1) || optKids(turns[LAST_OPT - 1])[2]); if (!alive()) return   // 아래로만 — 되감기면 §28-5 위반
     }
     const finalOpts1 = () => {
-      setDiscPick(DISC_REC); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
+      setDiscPick(DISC_PICK); setApplied(true); setOptK(OPT.pay); optsEl.classList.add('on')
       if (plansCardRef.current) plansCardRef.current.style.display = 'none'
       penFoldRef.current?.classList.add('on')
       for (let i = 0; i < LAST_OPT; i++) { turns[i].classList.add('on'); showNow(optKids(turns[i])); const c = turns[i].querySelector('.opt-card'); if (c) c.style.display = 'none'; optFold(i)?.classList.add('on') }
@@ -2061,6 +2103,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         setTimeout(() => { scroll.scrollTop = kbScrollTarget() }, 420)   // 영역 축소 전환(0.35s) 뒤에 정렬
         return
       }
+      finalDisc()
       penEl.classList.add('on'); setTail(TAIL)
       finalPenaltyAnswer()
     }
@@ -2197,9 +2240,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         <AiMessage className="s5">{USAGE_MSG}</AiMessage>
         <Card className="s5">
           <span className="badge">이용중 요금제</span>
-          <div className="cell-desc">0 청년 69</div>
-          <div className="cell-title">월 62,800원</div>
-          <div className="cell-desc">데이터 20GB・통화 무제한・문자 무제한</div>
+          <div className="cell-desc">{CUR_PLAN.name}</div>
+          <div className="cell-title">{CUR_PLAN.price}</div>
+          <div className="cell-desc">{CUR_PLAN.caps}</div>
           <BenefitBadges />
         </Card>
 
@@ -2218,23 +2261,39 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <div className="cta-stack"><div className="button-ai" ref={doneChipRef}>{PRE_CHIP}</div></div>
             </div>
           )}
+          {variant('journey') === 'off' ? (
           <Card className={`plans flatable altcard-${variant('altcard')}`} innerRef={usageCardRef}>
             <div className="alt-cards" style={{ '--i': 0 }}>{ALT_CARDS.map((_, i) => <PlanCard key={i} idx={i} sel={applied && i === planIdx} style={{ '--i': i }} />)}</div>
             <div className="plan-all" ref={allRef} style={{ '--i': 1 }}><span>전체보기</span></div>
           </Card>
+          ) : (
+          /* J-1 세로 리스트 카드 — 요금제는 이름·설명·월 가격 한 줄씩, 할인은 뒤의 독립 턴으로 뺐다 */
+          <Card className="plans plan-picks" innerRef={usageCardRef}>
+            <h3 className="pp-title">{PLAN_PICK_TITLE}</h3>
+            {[0, 1, 2].map((i) => <PlanPickRow key={i} idx={i} rec={i === 0} sel={applied && i === planIdx} style={{ '--i': i }} />)}
+            <div className="plan-all" ref={allRef} style={{ '--i': 3 }}><span>{PLAN_ALL}</span></div>
+          </Card>
+          )}
           {/* 요금제 선택이 끝나면 카드가 접히고 이 요약 줄이 남는다 (Figma ixGPs9 261:117032 마지막 프레임) */}
           <div className="plan-fold at-card" ref={foldCardRef}><span className="lbl">{foldLbl}</span><b>{planName}</b><em>다시 선택하기</em></div>
+
+          {/* 5번 끝: 요금제를 적용하면 곧바로 할인 방법이 이어진다 (Figma 435:177019). 위약금 질문이 이 위에서 끼어든다 */}
+          <div className="dis" ref={disRef}>
+            <AiMessage>{DISC_MSG}</AiMessage>
+            <Card className="plans flatable disc-list">
+              {DISC_LIST.map(([n, amt, d], i) => <DiscRow key={n} name={n} amt={amt} desc={d} style={{ '--i': i }} />)}
+            </Card>
+          </div>
 
           {/* 6번: 끼어든 질문 — 말풍선 + 타이틀(27:12503) → 안내(27:12538) → 안내 2·3 + 요금제·할인 재제시 카드(27:26848) */}
           <div className="pen" ref={penRef}>
             <UserMessage>{PENALTY_Q}</UserMessage>
             <Opening className="fifth" status="위약금 조회 중" title={<>발생할 수 있는 위약금을<br />조회하고 있어요</>} />
-            <AiMessage>{PEN_MSGS[0]}</AiMessage>
-            <AiMessage>{PEN_MSGS[1]}</AiMessage>
-            <AiMessage>현재 요금제 <span className="plan-var" ref={penVarRef}>{planName}</span>에서 선택할 수 있는 방법 중 통신요금 24개월 할인이 총 {ALT_CARDS[msgPlanIdx].m24}으로 혜택이 가장 커요.</AiMessage>
-            <Card className={`plans flatable altcard-${variant('altcard')}`} innerRef={plansCardRef}>
-              <div className="alt-cards" style={{ '--i': 0 }}>{ALT_CARDS.map((_, i) => <PlanCard key={i} idx={i} sel={applied && i === planIdx} disc={i === planIdx ? discPick : -1} style={{ '--i': i }} />)}</div>
-              <div className="plan-all" style={{ '--i': 1 }}><span>전체보기</span></div>
+            <AiMessage>{PEN_ANSWER[0]}</AiMessage>
+            <AiMessage>{PEN_ANSWER[1]}</AiMessage>
+            <AiMessage><span className="plan-var" ref={penVarRef}>{DISC_MSG}</span></AiMessage>
+            <Card className="plans flatable disc-list" innerRef={plansCardRef}>
+              {DISC_LIST.map(([n, amt, d], i) => <DiscRow key={n} name={n} amt={amt} desc={d} sel={discPick === i} style={{ '--i': i }} />)}
             </Card>
             {/* 6→7: 할인 방법을 고르면 이 재출력 카드도 요약 줄로 접힌다 (Figma ixGPs9 271:125825) */}
             <div className="pen-fold-host" ref={penFoldRef}>
@@ -2253,7 +2312,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
                 <AiMessage>{o.msg}</AiMessage>
                 {o.msg2 ? <AiMessage>{o.msg2}</AiMessage> : <AiMessage className="none" />}
                 <Card className="plans flatable opt-card">
-                  {o.rows.map(([n, d, r], j) => <PlanRow key={j} name={n} desc={d || undefined} price={r} sel={optPick[i] === j} style={{ '--i': j }} />)}
+                  {o.rows.map(([n, d, r], j) => (
+                    <PlanRow key={j} name={n} desc={d || undefined} price={r} sel={optPick[i] === j} icon={!!o.ico} style={{ '--i': j }}>
+                      {o.plus > j && <i className="row-plus" aria-hidden />}
+                    </PlanRow>
+                  ))}
                 </Card>
                 {/* 고르면 이 줄로 접힌다 (Figma ixGPs9 271:126718 — 모든 옵션 턴 공통 규칙) */}
                 <div className="plan-fold opt-fold"><span className="lbl">선택한 {o.sum}</span><b>{optPick[i] >= 0 ? [o.rows[optPick[i]][0], o.rows[optPick[i]][2]].filter(Boolean).join(' ') : ''}</b><em>다시 선택하기</em></div>
