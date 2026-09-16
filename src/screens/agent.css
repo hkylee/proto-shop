@@ -939,7 +939,10 @@ html[data-replanend="E2"] .replan-out .re-ask { display: block; }
 html[data-replanend="E1"] .replan-out .re-cta,
 html[data-replanend="E2"] .replan-out .re-cta,
 html[data-replanend="E3"] .replan-out .re-cta { display: flex; }
-.plan-fold.stale, .opts.stale { opacity: .45; pointer-events: none; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+/* 재선택 뒤 위 블록 비활성 — 본문 텍스트(말풍선)는 그대로 두고 컴포넌트(요약 줄 · 카드 · 칩)만 흐려진다 (사용자 2026-09-16 "본문 텍스트는 opacity 없이, 컴포넌트만") */
+.plan-fold.stale { opacity: .45; pointer-events: none; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+.opts.stale { pointer-events: none; }
+.opts.stale .plan-fold.on, .opts.stale .ai-card, .opts.stale .cta-stack.in { opacity: .45; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
 .plan-fold.stale em { color: var(--fg-neutral-subtle); text-decoration-color: transparent; }
 
 /* ── 6→7 요약 줄 구성 시안 (html[data-penfold], 사용자 2026-09-11 "6→7 넘어가는게 애매한데") ──
