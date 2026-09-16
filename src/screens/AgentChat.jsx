@@ -1856,6 +1856,14 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (W === 'W2' && fold) { reveal(fold); await wait(380); if (!alive()) return false }
       return alive()
     }
+    /* 시트가 올라오기 전에 그 시트에 가려질 안내 문장을 시트 위 12px 까지 올려 둔다 — 문장이 먼저 자리를 잡고(팬) 한 박자 뒤 시트 (사용자 2026-09-16) */
+    const clearForSheet = async (el, n) => {
+      const sh = rootRef.current?.querySelectorAll('.ai-sheet:not(.fs):not(.p2a)')[n - 1]
+      const h = sh ? sh.offsetHeight : 320
+      const to = el.offsetTop + el.offsetHeight - (SCREEN_H - 14 - h - 12)
+      if (to > scroll.scrollTop + 1) { await scrollTo(scroll, to); if (!alive()) return false; await wait(350) }
+      return alive()
+    }
     const playAuth = async () => {
       const T = rv(), X = variant('ext'), [bubble, m1, doneLine, m2] = authItems
       await ptr?.tap(reviewChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
@@ -1869,6 +1877,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await think(authEl, m1)) return
       await follow(m1, true); if (!alive()) return
       await wait(600); if (!alive()) return
+      if (!await clearForSheet(m1, 1)) return
       setAuthSheet(1); setOptK(OPT.auth1); await wait(900);   // 본인 인증 시트 등장 if (!alive()) return
       await ptr?.tap(tossItemRef.current, { move: 420, pause: 120 }); if (!alive()) return
       ptr?.hide(); await wait(150); if (!alive()) return
@@ -1887,6 +1896,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setTail(TAIL)
       await follow(m2, true); if (!alive()) return
       await wait(600); if (!alive()) return
+      if (!await clearForSheet(m2, 2)) return
       setAuthSheet(2); setOptK(OPT.auth2); await wait(700);   // 신원 인증 시트 등장 if (!alive()) return
       ptr?.park(authEl.ownerDocument.querySelector('.ai-sheet.on .ai-sheet-item'))
     }
