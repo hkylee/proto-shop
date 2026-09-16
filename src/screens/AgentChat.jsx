@@ -564,7 +564,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const altEl = altRef.current, ptr = ptrRef.current
     const altItems = [...altEl.children].filter((el) => !['pen', 'opts', 'form', 'addr', 'contact', 'review', 'auth', 'pay'].some((c) => el.classList.contains(c))) // [요금제 카드 캐러셀]; 이후 턴은 별도 시퀀스
     const turnKids = (el) => [...el.children].filter((c) => !c.classList.contains('thinking'))   // 생각 점(N-2)은 순서 배열에서 제외
-    const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold-host'))                 // [말풍선, 타이틀, 안내 1, 안내 2, 안내 3(요금제명), 재제시 카드]
+    const penEl = penRef.current, penItems = [...penEl.children].filter((c) => !c.classList.contains('pen-fold-host'))                 // [말풍선, 타이틀, 안내 1, 재제시 카드] (안내 2·3 은 2026-09-16 삭제)
     const optsEl = optsRef.current, turns = [...optsEl.children]                 // .opt-turn × 4 + .done, 각각 [msg, msg2|none, card]
     const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
@@ -1162,11 +1162,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const playPenaltyAnswer = async () => {
       // 27:12503 타이틀(내 정보 조회) → 27:12538 접힘 + 안내 1 → 27:26848 안내 2·3 + 요금제·할인 재제시 카드 → 포인터가 추천 할인(24개월) 위에서 대기
       const T = rv()
-      const [, op4, m1, m2, m3, card2] = penItems
+      const [, op4, m1, card2] = penItems
       reveal(op4); if (!await collapseThenMsg(op4, m1, T)) return
-      reveal(m2); await wait(T.text); if (!alive()) return
-      reveal(m3); await follow(m3); if (!alive()) return
-      await wait(T.text); if (!alive()) return
+      await follow(m1); if (!alive()) return
       if (!await revealCard(card2, T.card)) return
       await wait(T.tail); if (!alive()) return
       setTail(TAIL)
@@ -1396,7 +1394,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalPenaltyAnswer = () => {
       showNow(penItems); hideOpening(penItems[1])
-      afterLayout(() => { scroll.scrollTop = anchorBottom(penItems[5]) })
+      afterLayout(() => { scroll.scrollTop = anchorBottom(penItems[3]) })
     }
     /* ── 본문이 '띡' 나오지 않게: 생각 점 → 본문 (html[data-think])
        W1 점 → 본문 페이드 (N-2 그대로)   W2 점 → 본문이 단어 단위로 흘러나옴(스트리밍)   W3 짧은 점 → 본문과 행이 한 호흡에 캐스케이드 */
@@ -2376,9 +2374,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           <div className="pen" ref={penRef}>
             <UserMessage>{PENALTY_Q}</UserMessage>
             <Opening className="fifth" status="위약금 조회 중" title={<>발생할 수 있는 위약금을<br />조회하고 있어요</>} />
+            {/* 답은 이 한 줄만 — '이어서 할인 방법을 선택할까요?' 와 할인 안내 말풍선은 걷었다 (사용자 2026-09-16 "이것만"). 재제시 카드가 바로 이어진다 */}
             <AiMessage>{PEN_ANSWER[0]}</AiMessage>
-            <AiMessage>{PEN_ANSWER[1]}</AiMessage>
-            <AiMessage><span className="plan-var" ref={penVarRef}>{DISC_MSG}</span></AiMessage>
             <Card className="plans flatable disc-list" innerRef={plansCardRef}>
               {DISC_LIST.map(([n, amt, d], i) => <DiscRow key={n} name={n} amt={amt} desc={d} sel={discPick === i} style={{ '--i': i }} />)}
             </Card>
