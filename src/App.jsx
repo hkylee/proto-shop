@@ -1424,7 +1424,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants v-userpin">
-            <b className="vtitle">시안 1-2 · 스텝 4~9 — 사용자 말풍선 상단 고정</b>
+            <b className="vtitle">시안 1-2 · 스텝 4~9 — 사용자 말풍선 상단 고정 — U-1 확정</b>
             {USERPINS.map((v) => (
               <button key={v.id} aria-pressed={userpinV === v.id} onClick={() => { setUserpinV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
