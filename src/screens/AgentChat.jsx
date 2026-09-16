@@ -343,13 +343,25 @@ function Thinking() {
    K2 라벨 + 입력값: 같은 카드에 입력한 값이 라벨 아래 회색으로 (주민등록번호는 마스킹) — 무엇을 넣었는지 카드에서 확인
    K3 라벨 + 완료 체크: 라벨 앞에 작은 체크 — 기존 완료 선의 '끝났다' 신호를 카드로 옮김 */
 const FIN_REDO = '재입력'
+/* 개인정보 마스킹 (사용자 2026-09-16 "접힐 때 나오는 컴포넌트 마스킹 처리 일괄") — 라벨로 종류를 가른다 */
+const maskField = (label, v = '') => {
+  if (!v) return ''
+  if (/주민/.test(label)) return v.replace(/●/g, '*')
+  if (/번호/.test(label)) return v.replace(/^(\d{3}-\d{2})\d{2}-(\d{2})\d{2}$/, '$1**-$2**')
+  if (/이메일/.test(label)) return v.replace(/^(.{2})[^@]*(@.*)$/, (m, a, b) => a + '*'.repeat(Math.max(3, m.length - a.length - b.length)) + b)
+  if (/주소/.test(label)) return v.replace(/^(\S+\s\S+)\s.*$/, '$1 ****')
+  if (/이름/.test(label)) return v.length >= 3 ? v[0] + '*'.repeat(v.length - 2) + v[v.length - 1] : v
+  return v
+}
+const IcoEye = () => <svg className="eye" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8s-2.4 4.5-6.5 4.5S1.5 8 1.5 8Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /><circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.3" /></svg>
+/* K1 = Figma ixGPs9 545:163657: 흰 카드 안에 파란 배지(라벨) → 마스킹된 값 · 우측 [재입력] */
 function FinDone({ label, value, line }) {
   const K = variant('findone') || 'off'
   if (K === 'off') return <div className="form-line"><span>{line}</span><a>{FORM_REDO}</a></div>
   return (
     <div className={`form-line fin-done ${K.toLowerCase()}`}>
       {K === 'K3' && <i className="fd-chk" />}
-      <span className="fd-body"><b>{label}</b>{K === 'K2' && value && <small>{value}</small>}</span>
+      <span className="fd-body"><i className="fd-tag">{label}</i><b>{maskField(label, value) || label}</b>{K === 'K2' && value && <small>{value}</small>}</span>
       <a>{FIN_REDO}</a>
     </div>
   )
@@ -524,6 +536,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [fv, setFv] = useState(FV0)                      // 시트 입력값
   /* 가입자 정보 카드 마스킹 — [신청서 작성하기] 를 누르고 다음 플로우로 넘어가면 이름·번호를 가린다 (사용자 2026-09-16, 스크린샷 "010-92**-92**") */
   const [maskInfo, setMaskInfo] = useState(false)
+  const [reviewMasked, setReviewMasked] = useState(false)   // [개통 이어가기] 뒤 신청서 카드는 남되 값이 마스킹 + 회색 눈 아이콘 (사용자 2026-09-16, reviewaway M1)
   const maskVal = (k, v) => !maskInfo ? v : /번호/.test(k) ? v.replace(/^(\d{3}-\d{2})\d{2}-(\d{2})\d{2}$/, '$1**-$2**') : v.length >= 3 ? v[0] + '*'.repeat(v.length - 2) + v[v.length - 1] : v
   const [ffocus, setFfocus] = useState('')               // 포커스(캐럿) 중인 필드 키
   const reviewRef = useRef(null), reviewChipRef = useRef(null), reviewFoldRef = useRef(null)
@@ -618,7 +631,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setOptPick((p) => p.map((v, i) => (i >= from ? -1 : v)))
       resetForm()
     }
-    const resetReview = () => { resetTurn(reviewEl, reviewItems); showChipEl(reviewChipRef.current); const c = reviewCard(); if (c) c.style.cssText = ''; const rf = reviewFoldRef.current; if (rf) { rf.classList.remove('in'); rf.style.cssText = '' } }
+    const resetReview = () => { setReviewMasked(false); resetTurn(reviewEl, reviewItems); showChipEl(reviewChipRef.current); const c = reviewCard(); if (c) c.style.cssText = ''; const rf = reviewFoldRef.current; if (rf) { rf.classList.remove('in'); rf.style.cssText = '' } }
     const resetPayout = () => { if (extKind === 'pay') { setExt(''); setExtKind('toss') } }
     const resetPay = () => { resetPayout(); resetTurn(payEl, payItems); payItems.forEach((el) => { el.style.cssText = '' }); setPayPick(false); setBillPick(-1); setP2sheet(0); setP2pick(-1); setP2step(1); setFv((o) => ({ ...o, p2phone: '', p2code: '' })) }
     const resetAuth = () => { resetPay(); resetTurn(authEl, authItems); setAuthSheet(0); setSheetToss(false); setExt(''); setExtKind('toss'); setExtBanner(false) }
@@ -1893,6 +1906,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const reviewAway = async () => {
       const W = variant('reviewaway')
       const card = reviewCard(), fold = reviewFoldRef.current
+      if (W === 'M1') { setReviewMasked(true); await wait(350); return alive() }   // M1: 카드는 그대로, 값만 가려진다
       if (W === 'off' || !card) return true
       if (W === 'W3') { collapseAway(card, 420); await wait(160); return alive() }   // 접히는 동안 말풍선이 이미 올라온다
       await collapseAway(card, 450); if (!alive()) return false
@@ -1945,6 +1959,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const finalAuthCard = () => {   // 직접 진입·되감기: 재생 없이 같은 결과 상태로
       const W = variant('reviewaway'), card = reviewCard(), fold = reviewFoldRef.current
+      if (W === 'M1') { setReviewMasked(true); return }
       if (W === 'off' || !card) return
       card.style.display = 'none'
       if (W === 'W2' && fold) showNow([fold])
@@ -2540,7 +2555,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
-              <div className="kv-list">{REVIEW_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{v}</b></div>)}</div>
+              <div className="kv-list">{REVIEW_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{reviewMasked ? <>{maskField(k, v)}<IcoEye /></> : v}</b></div>)}</div>
             </Card>
             {/* W-2: 카드가 접힌 자리에 남는 줄 */}
             <div className="plan-fold review-fold" ref={reviewFoldRef}><span className="lbl">작성한 신청서</span><b>{REVIEW_ROWS[0][1]} · {PHONE}</b><em>다시 보기</em></div>

@@ -114,7 +114,7 @@ function DoneToast({ show, onNext }) {
   return (<>
     <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show} />   {/* 딤만 — 가운데 라벨 없이 플로팅 토스트만 (사용자 2026-09-16) */}
     <button className={`done-toast ${toast ? 'on' : ''}`} onClick={onNext} aria-hidden={!toast}>
-      <span className="row"><b>프로토타이핑이 완료되었습니다.</b><i className="chev" /></span>
+      <span className="row"><b>프로토타이핑이 완료되었습니다.</b><i className="tchev" /></span>
       <small>다음 테스트로 넘어가시려면 눌러주세요.</small>
     </button>
   </>)
