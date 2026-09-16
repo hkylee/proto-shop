@@ -441,11 +441,11 @@ html.m, html.m body { width: 100%; max-width: 100%; overflow-x: hidden; }
 @keyframes pbSpin { to { transform: rotate(360deg); } }
 /* B3 폰 위 재생 중 칩 */
 /* B3 는 폰 프레임 위(폰 밖)에 — 스테이지 위 여백을 그만큼 벌려 폰을 가리지 않는다 (사용자 2026-09-16 "폰 위에 떠 있으니까 애매") */
-html[data-playbar="B3"] .stage { padding-top: 64px; }
+html[data-playbar="B3"] .stage { padding-top: 84px; }   /* 칩(약 30) + 아래 여백 36 — 폰 프레임과 겹치지 않고 떨어져 있게 (사용자 2026-09-16) */
 .playbar.pb-B3 { left: 50%; transform: translateX(-50%); top: 18px; white-space: nowrap; }
 .playbar.pb-B3 .lbl b { font-weight: 500; color: var(--fg-neutral-solid, #060C1F); margin-left: 4px; padding-left: 8px; border-left: 1px solid rgba(6,12,31,.12); }
 html[data-playbar="B3"] .step-cue.sc-V1 { display: none; }   /* 글은 칩이 맡고, → 버튼은 펄스만 */
-.playbar.pb-B3 .lbl { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: #fff; box-shadow: 0 4px 16px rgba(16,49,140,.12); font-size: 12px; font-weight: 600; letter-spacing: -.02em; color: var(--fg-neutral-mute, #4F5972); }
+.playbar.pb-B3 .lbl { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #fff; box-shadow: 0 4px 16px rgba(16,49,140,.12); font-size: 12px; font-weight: 600; letter-spacing: -.02em; color: var(--fg-neutral-mute, #4F5972); }
 .playbar.pb-B3 .lbl i { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-brand-solid, #4B59FF); animation: pbBlink 1s ease-in-out infinite; }
 .playbar.pb-B3.done .lbl i { animation: none; background: var(--fg-neutral-subtle, #9AA3B8); }
 @keyframes pbBlink { 50% { opacity: .2; } }
