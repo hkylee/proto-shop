@@ -1770,23 +1770,26 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(T.card); if (!alive()) return
       if (!await kbCard(rrnCard, 'rrn')) return
       if (!await fillField('rrn', FORM_VAL, 110, FORM_MASK)) return
-      setFfocus('')
+      /* 스텝 10 은 여기서 접힘 → 완료 카드 + '주민등록번호가 저장되었어요 / 주소를 입력하고…' 까지 한꺼번에 (사용자 2026-09-16). 주소 카드부터가 스텝 11 */
+      setFfocus(''); setKbOpen(false); await wait(380); if (!alive()) return
+      if (!await finFold('rrn')) return
+      if (!await finEmit(finAddrRef.current, addrItems.slice(0, 2), T)) return
+      ptr?.park(addrItems[1], 0, '탭', true)   // 스텝 끝 신호만 (강조 없음)
     }
     const finalFormIn = (park = false) => {
       setMaskInfo(true)
       setOptK(OPT.rrn); hideDoneChip(); hideChipEl(reChipRef.current)
       formEl.classList.add('on'); showNow(formItems); setTail(PEN_TAIL)
       hideOpening(formItems[0]); hideChipEl(lookupChipRef.current)
-      setKbField(true); setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK })); setFfocus('rrn'); setKbOpen(true)
-      if (park) afterLayout(() => { const c = finCard('rrn'); if (c) scroll.scrollTop = kbTop(c) })
+      setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK })); setKbField(false); setFfocus(''); setKbOpen(false)
+      finFoldNow('rrn'); finAddrRef.current.classList.add('on'); showNow(addrItems.slice(0, 2))   // 최종 상태 = 접힌 카드 + 안내까지
+      if (park) afterLayout(() => { scroll.scrollTop = anchorBottom(addrItems[1]) })
     }
     /* ── 11번: 주민등록번호 카드가 접히고 완료 선 → 안내 → 주소 카드 → [검색] 풀페이지 팝업 → 상세 주소 → 5G 안내 확인 (Figma 360:79547 → 360:79864) */
     const playAddrIn = async () => {
       const T = rv(), el = finAddrRef.current, card = addrItems.at(-1)
-      setFfocus(''); setKbOpen(false); await wait(380); if (!alive()) return
-      if (!await finFold('rrn')) return
       setOptK(OPT.addr)
-      if (!await finEmit(el, addrItems, T)) return
+      if (!await finEmit(el, [card], T)) return   // 접힘 · 완료 카드 · 안내는 스텝 10 이 끝냈다 — 주소 카드부터
       await ptr?.tap(fsEl('zipbtn'), { move: 340, pause: 90 }); if (!alive()) return
       ptr?.hide(); setZipPop(true); setZipQ(''); setZipList(false)
       await wait(520); if (!alive()) return
