@@ -1020,7 +1020,7 @@ html[data-procfx]:not([data-procfx="off"]) .msg-ai.in, html[data-procfx]:not([da
 @keyframes txtShimmer { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 html[data-procfx="P3"] .msg-ai.in, html[data-procfx="P3"] .msg-ai.pa-in { animation-duration: 1.1s; }
 /* 강조·재계산 등 색을 쓰는 변형과 겹치지 않게 — 쉬머는 첫 등장 한 번뿐이라 animation 이 끝난 뒤에는 그라디언트의 본문색 구간만 남는다 */
-html[data-procfx]:not([data-procfx="off"]) .ai-card.in, html[data-procfx]:not([data-procfx="off"]) .ai-card.pa-in { position: relative; overflow: hidden; isolation: isolate; }
+html[data-procfx]:not([data-procfx="off"]) .ai-card.in, html[data-procfx]:not([data-procfx="off"]) .ai-card.pa-in { position: relative; overflow: hidden; isolation: isolate; flex-shrink: 0; }   /* overflow:hidden 은 flex 항목의 min-height:auto 를 풀어 카드가 56px 로 눌렸다 (시안 1-1 스텝 4 이용중 요금제 카드 잘림, 2026-09-16) → 줄어들지 않게 */
 html[data-procfx]:not([data-procfx="off"]) .ai-card.in::before, html[data-procfx]:not([data-procfx="off"]) .ai-card.pa-in::before {
   content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none; border-radius: inherit;
   background:
