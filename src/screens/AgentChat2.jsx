@@ -32,7 +32,7 @@ const TURNS = [
     sheet: '할인 방법을 선택해주세요.', rows: [['공통지원금', '휴대폰 가격에서 바로 할인', '-300,000원'], ['선택약정 12개월', '12개월간 통신요금 25% 할인', '-250,000원'], ['선택약정 24개월', '24개월간 통신요금 25% 할인', '-280,000원']], pick: 0 },
   { id: 'sim',     k: 8,  label: 'SIM 유형',      msgs: ['기기변경으로 진행 중이시니, 쓰시던 유심을 그대로 사용하시면 새로 사지 않아도 되고 개통도 가장 빠르게 끝나요.'],
     sheet: '어떤 SIM으로 개통하시겠어요?', rows: [['eSIM', '칩 없이 QR로 바로 개통해요', '3,000원'], ['새 USIM 구매', '택배로 받아 끼우면 바로 개통돼요', '3,000원'], ['가지고 있는 USIM 사용', '쓰던 USIM을 그대로 사용해요', '3,000원']], pick: 2,
-    xchip: '개통 방법 선택하기', xmsg: '이어서 진행할게요.' },   // 시트 × → 복귀 시안 (html[data-simx], Figma 229 234:92897)
+    xchip: '이어서 진행하기', xmsg: '이어서 진행할게요.' },   // 칩 라벨 '개통 방법 선택하기' → '이어서 진행하기' (사용자 2026-09-16). 시트 × → 복귀 시안 (html[data-simx], Figma 229 234:92897)
   { id: 'benefit', k: 12, label: '추가 혜택',     msgs: ['데이터를 넉넉하게 쓰시려면 청년 데이터 60GB 추가를 추천드려요. 자동으로 추가돼서 신경 쓰지 않으셔도 돼요.'],
     sheet: '어떤 혜택을 선택하시겠어요?', rows: [['청년 데이터 60GB 추가', '매월 데이터를 넉넉하게 사용해요'], ['콘텐츠 이용권', 'YouTube · Netflix · TVING 중 하나'], ['추가 혜택을 선택하지 않을게요', '나중에 Tworld에서 신청할 수 있어요']], pick: 0, icon: true },
   { id: 'disc',    k: 9,  label: '추가 할인 수단', msgs: ['쿠폰이나 이용권이 있으시면 바로 적용해서 가장 간편하게 할인받으실 수 있어요. 어떤 방식으로 할인받으실래요?'],
@@ -512,7 +512,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       <div className={`ai-sheet-dim s2dim ${sheet !== null ? 'on' : ''}`} aria-hidden />
       <div className={`s2knob ${knob ? 'on' : ''} ${knobUp ? 'up' : ''} base-${knobBase}`} ref={knobRef} style={{ '--sheet-h': `${sheetH}px` }} aria-label="가려진 내용 보기"><i /></div>
       {/* 시트 × → 복귀 시안 S-3: 대화가 아니라 SearchAi 위 12px 에 뜨는 복귀 알약 */}
-      <div className={`s2xpill ${xpill ? 'on' : ''}`} ref={xpillRef}><div className="button-ai">개통 방법 선택하기</div></div>
+      <div className={`s2xpill ${xpill ? 'on' : ''}`} ref={xpillRef}><div className="button-ai">이어서 진행하기</div></div>
       <div className={`sheet2 ${sheet !== null ? 'on' : ''} ${out !== null ? 'out' : ''} ${sheetFold ? 'fold' : ''} ${sheetAway ? 'away' : ''}`} ref={sheetRef} aria-hidden={sheet === null}>
         <div className="hd"><h3>{shown === 'plan' ? (recflow === 'old' ? PLAN_SHEET_TITLE : REC_SHEET_TITLE) : sheetTurn?.sheet}</h3><i className="x" /></div>
         {shown === 'plan' && recflow === 'old' && (<>
