@@ -514,6 +514,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const [fpeek, setFpeek] = useState(false)              // 스텝 10 시작: 시트가 하단에 살짝 걸쳐 대기 (사용자 2026-09-08)
   const fsheetRef = useRef(null), fsWrapRef = useRef(null)
   const [fv, setFv] = useState(FV0)                      // 시트 입력값
+  /* 가입자 정보 카드 마스킹 — [신청서 작성하기] 를 누르고 다음 플로우로 넘어가면 이름·번호를 가린다 (사용자 2026-09-16, 스크린샷 "010-92**-92**") */
+  const [maskInfo, setMaskInfo] = useState(false)
+  const maskVal = (k, v) => !maskInfo ? v : /번호/.test(k) ? v.replace(/^(\d{3}-\d{2})\d{2}-(\d{2})\d{2}$/, '$1**-$2**') : v.length >= 3 ? v[0] + '*'.repeat(v.length - 2) + v[v.length - 1] : v
   const [ffocus, setFfocus] = useState('')               // 포커스(캐럿) 중인 필드 키
   const reviewRef = useRef(null), reviewChipRef = useRef(null), reviewFoldRef = useRef(null)
   const authRef = useRef(null), tossItemRef = useRef(null)
@@ -612,6 +615,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const resetPay = () => { resetPayout(); resetTurn(payEl, payItems); payItems.forEach((el) => { el.style.cssText = '' }); setPayPick(false); setBillPick(-1); setP2sheet(0); setP2pick(-1); setP2step(1); setFv((o) => ({ ...o, p2phone: '', p2code: '' })) }
     const resetAuth = () => { resetPay(); resetTurn(authEl, authItems); setAuthSheet(0); setSheetToss(false); setExt(''); setExtKind('toss'); setExtBanner(false) }
     const resetForm = () => {
+      setMaskInfo(false)
       resetReview(); resetAuth()
       resetTurn(formEl, formItems)
       showChipEl(turns[DONE_TURN].querySelector('.button-ai'))
@@ -1581,6 +1585,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const T = rv(), chip = liveDoneChip(), [bubble, alert] = formItems
       if (hold) { await wait(1400); if (!alive()) return }   // 2안: 스텝 8 마지막 부분을 읽을 시간 뒤에 칩 탭 (사용자 2026-09-09)
       await ptr?.tap(chip, { move: 300, pause: 80 }); if (!alive()) return
+      setMaskInfo(true)                                                // 2안: 이력 블록의 가입자 정보 카드가 마스킹된다 (사용자 2026-09-16)
       ptr?.hide(); chip.classList.add('gone'); await wait(220); if (!alive()) return
       chip.parentElement.style.display = 'none'
       formEl.classList.add('on'); void formEl.offsetHeight
@@ -1598,6 +1603,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       parkNext()
     }
     const finalForm = (park = false) => {
+      setMaskInfo(true)
       setOptK(OPT.rrn); hideDoneChip(); hideChipEl(reChipRef.current)
       formEl.classList.add('on'); showNow(formItems); setTail(PEN_TAIL)
       setKbField(true); setFsheet(1); setFv((o) => ({ ...o, rrn: FORM_VAL + FORM_MASK })); setFfocus('rrn'); setKbOpen(true)
@@ -1729,6 +1735,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(T.tail); if (!alive()) return
       // [신청서 작성하기] → 말풍선부터가 본격적인 작성
       await ptr?.tap(lookupChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
+      setMaskInfo(true)                                                // 다음 플로우로 넘어가는 순간 가입자 정보 카드가 마스킹된다
       ptr?.hide(); lookupChipRef.current.classList.add('gone'); await wait(220); if (!alive()) return
       chipWrap.style.display = 'none'
       reveal(bubble); await follow(bubble); if (!alive()) return
@@ -1744,6 +1751,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setFfocus('')
     }
     const finalFormIn = (park = false) => {
+      setMaskInfo(true)
       setOptK(OPT.rrn); hideDoneChip(); hideChipEl(reChipRef.current)
       formEl.classList.add('on'); showNow(formItems); setTail(PEN_TAIL)
       hideOpening(formItems[0]); hideChipEl(lookupChipRef.current)
@@ -2374,7 +2382,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <AiMessage>{PRE_MSG2[0]}<br />{PRE_MSG2[1]}</AiMessage>
               <Card className="review-card">
                 <h3>가입자 정보</h3>
-                <div className="kv-list">{PRE_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{v}</b></div>)}</div>
+                <div className="kv-list">{PRE_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{maskVal(k, v)}</b></div>)}</div>
               </Card>
               <div className="cta-stack"><div className="button-ai" ref={doneChipRef}>{PRE_CHIP}</div></div>
             </div>
@@ -2465,7 +2473,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <AiMessage>{LOOKUP_ASK[0]}<br />{LOOKUP_ASK[1]}</AiMessage>
               <Card className="review-card lookup-card">
                 <h3>가입자 정보</h3>
-                <div className="kv-list">{LOOKUP_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{v}</b></div>)}</div>
+                <div className="kv-list">{LOOKUP_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{maskVal(k, v)}</b></div>)}</div>
               </Card>
               <div className="cta-stack"><div className="button-ai" ref={lookupChipRef}>{LOOKUP_CHIP}</div></div>
               <UserMessage>{DONE_CHIP}</UserMessage>
