@@ -2176,7 +2176,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await typeInto((v) => setF('p2code', v), P2_CODE, 120)) return
       await wait(700); if (!alive()) return
       await ptr?.tap(fsEl('next'), { move: 300, pause: 80 }); if (!alive()) return
-      ptr?.hide(); setP2sheet(0); setKbField(false); await wait(800); if (!alive()) return
+      ptr?.hide(); setP2sheet(0); setKbField(false); setKbOpen(false); setFfocus(''); await wait(800); if (!alive()) return   // 인증이 끝나면 시트와 함께 키패드도 내려간다 (사용자 2026-09-16)
       reveal(line2); await follow(line2); if (!alive()) return
       await wait(1500); if (!alive()) return
       if (!await think(payEl, m4)) return
