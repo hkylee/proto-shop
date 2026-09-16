@@ -501,3 +501,12 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .open-scrim.ob-D3 { background: rgba(6,12,31,.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 /* D1 에서는 전송 뒤의 하단 그라데이션(ai-dim)과 같은 색이라 이어진다. D2·D3 는 스크림이 빠지고 ai-dim 이 들어온다 */
 .pd1.ag-in .open-scrim { transition: none; }
+
+/* ── 두 줄로 자랄 때 모서리 (html[data-growrad], 2026-09-16 "round 변하는 경험이 별로") — 기존 999 → 28 전환을 대신한다 ──
+   R1 반지름 26 고정 / R2 26 → 20 카드 + 그림자 / R3 입력창으로 펴질 때부터 20 상자 */
+.pd1.gr-R1 .dock, .pd1.gr-R1 .dock.multi { border-radius: 26px; }
+.pd1.gr-R2 .dock { border-radius: 26px; }
+.pd1.gr-R2 .dock.multi { border-radius: 20px; box-shadow: var(--shadow-ai), 0 10px 30px rgba(6,12,31,.12); transition: width var(--kb-ms) var(--kb-ease), bottom var(--kb-ms) var(--kb-ease), height .35s var(--kb-ease), border-radius .35s var(--kb-ease), box-shadow .35s, background .3s, transform .15s; }
+.pd1.gr-R3 .dock { border-radius: 999px; }
+.pd1.gr-R3.dock-open .dock, .pd1.gr-R3.dock-sent .dock, .pd1.gr-R3.dock-hold .dock, .pd1.gr-R3 .dock.multi { border-radius: 20px; }
+.pd1.gr-R3 .dock { transition: width var(--kb-ms) var(--kb-ease), bottom var(--kb-ms) var(--kb-ease), border-radius var(--kb-ms) var(--kb-ease), background .3s, transform .15s; }

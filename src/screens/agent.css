@@ -1004,3 +1004,77 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 .plan-row .row-plus::before { width: 14px; height: 2px; transform: translate(-50%, -50%); }
 .plan-row .row-plus::after { width: 2px; height: 14px; transform: translate(-50%, -50%); }
 .plan-row.with-ico:has(.row-plus) .body { padding-right: 44px; }
+
+/* ── AI 응답이 그려질 때 본문 처리 (html[data-procfx], Figma ixGPs9 520:148502 · 2026-09-16) — 시안 1-1 · 1-2 · 2 공통 (.msg-ai / .ai-card 의 .in · .pa-in 등장에 얹힘)
+   text-shimmer-chat : 응답 텍스트가 출력되며 보라 → 파랑 쉬머가 왼쪽에서 오른콽으로 한 번 지나가고 본문색으로 안착
+   blob-gradient-card: 카드가 채워질 때 카드 안에 블롭 그라디언트(파랑 20% · 하늘 · 라벤더, blur 20)가 한 번 피어났다 사라진다
+   P1 Figma 그대로: 텍스트 쉬머 1.3s + 카드 블롭 1.6s
+   P2 절제: 텍스트 쉬머만, 카드는 브랜드 틴트가 살짝 스치고 지나간다(블롭 없음)
+   P3 이어짐: 텍스트 쉬머가 지나간 흐름이 카드로 넘어가 블롭이 늦게(0.5s 뒤) 더 길게(2.2s) 피어난다 — 한 번의 물결 */
+html[data-procfx]:not([data-procfx="off"]) .msg-ai.in, html[data-procfx]:not([data-procfx="off"]) .msg-ai.pa-in {
+  color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(110deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 30%, #267AFF 42%, #591FEA 50%, #773CFF 56%, var(--fg-neutral-solid) 68%, var(--fg-neutral-solid) 100%);
+  background-size: 320% 100%; background-repeat: no-repeat;
+  animation: txtShimmer 1.3s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes txtShimmer { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+html[data-procfx="P3"] .msg-ai.in, html[data-procfx="P3"] .msg-ai.pa-in { animation-duration: 1.1s; }
+/* 강조·재계산 등 색을 쓰는 변형과 겹치지 않게 — 쉬머는 첫 등장 한 번뿐이라 animation 이 끝난 뒤에는 그라디언트의 본문색 구간만 남는다 */
+html[data-procfx]:not([data-procfx="off"]) .ai-card.in, html[data-procfx]:not([data-procfx="off"]) .ai-card.pa-in { position: relative; overflow: hidden; isolation: isolate; }
+html[data-procfx]:not([data-procfx="off"]) .ai-card.in::before, html[data-procfx]:not([data-procfx="off"]) .ai-card.pa-in::before {
+  content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(closest-side at 18% 20%, rgba(213,178,251,.95), rgba(213,178,251,0) 70%),
+    radial-gradient(closest-side at 70% 15%, rgba(158,200,251,1), rgba(158,200,251,0) 70%),
+    radial-gradient(closest-side at 45% 60%, rgba(38,122,255,.35), rgba(38,122,255,0) 75%);
+  filter: blur(20px); opacity: 0;
+  animation: blobIn 1.6s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes blobIn { 0% { opacity: 0; transform: translate(-6%, 4%) scale(.9); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6%, -4%) scale(1.08); } }
+/* P2 절제: 블롭 대신 브랜드 틴트가 한 번 스친다 */
+html[data-procfx="P2"] .ai-card.in::before, html[data-procfx="P2"] .ai-card.pa-in::before { background: linear-gradient(110deg, rgba(38,122,255,0) 30%, rgba(38,122,255,.10) 50%, rgba(89,31,234,.08) 58%, rgba(38,122,255,0) 75%); background-size: 320% 100%; filter: none; inset: 0; animation: tintSweep 1.2s cubic-bezier(.4,0,.2,1) both; }
+@keyframes tintSweep { 0% { opacity: 1; background-position: 100% 0; } 100% { opacity: 1; background-position: 0% 0; } }
+/* P3 이어짐: 블롭이 늦게 시작해 더 길게 */
+html[data-procfx="P3"] .ai-card.in::before, html[data-procfx="P3"] .ai-card.pa-in::before { animation: blobIn 2.2s cubic-bezier(.4,0,.2,1) .5s both; }
+
+/* T1 본문만 · 왼쪽 → 오른쪽으로 출력되며 그라디언트 (사용자 2026-09-16 "본문만, text-shimmer 가 왼쪽에서 오른쪽으로 출력되며 그라디언트 형식으로").
+   마스크가 왼쪽부터 글을 드러내고(부드러운 가장자리 14%), 드러나는 가장자리는 보라 → 파랑, 지나간 자리는 본문색으로 안착. 카드에는 아무 효과 없음 */
+html[data-procfx="T1"][data-procfx] .msg-ai.in, html[data-procfx="T1"][data-procfx] .msg-ai.pa-in {   /* 공통 P 규칙(0,4,1)과 같은 특이도, 뒤에 있어 이긴다 */
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 22%, #267AFF 31%, #773CFF 37%, #B79CFF 42%, #B79CFF 100%);
+  background-size: 300% 100%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 36%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 36%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: txtStream 1.5s cubic-bezier(.35,0,.25,1) both;
+}
+@keyframes txtStream { from { background-position: 100% 0; -webkit-mask-position: 100% 0; mask-position: 100% 0; } to { background-position: 0% 0; -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
+html[data-procfx="T1"][data-procfx] .ai-card.in::before, html[data-procfx="T1"][data-procfx] .ai-card.pa-in::before { display: none; }
+
+/* T-1 의 액션값 시안 (사용자 2026-09-16 "그라디언트가 너무 급진적") — 셋 다 본문만, 왼쪽 → 오른쪽. 색·가장자리 폭·시간·안착 방식이 다르다
+   T2 은은한 스윕: 보라 없이 연한 파랑(#6C8CFF → #B7C6FF), 가장자리 28%, 1.9s. 색 대비를 낮추고 넓게 번지듯
+   T3 틴트 하나: 연한 하늘(#9EC8FB) 한 색만 가장자리에, 22%, 1.7s. 가장 조용
+   T4 드러난 뒤 안착: 움직이는 그라디언트 없이 글 전체가 연한 파랑으로 드러나고(1.4s, 가장자리 24%) 끝난 뒤 0.9s 동안 본문색으로 천천히 안착 */
+html[data-procfx="T2"][data-procfx] .msg-ai.in, html[data-procfx="T2"][data-procfx] .msg-ai.pa-in {
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 16%, #6C8CFF 30%, #B7C6FF 40%, #B7C6FF 100%);
+  background-size: 300% 100%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,0) 58%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,0) 58%, rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: txtStream 1.9s cubic-bezier(.25,.1,.25,1) both;
+}
+html[data-procfx="T3"][data-procfx] .msg-ai.in, html[data-procfx="T3"][data-procfx] .msg-ai.pa-in {
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 20%, #9EC8FB 34%, #9EC8FB 100%);
+  background-size: 300% 100%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: txtStream 1.7s cubic-bezier(.3,0,.2,1) both;
+}
+html[data-procfx="T4"][data-procfx] .msg-ai.in, html[data-procfx="T4"][data-procfx] .msg-ai.pa-in {
+  background-image: none; color: var(--fg-neutral-solid);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 56%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 56%, rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: maskStream 1.4s cubic-bezier(.3,0,.2,1) both, tintSettle 2.3s linear both;
+}
+@keyframes maskStream { from { -webkit-mask-position: 100% 0; mask-position: 100% 0; } to { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
+@keyframes tintSettle { 0% { color: #8FA8FF; } 60% { color: #8FA8FF; } 100% { color: var(--fg-neutral-solid); } }
+html[data-procfx="T2"][data-procfx] .ai-card.in::before, html[data-procfx="T2"][data-procfx] .ai-card.pa-in::before,
+html[data-procfx="T3"][data-procfx] .ai-card.in::before, html[data-procfx="T3"][data-procfx] .ai-card.pa-in::before,
+html[data-procfx="T4"][data-procfx] .ai-card.in::before, html[data-procfx="T4"][data-procfx] .ai-card.pa-in::before { display: none; }

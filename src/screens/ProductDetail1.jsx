@@ -481,7 +481,7 @@ export default function ProductDetail1({ stage = 'top' }) {
   const morphPre = variant('planmorph') === 'on' && sel.plan < 0
 
   return (
-    <div className={`pd pd2 pd1 ${morph} dock-${dock} ag-${agent} ain-${variant('agentin') || 'A1'} gp-${variant('agentpace') || 'P1'} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
+    <div className={`pd pd2 pd1 ${morph} dock-${dock} ag-${agent} ain-${variant('agentin') || 'A1'} gp-${variant('agentpace') || 'P1'} gr-${variant('growrad') || 'R1'} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
       <div className="pd2-scroll" ref={scrollRef}>
         <StatusBar className="pd-status" />
         <div className="pd2-appbar"><IcoBack /><span className="sp" /><i className="ico-share" /><i className="ico-menu" /></div>
@@ -813,10 +813,12 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
         {aph >= 1 && <UserMessage className="pa-in">{PLAN_Q}</UserMessage>}
         {/* 오프닝 타이틀은 답이 시작되면 접혀 사라진다 (시안 1 collapse C-2: 글자 먼저 → 높이). Figma 두 번째 프레임에는 타이틀이 없다 */}
         {aph >= 2 && aph < 11 && <div className={`opening pa-in ${aph >= 3 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
-        {(aph === 3 || aph === 7) && <div className={`pa-think pa-in ${tout ? 'out' : ''}`}><Thinking /></div>}
+        {/* 생각 점은 두 자리 — 첫 안내 앞(3), 그래프 뒤 추천 앞(7). 한 자리에서 조건만 바꾸면 두 번째 점이 맨 위에 떴다 (버그, 2026-09-16) */}
+        {aph === 3 && <div className={`pa-think pa-in ${tout ? 'out' : ''}`}><Thinking /></div>}
         {aph >= 4 && <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>}
         {aph >= 5 && <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>}
         {aph >= 6 && <Card className="pa-in"><UsageGraph /></Card>}
+        {aph === 7 && <div className={`pa-think pa-in ${tout ? 'out' : ''}`}><Thinking /></div>}
         {aph >= 8 && <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>}
         {aph >= 9 && <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>}
         {aph >= 10 && (
