@@ -276,9 +276,9 @@ html[data-reveal="S2"] .msg-ai.in { clip-path: inset(-4px -4px -4px -4px); }
 /* 5번: 전체 요금제 = 풀페이지 팝업 (Figma ixGPs9 88:83221 → 88:83232, 2026-09-08. 이전 바텀시트 12067:30027 대체) — 아래에서 올라와 화면 전체를 덮는다 */
 .sheet { position: absolute; inset: 0; z-index: 10; background: #fff; color: var(--fg-neutral-solid); display: flex; flex-direction: column; transform: translateY(100%); transition: transform .5s var(--kb-ease); }
 .sheet.on { transform: none; }
-/* 요금제 풀팝업(1-1 · 1-2)은 아래서 올라오는 대신 디졸브 (사용자 2026-09-16 "밑에서 위로 뜨는 경험이 안자연스러워"). 주소 검색 팝업(.zip)은 zippop 시안 그대로 */
-.sheet:not(.zip) { transform: none; opacity: 0; visibility: hidden; transition: opacity .4s cubic-bezier(.4,0,.2,1), visibility 0s .4s; }
-.sheet:not(.zip).on { opacity: 1; visibility: visible; transition: opacity .4s cubic-bezier(.4,0,.2,1); }
+/* 풀팝업(요금제 선택 · 주소 검색, 1-1 · 1-2 일괄)은 아래서 올라오는 대신 디졸브 (사용자 2026-09-16 "밑에서 위로 뜨는 경험이 안자연스러워"). zippop Z2/Z3 비교 시안만 자기 움직임 유지 */
+.sheet { transform: none; opacity: 0; visibility: hidden; transition: opacity .4s cubic-bezier(.4,0,.2,1), visibility 0s .4s; }
+.sheet.on { opacity: 1; visibility: visible; transition: opacity .4s cubic-bezier(.4,0,.2,1); }
 .sheet .pop-status { height: 59px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 18px; box-sizing: border-box; font: 600 17px/21px -apple-system, "SF Pro Text", var(--font); letter-spacing: -.4px; flex: none; }
 .sheet .pop-status img { height: 13px; }
 .sheet .appbar { height: 48px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: none; }
@@ -842,9 +842,9 @@ html[data-tapmode="user"] .next-chip.on { display: flex; animation: nextChipIn .
 .sheet.zip .zip-item em { font-style: normal; margin-right: 6px; padding-right: 6px; border-right: 1px solid rgba(79,89,114,.25); }
 .sheet.zip .zip-item.pressing { opacity: .6; }
 /* 등장 시안 html[data-zippop]: Z1 아래서 올라옴(요금제 팝업 §8 과 같은 언어, 기본 .sheet) / Z2 오른쪽에서(X-1 앱 전환 언어) / Z3 시트에서 자라남(시트 자리에서 확대·모서리 펴짐) */
-html[data-zippop="Z2"] .sheet.zip { transform: translateX(100%); box-shadow: -20px 0 40px rgba(6,12,31,.12); transition: transform .45s var(--kb-ease); }
+html[data-zippop="Z2"] .sheet.zip { transform: translateX(100%); opacity: 1; visibility: visible; box-shadow: -20px 0 40px rgba(6,12,31,.12); transition: transform .45s var(--kb-ease); }
 html[data-zippop="Z2"] .sheet.zip.on { transform: none; }
-html[data-zippop="Z3"] .sheet.zip { transform: translateY(46%) scale(.92); transform-origin: 50% 100%; opacity: 0; border-radius: 28px 28px 0 0; transition: transform .5s var(--kb-ease), opacity .3s, border-radius .5s var(--kb-ease); }
+html[data-zippop="Z3"] .sheet.zip { visibility: visible; transform: translateY(46%) scale(.92); transform-origin: 50% 100%; opacity: 0; border-radius: 28px 28px 0 0; transition: transform .5s var(--kb-ease), opacity .3s, border-radius .5s var(--kb-ease); }
 html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radius: 0; }
 
 
