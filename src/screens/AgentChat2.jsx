@@ -46,6 +46,7 @@ const TURNS = [
 ]
 // 스테이지 → 그 스테이지에서 재생하는 턴 인덱스
 const STAGE_TURNS = { plandisc: [0], sim: [1], benefit: [2], discount: [3, 4], pay: [5, 6] }
+const SPLIT_TURN = 1   // sim 턴은 스텝 6(× → 칩)과 7(칩 탭 → 선택 → 혜택)에 걸친다 (2026-09-16)
 const turnsUpTo = (stage) => { const all = []; if (!STAGE_TURNS[stage]) return all; for (const s of ['plandisc', 'sim', 'benefit', 'discount', 'pay']) { all.push(...STAGE_TURNS[s]); if (s === stage) break } return all }
 
 const SHEET_MS = 900       // 시트 상승 (R-2 0.9s)
@@ -175,7 +176,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       resetAll()
       const si = STAGES.indexOf(stage)
       if (si >= 0) { finalUsage(); finalPlan() }
-      for (const t of turnsUpTo(stage)) finalTurn(t)
+      for (const t of turnsUpTo(stage)) { if (splitOn() && stage === 'sim' && t === SPLIT_TURN) finalTurnAtChip(t); else finalTurn(t) }
       if (stage === 'pay') finalDone()
       const last = STAGE_TURNS[stage] ? TURNS[STAGE_TURNS[stage].at(-1)] : null
       if (last) setHead(last.k, last.label)
@@ -187,6 +188,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       const place = () => { scroll.scrollTop = topAnchor() && lastEl ? lastEl.offsetTop - CHAT_TOP : scroll.scrollHeight }
       requestAnimationFrame(place); setTimeout(place, 60)
       if (stage === 'pay') ptr?.park(doneChipRef.current, 0)
+      if (splitOn() && stage === 'sim') setTimeout(() => { if (alive()) ptr?.park(turnEls[SPLIT_TURN]?.querySelector('.x-chip')?.firstElementChild, 0, '탭') }, 80)
     }
 
     // N-2 생각 점: 0.9s → 0.18s 페이드아웃 (3안 전시 턴과 같은 리듬)
@@ -328,15 +330,28 @@ export default function AgentChat2({ stage = 'usage' }) {
         setXpill(false); ptr?.hide(); await wait(300); if (!alive()) return false
         await openSheet(i, msg); return alive()
       }
-      const chip = el.querySelector('.x-chip'), xmsg = el.querySelector('.x-msg')
+      const chip = el.querySelector('.x-chip')
       reveal(chip); await follow(chip); if (!alive()) return false
       await wait(500); if (!alive()) return false
+      return await detourAfter(i, el)
+    }
+    /* 스텝 6 ↔ 7 경계 (사용자 2026-09-16 "step 6, 7 을 [이어서 진행하기] 선택 전/후로"): 6 은 × → 칩이 뜬 채 포인터 대기, 7 은 칩 탭부터 → 질문·답 → 시트 복귀 → 선택 → 이어서 혜택 시트 */
+    const splitOn = () => (variant('simx') || 'off') === 'S1' && !!TURNS[SPLIT_TURN].xchip && !reducedMotion()
+    const detourAfter = async (i, el) => {
+      const chip = el.querySelector('.x-chip'), xmsg = el.querySelector('.x-msg')
       await ptr?.tap(chip.firstElementChild, { move: 420, pause: 120 }); if (!alive()) return false
       ptr?.hide(); chip.classList.add('gone'); await wait(320); if (!alive()) return false
       chip.style.display = 'none'
       reveal(xmsg); if (!await pinUser(xmsg)) return false
       await wait(T.text); if (!alive()) return false
       await openSheet(i, xmsg); return alive()
+    }
+    // 턴 1 을 '칩이 뜬 채' 로 두는 최종 상태 (스텝 6 직접 진입 · 7 의 출발점)
+    const finalTurnAtChip = (i) => {
+      const el = turnEls[i]; el.classList.add('on'); showNow(kids(el)); el.querySelector('.thinking').style.display = 'none'
+      const chip = el.querySelector('.x-chip'), xmsg = el.querySelector('.x-msg')
+      if (chip) { chip.classList.remove('gone'); chip.style.display = ''; showNow([chip]) }
+      if (xmsg) { xmsg.style.display = 'none' }
     }
     const pickInSheet = async (row, beforeClose) => {
       await wait(SHEET_HOLD); if (!alive()) return false
@@ -351,8 +366,13 @@ export default function AgentChat2({ stage = 'usage' }) {
       await closeSheet(); return alive()
     }
     // 한 턴: 생각 점 → 안내(1~2) → 팬 → 시트 → 고르기 → 결과 카드 → 팬
-    const playTurn = async (i) => {
+    // part: 'all' | 'before' (× → 칩 뜬 채 멈춤) | 'after' (칩 탭부터)
+    const playTurn = async (i, part = 'all') => {
       const t = TURNS[i], el = turnEls[i], ks = kids(el), [msg1, msg2, result] = ks.length === 3 ? ks : [ks[0], null, ks[1]]
+      if (part === 'after') {
+        setTail(topAnchor() ? SCREEN_H : 420); setHead(t.k, t.label)
+        if (!await detourAfter(i, el)) return false
+      } else {
       el.classList.add('on'); void el.offsetHeight
       setTail(topAnchor() ? SCREEN_H : 420)
       if (!await dots(el, prevResult(i))) return false
@@ -363,7 +383,17 @@ export default function AgentChat2({ stage = 'usage' }) {
       setHead(t.k, t.label)
       await openSheet(i, msg2 || msg1); if (!alive()) return false
       if (!await revealHidden()) return false
+      if (part === 'before') {   // × → 시트 내려감 → [이어서 진행하기] 칩 → 포인터가 그 위에서 스텝 끝
+        await wait(SHEET_HOLD); if (!alive()) return false
+        await ptr?.tap(sheetRef.current?.querySelector('.hd .x'), { move: 420, pause: 120 }); if (!alive()) return false
+        ptr?.hide(); await closeSheet(); if (!alive()) return false
+        const chip = el.querySelector('.x-chip')
+        reveal(chip); await follow(chip); if (!alive()) return false
+        await wait(300); if (!alive()) return false
+        ptr?.park(chip.firstElementChild, 450, '탭'); return alive()
+      }
       if (!await sheetDetour(i, el, msg2 || msg1)) return false
+      }
       const resEl = t.merge ? prevResult(i) : result   // merge 턴: 답이 앞 말풍선에 붙으므로 그 말풍선을 기준으로
       const showResult = async () => { setPicks((p) => p.map((v, j) => (j === i ? t.pick : v))); reveal(result); await wait(150); return alive() }
       if (userPin() === 'U3') { if (!await pickInSheet(t.pick, async () => (await showResult()) && (await anchorTop(resEl), alive()))) return false }
@@ -467,9 +497,15 @@ export default function AgentChat2({ stage = 'usage' }) {
     ;(async () => {
       // 이전 스테이지가 아직 재생 중이었다면(빨리 넘김) 그 최종 상태를 먼저 깔아 둔다 — 결과 말풍선이 다음 턴의 앵커라서 없으면 시작선 계산이 0 이 됨
       finalUsage(); finalPlan()
-      for (const t of turnsUpTo(prev)) finalTurn(t)
+      for (const t of turnsUpTo(prev)) { if (splitOn() && stage === 'benefit' && t === SPLIT_TURN) continue; finalTurn(t) }
       await new Promise(afterLayout); if (!alive()) return
       if (stage === 'pay') { if (await playTurns(STAGE_TURNS.pay)) await playDone(); return }
+      if (splitOn() && stage === 'sim') { await playTurn(SPLIT_TURN, 'before'); return }          // 스텝 6: 칩이 뜬 채 끝 (park 이 스텝 끝 신호)
+      if (splitOn() && stage === 'benefit') {                                                       // 스텝 7: 칩 탭 → 시트 복귀 → 선택 → 혜택 시트
+        finalTurnAtChip(SPLIT_TURN); await new Promise(afterLayout); if (!alive()) return
+        if (await playTurn(SPLIT_TURN, 'after') && await playTurns(STAGE_TURNS.benefit)) await showNextChip()
+        return
+      }
       if (await playTurns(STAGE_TURNS[stage])) await showNextChip()
     })()
     return cancel
