@@ -499,3 +499,6 @@ html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-
 .done-dim.on { opacity: 1; pointer-events: auto; }
 .m-stage .done-dim { inset: auto; left: 0; top: 0; width: var(--cw, 393px); height: var(--ch, 852px); transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; }
 .m-root.desk .m-stage .done-dim { left: calc((var(--fw) - var(--cw, 393px) * var(--ms)) / 2); top: calc((var(--fh) - var(--ch, 852px) * var(--ms)) / 2); border-radius: 0; }
+
+.wb1 .brief.d2 .grp.note .gk, .wb1 .brief .note .tag { color: var(--fg-neutral-mute); }
+.wb1 .brief .note .tag { background: rgba(6,12,31,.06); }

@@ -33,7 +33,7 @@ const WBS = [
    D2 두 묶음: 제목 → '장점' 묶음 · '고려 지점' 묶음 (문서 그대로, 컨셉 문단 생략)
    D3 접이식: 제목 → 컨셉 → '장점 2 · 고려 지점 1' 줄을 펼치면 목록 (스텝 목록이 위로 남는다)
    off 기존: 제목 → 컨셉 */
-const KIND_CLS = { '장점': 'pro', '고려 지점': 'con', '제약 사항': 'con' }
+const KIND_CLS = { '장점': 'pro', '고려 지점': 'con', '제약 사항': 'con', '참고': 'note' }
 function Brief({ p }) {
   const D = document.documentElement.dataset.brief || CONFIRMED.brief
   const pts = p.points || []
