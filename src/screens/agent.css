@@ -1080,3 +1080,7 @@ html[data-procfx="T4"][data-procfx] .msg-ai.in, html[data-procfx="T4"][data-proc
 html[data-procfx="T2"][data-procfx] .ai-card.in::before, html[data-procfx="T2"][data-procfx] .ai-card.pa-in::before,
 html[data-procfx="T3"][data-procfx] .ai-card.in::before, html[data-procfx="T3"][data-procfx] .ai-card.pa-in::before,
 html[data-procfx="T4"][data-procfx] .ai-card.in::before, html[data-procfx="T4"][data-procfx] .ai-card.pa-in::before { display: none; }
+
+/* F3 자동 포커스 표시: 커서가 옮겨 온 필드가 한 번 들썩인다 (html[data-fieldtap]="F3") */
+.input-field.hop, .fs-field.hop { animation: fieldHop .45s cubic-bezier(.22,1,.36,1); }
+@keyframes fieldHop { 0% { transform: none; box-shadow: 0 0 0 0 rgba(75,89,255,0); } 35% { transform: translateY(-3px); box-shadow: 0 0 0 3px rgba(75,89,255,.18); } 100% { transform: none; box-shadow: 0 0 0 0 rgba(75,89,255,0); } }

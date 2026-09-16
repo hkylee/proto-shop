@@ -1522,8 +1522,16 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const kbDown = async () => { setFfocus(''); setKbOpen(false); await wait(450); return alive() }
     // 필드 탭 → 키패드(이미 열려 있으면 포커스만 이동) → 한 글자씩 → (마스킹). 키패드는 내리지 않는다 — [다음]은 키패드 위에서 바로 누른다 (사용자 2026-09-08)
+    /* 다음 필드로 넘어갈 때 (html[data-fieldtap], 사용자 2026-09-16 "키보드가 이미 뜨는데 필드를 계속 클릭할 필요 있어?")
+       F1 포인터가 탭(기존) / F2 자동 포커스 — 키패드가 열려 있으면 커서만 다음 필드로 / F3 자동 포커스 + 필드가 한 번 들썩여 '여기로 옮겨 왔다' 표시 */
     const fillField = async (k, text, per = 110, mask = '') => {
+      const FT = variant('fieldtap') || 'F1'
       if (autoKbField === k) { autoKbField = null; ptr?.hide() }   // 시트가 이미 입력 상태로 떴다 — 탭 없이 바로 타이핑
+      else if (FT !== 'F1' && kbOpenRef.current) {
+        ptr?.hide(); setFfocus(k)
+        if (FT === 'F3') { const el = fsEl(k); if (el) { el.classList.add('hop'); setTimeout(() => el.classList.remove('hop'), 520) } }
+        await wait(FT === 'F3' ? 420 : 260); if (!alive()) return false
+      }
       else {
         await ptr?.tap(fsEl(k), { move: 340, pause: 90 }); if (!alive()) return false
         ptr?.hide(); if (kbOpenRef.current) { setFfocus(k); await wait(200) } else if (!await kbUp(k)) return false
