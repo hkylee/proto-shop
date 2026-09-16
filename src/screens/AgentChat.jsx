@@ -975,9 +975,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(220); ind.hide()
     }
     /* ── ② 선택 후: 하단에 앵커 칩('할인 방법 선택으로 ↓')이 뜨고 포인터가 탭 → 아래로 '쫘라락' (html[data-down] C1/C2/C3) */
-    const anchorDown = async (row, toEl, label = CHIP_DOWN) => {
+    const anchorDown = async (row, toEl, label = CHIP_DOWN, { track = false, settle = false } = {}) => {
       const C = variant('down')
       const K = variant('trigger')
+      /* 재선택 결과로 내려갈 때 "뻑" (사용자 2026-09-16): 목표를 핀이 뜨기 전에 한 번만 재는데 그 사이 꼬리 여백 · 흐림 전환으로 스크롤 높이가 바뀌어 어긋난다.
+         G1 settle: 두 프레임 + 150ms 기다려 레이아웃이 굳은 뒤 재고 출발 / G2 track: 내려가는 동안 매 프레임 목표를 다시 읽는다 / G3 은 playReplan 에서 두 박자로 부른다 */
+      if (settle) { await new Promise(afterLayout); await wait(150); if (!alive()) return }
       const to = anchorBottom(toEl)
       if (K === 'K2') {
         // K-2 (확정) 하단 앵커 칩 + 사용자 탭: 칩은 row 와 같은 가로 중심에 뜨므로 포인터는 수직으로만 내려가 탭.
@@ -1015,7 +1018,14 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           await wait(120); if (!alive()) return
         }
       } else {
-        await panTo(scroll, to, DOWN[C] || DOWN.C3)
+        if (track) {
+          // G2 목표 추적: 시간은 처음 거리로 정하고, 프레임마다 toEl 의 현재 위치로 목표를 갱신한다 — 도중에 높이가 바뀌어도 어긋나지 않는다
+          const prof = DOWN[C] || DOWN.C3, from = scroll.scrollTop
+          const clampS = (v) => Math.max(0, Math.min(v, scroll.scrollHeight - scroll.clientHeight))
+          const dist = Math.abs(clampS(to) - from), dur = Math.min(prof.max, Math.max(prof.min, dist / prof.speed))
+          await tween(dur, (e) => { const goal = clampS(anchorBottom(toEl)); scroll.scrollTop = from + (goal - from) * e }, prof.ease)
+          scroll.scrollTop = clampS(anchorBottom(toEl))
+        } else await panTo(scroll, to, DOWN[C] || DOWN.C3)
       }
       if (K !== 'K2') resetChip()
     }
@@ -1942,7 +1952,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
          도착한 뒤에는 제자리에서 차례로 나타난다. (도착 후 요소마다 또 팬을 하면 찔끔찔끔 내려가 걸린다, 사용자 2026-09-15) */
       const E0 = variant('replanend')
       const restAt = E0 === 'off' ? newRow : cta
-      await anchorDown(null, restAt, CHIP_BACK); if (!alive()) return
+      const G = variant('replanpan')
+      if (G === 'G3') {
+        // G3 두 박자: 핀 → 요약 줄(선택한 요금제 · 다시 선택하기)까지 먼저 내려가 0.2s 멈추고 → 결과 자리까지
+        await anchorDown(null, foldRow(), CHIP_BACK, { settle: true }); if (!alive()) return
+        await wait(200); if (!alive()) return
+        await scrollTo(scroll, anchorBottom(restAt), undefined, DOWN.C3.ease); if (!alive()) return
+      } else {
+        await anchorDown(null, restAt, CHIP_BACK, { settle: G === 'G1', track: G === 'G2' }); if (!alive()) return
+      }
       reveal(notice)
       await wait(rv().text); if (!alive()) return
       reveal(newRow)
