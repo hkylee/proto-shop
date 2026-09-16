@@ -149,7 +149,8 @@ export default function ProductDetail1({ stage = 'top' }) {
     const XF = variant('exitflow') || 'F1'
     const NEXT_TAP = { top: () => secs.color.current?.querySelector('.swatch:nth-child(3)'), color: () => dockRef.current, storage: () => secs.delivery.current?.querySelector('.radio-card:nth-child(1)'), opts: () => dockRef.current, plan: () => (XF === 'F3' ? yesRef.current : exitBtnRef.current) }
     const NEXT_LABEL = { color: 'T 호출', opts: 'T 호출', plan: XF === 'F3' ? '네' : '나가기' }
-    const parkNext = (delay = 0) => { if (!userTap() || !NEXT_TAP[stage]) return; setTimeout(() => { if (alive()) ptr?.park(NEXT_TAP[stage](), 400, NEXT_LABEL[stage] || '탭') }, delay) }
+    // 자동 재생(웹 뷰어)에서는 포인터를 세우지 않지만 '이 스텝은 끝났다' 신호는 보낸다 — 뷰어의 다음 스텝 안내(stepcue)가 이걸 듣는다 (2026-09-16)
+    const parkNext = (delay = 0) => { if (!userTap() || !NEXT_TAP[stage]) { setTimeout(() => { if (alive()) window.dispatchEvent(new CustomEvent('ptr-park')) }, delay + 300); return } setTimeout(() => { if (alive()) ptr?.park(NEXT_TAP[stage](), 400, NEXT_LABEL[stage] || '탭') }, delay) }
     const settle = () => {   // 즉시 최종 상태 (건너뛰기 · 뒤로 가기 · reduced motion)
       setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false); setLift(false); setTout(false)
       setPayReady(stage === 'rest' || stage === 'payout'); setPayOn(stage === 'payout'); ptr?.hide()

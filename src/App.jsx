@@ -882,7 +882,8 @@ export default function App() {
   // 완료 토스트: 마지막 스텝에 들어온 뒤 (마지막 모션 여유 + 1.5s) 표시. 스텝이 바뀌면 숨김
   /* 스텝 재생이 끝나 포인터가 탭 자리에서 기다리는 순간 뷰어(폰 밖)에 안내 (html[data-stepcue], 사용자 2026-09-16 "다음을 누르세요 라고 모바일 화면 밖에서 보여줄 구좌") */
   const [waiting, setWaiting] = useState(false)
-  useEffect(() => { const on = () => setWaiting(true); window.addEventListener('ptr-wait', on); return () => window.removeEventListener('ptr-wait', on) }, [])
+  // 자동 재생(웹 뷰어 기본, tapmode=auto)에서는 포인터가 'ptr-park' 로 멈춤을 알리고, 사용자 탭 모드에서는 'ptr-wait' — 둘 다 "이 스텝은 끝났다"
+  useEffect(() => { const on = () => setWaiting(true); window.addEventListener('ptr-wait', on); window.addEventListener('ptr-park', on); return () => { window.removeEventListener('ptr-wait', on); window.removeEventListener('ptr-park', on) } }, [])
   useEffect(() => { setWaiting(false) }, [cur, pid, replay])
   const [doneToast, setDoneToast] = useState(false)
   useEffect(() => {
