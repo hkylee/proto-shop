@@ -107,13 +107,12 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
 }
 // 마지막 스텝이 끝나면 1.5s 뒤 뜨는 완료 토스트 (Figma ixGPs9 26:40069 · 51:23693 형식). 1·2·3안 공통. 탭하면 다음 안의 첫 스텝으로(3안이면 1안으로)
 const DONE_DELAY = 1500
-// 종료 연출 (사용자 2026-09-16 "명확히 종료되었다고 딤 깔아주라, 1-2초 뒤 딤 → 플로팅"): 마지막 스텝 끝 1.8s 뒤 화면 위에 딤 + '테스트 종료', 0.7s 뒤 토스트
+// 종료 연출 (사용자 2026-09-16 "명확히 종료되었다고 딤 깔아주라, 1-2초 뒤 딤 → 플로팅"): 마지막 스텝 끝 1.8s 뒤 화면 위에 딤, 0.7s 뒤 토스트
 function DoneToast({ show, onNext }) {
   const [toast, setToast] = useState(false)
   useEffect(() => { if (!show) { setToast(false); return } const t = setTimeout(() => setToast(true), 700); return () => clearTimeout(t) }, [show])
   return (<>
-    <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show} />
-    <div className={`done-label ${show ? 'on' : ''}`} aria-hidden={!show}>테스트 종료</div>
+    <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show} />   {/* 딤만 — 가운데 라벨 없이 플로팅 토스트만 (사용자 2026-09-16) */}
     <button className={`done-toast ${toast ? 'on' : ''}`} onClick={onNext} aria-hidden={!toast}>
       <span className="row"><b>프로토타이핑이 완료되었습니다.</b><i className="chev" /></span>
       <small>다음 테스트로 넘어가시려면 눌러주세요.</small>
