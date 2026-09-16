@@ -1378,9 +1378,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const syncFold = async () => {
       if ((variant('planfold') || 'off') === 'off' || reducedMotion()) { await wait(600); return alive() }
       const S = variant('foldsync') || 'T3'
-      if (S === 'T1') {                                            // 팝업이 내려가기 시작하는 순간 함께 출발
+      if (S === 'T1') {                                            // 팝업과 함께 출발 — 팝업이 디졸브로 바뀐 뒤(2026-09-16)에는 화면 전체가 덮여 접힘이 안 보였다 → 페이드가 거의 걷힌 0.34s 뒤에 출발해 접힘이 보이게 (사용자 "윗영역에서는 적어도 보이게")
+        await wait(340); if (!alive()) return false
         const p = foldPlans()
-        await wait(SHEET_DOWN); if (!alive()) return false
+        await wait(Math.max(0, SHEET_DOWN - 340)); if (!alive()) return false
         return await p
       }
       if (S === 'T2' || S === 'T2A') {                              // 팝업 상단이 카드를 지나 드러나는 순간 (T2A 는 그보다 0.15s 앞)
