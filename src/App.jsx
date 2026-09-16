@@ -1484,13 +1484,15 @@ export default function App() {
             <span className="vdesc">{GROWRADS.find((v) => v.id === growradV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants v-shellswap">
-            <b className="vtitle">시안 1-2 · 스텝 9 → 10 화면 교체 (가벼운 길) — 미확정</b>
+            <b className="vtitle">시안 1-2 · 스텝 9 → 10 화면 교체 — S-1 확정</b>
             {SHELLSWAPS.map((v) => (
               <button key={v.id} aria-pressed={shellswapV === v.id} onClick={() => { setShellswapV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{SHELLSWAPS.find((v) => v.id === shellswapV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants v-playbar">
             <b className="vtitle">뷰어 · 스텝 재생 중 표시 — B-3 확정</b>
