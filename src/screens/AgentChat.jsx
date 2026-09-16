@@ -1481,19 +1481,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(T.text + 650); if (!alive()) return                // '완료되었어요!' 뒤 한 박자 더 쉰다 (사용자 2026-09-16 '퍼즈 약간 길게') — 0.55s → 1.2s
       reveal(dm2); await follow(dm2); if (!alive()) return          // 두 번째 말풍선이 뒤따른다 (사용자 2026-09-16)
       await wait(T.text); if (!alive()) return
-      /* 스텝 9 로 넘기기 (html[data-ctaup], 사용자 2026-09-16 "버튼 누르는 듯한 액션 나오기 전에 위로 바로").
-         off 기존: CTA 를 따라 내려온 뒤 포인터가 그 위에 '탭' 으로 머문다 → 다음 스텝에서 되감기
-         Q1 뜨고 바로: CTA 를 따라 내려온 뒤 0.3s 만에 포인터 없이 되감기 출발
-         Q2 한 박자 읽고: 따라 내려온 뒤 1.2s 머물러 CTA 를 읽게 하고 되감기
-         Q3 겹쳐서: CTA 가 페이드 인 하는 중(0.15s)에 되감기 출발 — 화면이 CTA 를 따라 내려오지 않아 있다는 것만 스친다
-         사용자 탭 모드는 탭할 자리가 필요하므로 기존대로 */
-      const Q = userTap() ? 'off' : (variant('ctaup') || 'off')
-      if (Q === 'Q3') { reveal(chipWrap); await wait(150); if (!alive()) return; setTail(TAIL); ptr?.handoff(0); return }
       reveal(chipWrap); await wait(T.tail); if (!alive()) return
       setTail(TAIL)
       await follow(chipWrap, true); if (!alive()) return
-      if (Q === 'Q1') { ptr?.handoff(300); return }
-      if (Q === 'Q2') { ptr?.handoff(1200); return }
       ptr?.park(doneChipRef.current)
     }
     const finalOpts2 = () => {
