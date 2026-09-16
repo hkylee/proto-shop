@@ -119,4 +119,4 @@ html[data-sheetlook="L3"] .ai-sheet { background: rgba(238,240,246,.94); backdro
 html[data-sheetlook="L3"] .ai2 .sheet2 .plan-row,
 html[data-sheetlook="L3"] .ai-sheet .plan-row { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
 
-.t2-bubble .qa { display: flex; flex-direction: column; }   /* 질문·답 한 세트. 여러 세트가 위아래로 이어진다 (Figma 442:158816) */
+.t2-bubble .qa { display: flex; flex-direction: column; padding: 0; background: none; border-radius: 0; max-width: none; }   /* 질문·답 한 세트. 여러 세트가 위아래로 이어진다 (Figma 442:158816). .msg-user span 의 회색 배경·패딩이 안쪽 span 에도 걸려 한 겹 더 쌓였던 것을 되돌린다 (2026-09-16) */
