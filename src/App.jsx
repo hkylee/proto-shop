@@ -178,7 +178,7 @@ const SHEETWAITS = [
 const PLAYBARS = [
   { id: 'B1', label: 'B-1 폰 아래 얇은 바', desc: '폰 바로 아래 폰 폭의 2px 바. 재생 중엔 브랜드색 토막이 왼쪽에서 오른쪽으로 계속 흐르고(길이를 미리 알 수 없어 스윕), 끝나면 한 번에 채워지며 V-1 화살표 펄스가 켜진다' },
   { id: 'B2', label: 'B-2 → 버튼 둘레 링', desc: '→ 버튼 둘레를 도는 브랜드색 링. 재생 중엔 링이 돌고, 끝나면 멈춰 꽉 찬 원이 되며 V-1 펄스로 이어진다. 안내와 진행 표시가 한 자리에 모인다' },
-  { id: 'B3', label: 'B-3 상단 재생 중 칩', desc: '폰 위에 "STEP n 재생 중 ●" 칩. 점이 깜빡이다 끝나면 "STEP n 끝" 으로 바뀐다. 글로 말해 가장 분명하지만 폰 위 공간을 쓴다' },
+  { id: 'B3', label: 'B-3 폰 위 재생 중 칩', desc: '폰 프레임 위(폰 밖) 가운데에 "● STEP n 재생 중" 칩. 점이 깜빡이다 끝나면 "STEP n 끝 · → 키를 눌러 다음 태스크로 넘기세요" 로 바뀐다. V-1 펄스와 함께' },
   { id: 'off', label: '없음', desc: '비교용' },
 ]
 const STEPCUES = [
@@ -1472,13 +1472,15 @@ export default function App() {
             <span className="vdesc">{GROWRADS.find((v) => v.id === growradV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants v-playbar">
-            <b className="vtitle">뷰어 · 스텝 재생 중 표시 — 미확정</b>
+            <b className="vtitle">뷰어 · 스텝 재생 중 표시 — B-3 확정</b>
             {PLAYBARS.map((v) => (
               <button key={v.id} aria-pressed={playbarV === v.id} onClick={() => { setPlaybarV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{PLAYBARS.find((v) => v.id === playbarV)?.desc}</span>
           </div>
+          )}
           <div className="variants v-stepcue">
             <b className="vtitle">뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 — V-1 확정</b>
             {STEPCUES.map((v) => (
@@ -1806,7 +1808,7 @@ export default function App() {
         {/* 스텝 재생 진행 표시 (html[data-playbar]): B1 폰 아래 얇은 바(재생 중 스윕 → 끝나면 채움) / B2 → 버튼 둘레 링 / B3 상단 '재생 중' 칩 */}
         {playbarV !== 'off' && (
           <div className={`playbar pb-${playbarV} ${playing ? 'playing' : 'done'}`} aria-hidden>
-            {playbarV === 'B3' ? <span className="lbl"><i />{playing ? `STEP ${cur + 1} 재생 중` : `STEP ${cur + 1} 끝`}</span> : <i className="fill" />}
+            {playbarV === 'B3' ? <span className="lbl"><i />{playing ? `STEP ${cur + 1} 재생 중` : cur < steps.length - 1 ? <>STEP {cur + 1} 끝<b>→ 키를 눌러 다음 태스크로 넘기세요</b></> : `STEP ${cur + 1} 끝 · 마지막 스텝`}</span> : <i className="fill" />}
           </div>
         )}
         {waiting && cur < steps.length - 1 && stepcueV !== 'off' && (
