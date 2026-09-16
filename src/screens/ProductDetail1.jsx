@@ -786,8 +786,9 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
             그 상태로 바뀌는 방식 html[data-exithdr]: H1 [네] 뒤 칩이 자라며 ‹ · 카운트가 들어오고 우측 [나가기] 가 사라짐 / H2 처음부터 그 헤더(6/20 선택 중 → 7/20 선택 완료 롤) / H3 라벨이 통째로 "7/20 선택 완료" 로 롤 */}
         <div className={`appbar-ai eh-${hdr} ${picked ? 'done' : ''}`}>
           <div className="left">
-            <div className={`contextual-chip ${hdr === 'H2' || picked ? 'has-back' : ''}`} ref={exitRef} aria-label="나가기">
-              <span className="back"><IcoBack size={18} /></span>
+            <div className={`contextual-chip ${hdr === 'H2' || picked ? 'has-back' : ''}`}>
+              {/* 포인터는 칩 가운데가 아니라 ‹ 를 찍는다 (사용자 2026-09-16) */}
+              <span className="back" ref={exitRef} aria-label="나가기"><IcoBack size={18} /></span>
               <span className="lbl-wrap">
                 <span className={`lbl ${hdr === 'H3' && picked ? 'swap-out' : ''}`}>요금제 추천 &amp; 변경</span>
                 {hdr === 'H3' && picked && <span className="lbl alt swap-in">7/20 선택 완료</span>}
