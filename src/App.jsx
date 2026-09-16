@@ -112,7 +112,8 @@ function DoneToast({ show, onNext }) {
   const [toast, setToast] = useState(false)
   useEffect(() => { if (!show) { setToast(false); return } const t = setTimeout(() => setToast(true), 700); return () => clearTimeout(t) }, [show])
   return (<>
-    <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show}><b>테스트 종료</b></div>
+    <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show} />
+    <div className={`done-label ${show ? 'on' : ''}`} aria-hidden={!show}>테스트 종료</div>
     <button className={`done-toast ${toast ? 'on' : ''}`} onClick={onNext} aria-hidden={!toast}>
       <span className="row"><b>프로토타이핑이 완료되었습니다.</b><i className="chev" /></span>
       <small>다음 테스트로 넘어가시려면 눌러주세요.</small>
