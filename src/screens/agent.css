@@ -981,8 +981,7 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 .ai-card.plan-picks { gap: 4px; padding: 28px; }
 .ai-card.plan-picks .pp-title { margin: 0 0 12px; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -.05em; color: var(--fg-neutral-solid); }
 .plan-pick { display: flex; flex-direction: column; padding: 24px; border-radius: 16px; border: 2px solid transparent; background: rgba(39,59,157,.04); box-sizing: border-box; transition: border-color .3s cubic-bezier(.65,0,.35,1), background .3s cubic-bezier(.65,0,.35,1); }
-/* 추천 행은 흰 바탕 + [추천] 배지로만 구분 — 검은 테두리는 '선택됨' 의 표식이라 추천에 쓰면 기선택으로 읽힌다 (사용자 2026-09-16) */
-.plan-pick.pp-rec { background: #fff; }
+/* 추천 행은 [추천] 배지로만 구분 — 바탕 · 테두리는 다른 행과 같은 위계. 흰 바탕과 검은 테두리는 '선택됨' 의 표식 (사용자 2026-09-16) */
 .plan-pick.sel { border-color: var(--fg-neutral-solid); background: #fff; }
 .plan-pick .rec-badge { align-self: flex-start; margin-bottom: 4px; padding: 2px 8px; border-radius: 6px; background: rgba(39,59,157,.06); font-size: 11.5px; font-weight: 600; line-height: 14px; letter-spacing: -.03em; color: var(--fg-neutral-mute); }
 .plan-pick .pp-top { display: flex; align-items: center; gap: 12px; }
