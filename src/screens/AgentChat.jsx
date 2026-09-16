@@ -199,7 +199,7 @@ const DISC_REC = 2   // 재제시 카드에서 추천·탭하는 할인 = 선택
    7 할인 선택 → '선택한 할인방법' 줄 → **추가 혜택 턴**(바닥 3행) */
 const CUR_PLAN = { name: '0플랜 미디엄', price: '월 49,000원', caps: '데이터 20GB・통화 무제한・문자 무제한' }
 const PLAN_ALL = '전체보기', PLAN_PICK_TITLE = '요금제를 선택해주세요'
-const DISC_MSG = '공통지원금으로 할인 받으시는걸 추천드려요. 24개월동안 사용하면서 가격 할인을 가장 많이 받으실 수 있어요.'
+const DISC_MSG = '할인 방법에 따라 휴대폰 가격과 월 통신요금에서 받을 수 있는 할인 금액이 달라져요. 비교해보고 할인 방법을 선택해주세요.'   // 사용자 2026-09-16 (이전: '공통지원금으로 할인 받으시는걸 추천드려요. 24개월동안…')
 const DISC_LIST = [
   ['공통지원금', '-300,000원', '휴대폰 가격에서 바로 할인'],
   ['선택약정 12개월', '-250,000원', '12개월간 통신요금 25% 할인'],
@@ -2761,4 +2761,4 @@ export function TossPane({ done, inline = false, kind = 'toss' }) {
 }
 
 // 2안(AgentChat2) 이 같은 언어를 쓰도록 공유하는 조각들
-export { UsageGraph, AnswerBubble, reveal, showNow, unreveal, hideOpening, rv, collapseOpening, anchorBottom, UserMessage, AiMessage, Opening, Thinking, Card, PlanRow, BenefitBadges, POP_PLANS, POP_PLANS_LIGHT, SHEET_TABS, TAIL, CHIP_DEFAULT }
+export { PlanPickRow, UsageGraph, AnswerBubble, reveal, showNow, unreveal, hideOpening, rv, collapseOpening, anchorBottom, UserMessage, AiMessage, Opening, Thinking, Card, PlanRow, BenefitBadges, POP_PLANS, POP_PLANS_LIGHT, SHEET_TABS, TAIL, CHIP_DEFAULT }

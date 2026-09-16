@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Pointer, { userTap } from '../components/pointer.js'
 import { IcoSparkleAi, IcoBack } from '../components/Icons.jsx'
 import { StatusBar } from './AgentShell.jsx'
-import { PlanCard } from './AgentChat.jsx'
+import { PlanCard, PlanPickRow } from './AgentChat.jsx'
 import { variant } from '../lib/variants.js'
 import { wait, scrollTo, inOut, inOutSine, cubicOut, outExpo, tween, restart, reducedMotion } from '../lib/motion.js'
 import './product2.css'
@@ -194,6 +194,13 @@ export default function ProductDetail2({ stage = 'top' }) {
     const browsePlans = async () => {
       const W = variant('planswipe')
       if (W === 'off') return alive()
+      /* 세로 리스트(html[data-planlist]=on, 사용자 2026-09-16 "step 2 컴포넌트를 step 4 컴포넌트로") — 옆으로 밀 캐러셀이 없다.
+         리스트를 잠깐 아래로 훑어 내려 본 뒤(0.7s) 멈추고 AI 버튼으로 간다 */
+      if (variant('planlist') !== 'off') {
+        await wait(520); if (!alive()) return false
+        await scrollTo(el, anchorSec(secs.plan.current) + 140, 700, inOutSine); if (!alive()) return false
+        await wait(560); return alive()
+      }
       const last = variant('planexit') === 'card' ? 3 : 2      // 출구 카드가 있으면 그 카드까지
       await wait(520); if (!alive()) return false
       if (variant('planexit') === 'hint') {
@@ -384,6 +391,13 @@ export default function ProductDetail2({ stage = 'top' }) {
           {variant('planexit') === 'hint' && (
             <div className={`plan-hint ${planHint ? 'on' : ''}`} ref={planHintRef}><IcoSparkleAi size={16} /><span>{PLAN_HINT}</span></div>
           )}
+          {variant('planlist') !== 'off' ? (
+            /* 스텝 4 요금제 리스트 카드와 같은 컴포넌트 (PlanPickRow + [전체보기]) — 사용자 2026-09-16 "component 통일 필요". Agent 를 부르기 전이라 [추천] 배지는 없다 */
+            <div className="plan-list">
+              {[0, 1, 2].map((i) => <PlanPickRow key={i} idx={i} rec={false} sel={false} style={{ '--i': i }} />)}
+              <div className="plan-all">전체보기</div>
+            </div>
+          ) : (
           <div className="plan-carousel" ref={carRef}>
             {[0, 1, 2].map((i) => <PlanCard key={i} idx={i} sel={false} style={{ '--i': i }} />)}
             {variant('planexit') === 'card' && (
@@ -395,6 +409,7 @@ export default function ProductDetail2({ stage = 'top' }) {
               </div>
             )}
           </div>
+          )}
         </Section>
 
         <Section title="어떤 SIM으로 개통하시겠어요?">
