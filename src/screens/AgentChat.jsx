@@ -594,7 +594,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       for (const r of [foldCardRef.current, foldTailRef.current]) { if (r) { r.classList.remove('on', 'from-box', 'keep-box'); r.style.opacity = '' } }
     }
     const resetPen = () => {
-      const de = disRef.current; if (de) { de.classList.remove('on'); unreveal([...de.children]); resetFlat(de) }
+      const de = disRef.current; if (de) { de.classList.remove('on', 'stale'); unreveal([...de.children]); resetFlat(de) }
       resetTurn(penEl, penItems); penItems[1].style.cssText = ''
       if (plansCardRef.current) { plansCardRef.current.style.cssText = ''; plansCardRef.current.classList.remove('boxing', 'l3-start'); [...plansCardRef.current.children].forEach((k) => { k.style.opacity = '' }) }
       penFoldRef.current?.classList.remove('on', 'from-box')
@@ -1152,6 +1152,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(320); if (!alive()) return
       penEl.classList.add('on'); void penEl.offsetHeight
       setTail(PEN_TAIL)                                            // 아래는 Agent 답변 자리 — 말풍선이 시작선까지 올라갈 수 있게 여백 확보 (Figma 37232)
+      disRef.current?.classList.add('stale')                      // 질문이 끼어든 순간 위의 할인 카드는 60% 로 — 지금은 고를 수 없다 (사용자 2026-09-16). 답변 뒤 재제시 카드가 그 역할을 잇는다
       reveal(penItems[0])                                         // 말풍선 (공통 규칙: 사용자 발화가 새 턴의 첫 요소)
       await scrollTo(scroll, Math.max(scroll.scrollTop, anchorHeader(penItems[0]) - PEN_BUBBLE_Y)); if (!alive()) return // 말풍선이 시작선 +136 (아래로만)
       await wait(900); if (!alive()) return
@@ -2187,7 +2188,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         setTimeout(() => { scroll.scrollTop = kbScrollTarget() }, 420)   // 영역 축소 전환(0.35s) 뒤에 정렬
         return
       }
-      finalDisc()
+      finalDisc(); disRef.current?.classList.add('stale')
       penEl.classList.add('on'); setTail(TAIL)
       finalPenaltyAnswer()
     }
