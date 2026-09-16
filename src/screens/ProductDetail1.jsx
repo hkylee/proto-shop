@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Pointer, { userTap } from '../components/pointer.js'
 import { IcoSparkleAi, IcoSparkle, IcoVoice, IcoBack } from '../components/Icons.jsx'
 import { StatusBar, Keyboard, TYPE_MS } from './AgentShell.jsx'
-import { PlanCard, UsageGraph, UserMessage, AiMessage, Card, BenefitBadges } from './AgentChat.jsx'
+import { PlanCard, UsageGraph, UserMessage, AiMessage, Card, BenefitBadges, Thinking } from './AgentChat.jsx'
 import { AgentBackground, SearchAi } from './AgentShell.jsx'
 import { IcoNewChat } from '../components/Icons.jsx'
 import OrderConfirm from './OrderConfirm.jsx'
@@ -125,6 +125,7 @@ export default function ProductDetail1({ stage = 'top' }) {
   // SearchAi 1줄 → 2줄(SearchAiMulti, Figma 472:144639) 전환: multi = 두 줄 레이아웃 · wrap = 본문 줄바꿈 허용 · fade = M3 크로스페이드 중
   const [multi, setMulti] = useState(false), [wrap, setWrap] = useState(false), [fade, setFade] = useState(false)
   const [lift, setLift] = useState(false)   // P3: 보내기 뒤 입력창의 문장이 위로 떠오른다
+  const [tout, setTout] = useState(false)   // 생각 점(…)이 사라지는 중
 
   useEffect(() => { if (rootRef.current && ptrLayerRef.current) ptrRef.current = new Pointer(rootRef.current, ptrLayerRef.current) }, [])
   useEffect(() => {
@@ -147,10 +148,10 @@ export default function ProductDetail1({ stage = 'top' }) {
     const NEXT_LABEL = { color: 'T 호출', opts: 'T 호출', plan: XF === 'F3' ? '네' : '나가기' }
     const parkNext = (delay = 0) => { if (!userTap() || !NEXT_TAP[stage]) return; setTimeout(() => { if (alive()) ptr?.park(NEXT_TAP[stage](), 400, NEXT_LABEL[stage] || '탭') }, delay) }
     const settle = () => {   // 즉시 최종 상태 (건너뛰기 · 뒤로 가기 · reduced motion)
-      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false); setLift(false)
+      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false); setLift(false); setTout(false)
       setPayReady(stage === 'rest' || stage === 'payout'); setPayOn(stage === 'payout'); ptr?.hide()
       // 요금제 스텝의 최종 상태 = 풀팝업이 열려 답이 모두 나온 뒤 (F1: [네] 눌러 선택 완료 · F2: 안내만 · F3: 시트가 떠 있음)
-      if (stage === 'plan') { setAgent('in'); setAph(9); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
+      if (stage === 'plan') { setAgent('in'); setAph(11); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
       else { setAgent('off'); setAph(0); setAsheet(false); setApick(false) }
       if (stage === 'top') scrollTo(el, 0, 500, inOut)
       else if (stage === 'rest' || stage === 'payout') el.scrollTop = el.scrollHeight
@@ -347,24 +348,27 @@ export default function ProductDetail1({ stage = 'top' }) {
       await wait(350); if (!alive()) return false
       setAph(2)                                                      // 2 "최근 6개월간 이용현황을 먼저 살펴볼게요 · 나의 요금제 확인"
       await wait(1600); if (!alive()) return false
-      setAph(3)                                                      // 3 타이틀이 접히고 이용현황 안내 문장
+      // 생각 점(…) = 시안 1-1·1-2 의 think(): 텍스트 자리에 0.75s 보이다 0.16s 에 사라지고 그 자리에 문장 (사용자 2026-09-16 "로딩될 때 … 뜨는 거")
+      const think = async (n) => { setAph(n); await wait(750); if (!alive()) return false; setTout(true); await wait(160); if (!alive()) return false; setTout(false); setAph(n + 1); return alive() }
+      if (!await think(3)) return false                              // 3 타이틀이 접히고 … → 4 이용현황 안내 문장
       await wait(1000); if (!alive()) return false
-      setAph(4); if (!await agPan(600)) return false                 // 4 이용중 요금제 카드
+      setAph(5); if (!await agPan(600)) return false                 // 5 이용중 요금제 카드
       await wait(900); if (!alive()) return false
-      setAph(5); if (!await agPan(700)) return false                 // 5 6개월 그래프
-      await wait(1400); if (!alive()) return false
-      setAph(6); if (!await agPan(500)) return false                 // 6 추천 문장
+      setAph(6); if (!await agPan(700)) return false                 // 6 6개월 그래프
+      await wait(1200); if (!alive()) return false
+      if (!await think(7)) return false                              // 7 … → 8 추천 문장
+      if (!await agPan(500)) return false
       await wait(900); if (!alive()) return false
-      setAph(7); if (!await agPan(600)) return false                 // 7 추천 요금제 카드
+      setAph(9); if (!await agPan(600)) return false                 // 9 추천 요금제 카드
       await wait(1000); if (!alive()) return false
-      setAph(8); if (!await agPan(700)) return false                 // 8 현재 요금제와 비교
+      setAph(10); if (!await agPan(700)) return false                // 10 현재 요금제와 비교
       await wait(1400); if (!alive()) return false
-      if (XF === 'F2') { setAph(9); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
+      if (XF === 'F2') { setAph(11); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
       setAsheet(true)                                          // "추천된 요금제를 선택하실래요?"
       await wait(900); if (!alive()) return false
       if (XF === 'F3') return alive()                          // [네] 위에서 대기 — 다음 스텝에서 확인 팝업이 이어진다
       await ptr?.tap(yesRef.current, { move: 420, pause: 140, label: '네' }); if (!alive()) return false
-      ptr?.hide(); setAsheet(false); setApick(true); setAph(9)
+      ptr?.hide(); setAsheet(false); setApick(true); setAph(11)
       await wait(200); if (!alive()) return false
       await agPan(600); return alive()
     }
@@ -674,7 +678,7 @@ export default function ProductDetail1({ stage = 'top' }) {
       {/* AI Agent 우측 상단 [나가기] → '고른 값은 저장돼요' confirm (Figma ixGPs9 438:190278 방향, 사용자 2026-09-15).
           시안 html[data-exitpop]: X1 중앙 알럿 · X2 하단 시트 · X3 저장된 값을 보여주는 카드 */}
       {/* 요금제 질의 → Agent 풀팝업 (Figma ixGPs9 438:190278). 상세 위로 올라오고, [나가기] 뒤 내려가며 selected 된 상세가 드러난다 */}
-      <PlanAgent state={agent} aph={aph} sheet={asheet} picked={apick} flow={XF} scrollRef={agScrollRef} exitRef={exitBtnRef} yesRef={yesRef} />
+      <PlanAgent state={agent} aph={aph} tout={tout} sheet={asheet} picked={apick} flow={XF} scrollRef={agScrollRef} exitRef={exitBtnRef} yesRef={yesRef} />
       <ExitConfirm open={xpop} flow={XF} backRef={backRef} />
       <div ref={ptrLayerRef} aria-hidden />
     </div>
@@ -753,7 +757,7 @@ const IcoExit = () => (
 )
 const PA_CUR = { name: '0 청년 69', price: '월 62,800원', caps: '데이터 20GB・통화 무제한・문자 무제한' }
 const PA_REC = { name: PLAN_REC, price: '월 99,000원', caps: '데이터 무제한・통화 무제한・문자 무제한' }
-function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef }) {
+function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, exitRef, yesRef }) {
   return (
     <div className={`pa ${state}`} aria-hidden={state === 'off'}>
       <AgentBackground />
@@ -769,13 +773,14 @@ function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef
       <div className="chat-scroll pa-scroll" ref={scrollRef}>
         {aph >= 1 && <UserMessage className="pa-in">{PLAN_Q}</UserMessage>}
         {/* 오프닝 타이틀은 답이 시작되면 접혀 사라진다 (시안 1 collapse C-2: 글자 먼저 → 높이). Figma 두 번째 프레임에는 타이틀이 없다 */}
-        {aph >= 2 && aph < 9 && <div className={`opening pa-in ${aph >= 3 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
-        {aph >= 3 && <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>}
-        {aph >= 4 && <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>}
-        {aph >= 5 && <Card className="pa-in"><UsageGraph /></Card>}
-        {aph >= 6 && <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>}
-        {aph >= 7 && <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>}
-        {aph >= 8 && (
+        {aph >= 2 && aph < 11 && <div className={`opening pa-in ${aph >= 3 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
+        {(aph === 3 || aph === 7) && <div className={`pa-think pa-in ${tout ? 'out' : ''}`}><Thinking /></div>}
+        {aph >= 4 && <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>}
+        {aph >= 5 && <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>}
+        {aph >= 6 && <Card className="pa-in"><UsageGraph /></Card>}
+        {aph >= 8 && <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>}
+        {aph >= 9 && <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>}
+        {aph >= 10 && (
           <Card className="compare pa-cmp pa-in">
             <h3>현재 요금제와 비교</h3>
             <div className="cmp">
@@ -785,11 +790,8 @@ function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef
             <p>월 36,200원이 높지만 데이터가 무제한으로 바뀌어 속도 제한이 사라져요. 가족결합이 가능한 상품이라 함께 쓰면 더 유리해요.</p>
           </Card>
         )}
-        {aph >= 9 && picked && (<>
-          <div className="done-line pa-in"><i className="chk" />{PLAN_REC} 선택 완료<em /></div>
-          <AiMessage className="pa-in">상품 상세에도 그대로 적용해 둘게요. 오른쪽 위 [나가기]로 돌아가면 이어서 진행할 수 있어요.</AiMessage>
-        </>)}
-        {aph >= 9 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
+        {aph >= 11 && picked && <div className="done-line pa-in in"><i className="chk" /><span>{PLAN_REC} 선택 완료</span><em /></div>}
+        {aph >= 11 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
         <div className="pa-tail" />
       </div>
       <SearchAi style={{ bottom: 24 }} />

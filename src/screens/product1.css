@@ -427,3 +427,8 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .dock.lift .sinp { translate: 0 -56px; opacity: 0; transition: translate .8s cubic-bezier(.22,1,.36,1), opacity .6s .1s; }
 /* 팝업이 덮은 뒤의 초기화는 보이지 않아야 한다 — Agent 화면 아래에서 dock 이 되감기는 전환을 끈다 */
 .pd1.ag-in .dock, .pd1.ag-in .dock .sinp, .pd1.ag-in .dock .tico, .pd1.ag-in .keyboard { transition: none !important; }
+/* 생각 점 — 시안 1 .thinking 을 그대로 쓰되, 이 컬럼에서는 order:-1 로 맨 위로 튀지 않게 */
+.pd1 .pa .pa-think { display: flex; flex: none; }
+.pd1 .pa .pa-think .thinking { order: 0; }
+.pd1 .pa .pa-think.out { opacity: 0; transition: opacity .18s; }
+.pd1 .pa .done-line { flex: none; }
