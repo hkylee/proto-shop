@@ -94,7 +94,7 @@ const BARS = [11.5, 55.4, 41.8, 101.9, 79, 84.6]
 
 /* ── 레이아웃 상수 (393×852, Figma 498px 프레임 환산) ── */
 const SCREEN_H = SH   // 기본 852. F-2(화면 높이 유동)에서는 실제 뷰포트 높이 — src/lib/screen.js
-const CHAT_TOP = 199          // 고정 헤더 아래 채팅 시작선 = 두 번째 오프닝 앵커 위치 (.chat-scroll padding-top)
+const CHAT_TOP = 124          // 고정 헤더(상태바 59 + 앱바 48) 아래 채팅 시작선 = 두 번째 오프닝 앵커 위치 (.chat-scroll padding-top). 컨텍스트 헤더 줄이 없어져 199 → 124 (2026-09-16)
 const SEARCH_H = 52
 const SEARCH_TOP = SCREEN_H - SEARCH_BOTTOM - SEARCH_H       // SearchAi 상단 = 776
 const SEARCH_TOP_KB = SCREEN_H - SEARCH_BOTTOM_KB - SEARCH_H // 키보드 위로 올라간 SearchAi 상단
@@ -2255,8 +2255,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       <div className="ai-header-fixed">
         <AgentBackground />
         <StatusBar />
-        <AppbarAi chip={chip} />
-        <ContextHeader k={optK} n={OPTIONS.length} />
+        <AppbarAi chip={chip} k={optK} n={OPTIONS.length} />
       </div>
 
       <div className="chat-scroll" ref={scrollRef}>

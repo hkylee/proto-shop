@@ -777,7 +777,7 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
                 {hdr === 'H3' && picked && <span className="lbl alt swap-in">7/20 선택 완료</span>}
               </span>
               <i className="chev-d" />
-              {hdr !== 'H3' && <span className="cnt" key={picked ? 'done' : 'cur'}><em>|</em>{picked ? '7/20 선택 완료' : '6/20 선택 중'}</span>}
+              {hdr !== 'H3' && <span className="cnt" key={picked ? 'done' : 'cur'}><em>|</em>{picked ? '7/20 선택 완료' : '6/20 선택 완료'}</span>}
             </div>
           </div>
           <div className="right"><div className="btn-icon-ai"><IcoNewChat /></div><div className="btn-icon-ai exit" aria-hidden><IcoExit /></div></div>

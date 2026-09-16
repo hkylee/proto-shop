@@ -23,12 +23,19 @@ export function StatusBar({ className = 'ai-status' }) {
   )
 }
 
-export function AppbarAi({ chip }) {
+/* 앱바 (Figma ixGPs9 473:146217, 2026-09-16): 칩 하나에 [‹ {대화 이름} | k/n 선택 완료], 우측은 새 대화. 예전의 별도 뒤로가기 버튼과
+   그 아래 컨텍스트 헤더 줄("요금제 선택중 7/20")은 없어졌다 — 진행 카운트는 칩 안에서 스텝마다 채워진다 (사용자 "스텝별로 채워지게").
+   k = 지금 고르는 옵션 번호(1-based) → 완료된 수는 k-1, label '완료' 면 n/n */
+export function AppbarAi({ chip, k, n = OPTIONS.length, label }) {
+  const done = k == null ? null : label === '완료' || k > n ? n : Math.max(0, k - 1)
   return (
     <div className="appbar-ai">
       <div className="left">
-        <div className="btn-icon-ai"><IcoBack /></div>
-        <div className="contextual-chip">{chip}</div>
+        <div className="contextual-chip has-back">
+          <span className="back"><IcoBack size={18} /></span>
+          <span className="lbl">{chip}</span>
+          {done != null && <span className="cnt" key={done}><em>|</em>{done}/{n} 선택 완료</span>}
+        </div>
       </div>
       <div className="btn-icon-ai"><IcoNewChat /></div>
     </div>
