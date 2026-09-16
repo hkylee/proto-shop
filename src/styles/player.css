@@ -477,13 +477,13 @@ html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-
 .wb1 .brief .pts li { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; line-height: 17px; letter-spacing: -.02em; color: var(--fg-neutral-solid); word-break: keep-all; }
 .wb1 .brief .tag { align-self: flex-start; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; line-height: 14px; letter-spacing: -.02em; }
 .wb1 .brief .pro .tag, .wb1 .brief .sum .pro { background: var(--blue-50); color: var(--blue-600); }
-.wb1 .brief .con .tag, .wb1 .brief .sum .con { background: #FFF4E5; color: #B25E09; }
+.wb1 .brief .con .tag, .wb1 .brief .sum .con { background: #FDECEC; color: #D0342C; }
 /* D-2 두 묶음 */
 .wb1 .brief.d2 .grp { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .wb1 .brief.d2 .grp + .grp { padding-top: 10px; border-top: 1px solid var(--line-weak); }
 .wb1 .brief.d2 .gk { font-size: 11.5px; font-weight: 700; letter-spacing: -.02em; }
 .wb1 .brief.d2 .grp.pro .gk { color: var(--blue-600); }
-.wb1 .brief.d2 .grp.con .gk { color: #B25E09; }
+.wb1 .brief.d2 .grp.con .gk { color: #D0342C; }   /* 고려 지점·제약 사항 = 빨강 (사용자 2026-09-16) */
 .wb1 .brief.d2 ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .wb1 .brief.d2 li { position: relative; padding-left: 10px; font-size: 12.5px; line-height: 17px; letter-spacing: -.02em; color: var(--fg-neutral-solid); word-break: keep-all; }
 .wb1 .brief.d2 li::before { content: ""; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; border-radius: 1px; background: currentColor; opacity: .45; }
