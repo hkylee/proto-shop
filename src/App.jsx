@@ -1826,14 +1826,16 @@ export default function App() {
           ? <AnPanel wb={wbV} pid={pid} pick={pick} sc={sc} cur={cur} go={go} />   /* 웹 셸 W-B: 왼쪽 패널에 '안' 층 (세부 시안 B1/B2/B3) */
           : <StepNav variant="R1" cur={cur} go={go} sc={sc} />)}
         <button className="round" onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="이전">←</button>
-        <div className="phone-wrap"><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
+        <div className="phone-wrap"><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} />
+          {/* 재생 상태 칩 — 목업(폰) 기준으로 위 25px 에 고정 (사용자 2026-09-16) */}
+          {playbarV !== 'off' && (
+            <div className={`playbar pb-${playbarV} ${playing ? 'playing' : 'done'}`} aria-hidden>
+              {playbarV === 'B3' ? <span className="lbl"><i />{playing ? `STEP ${cur + 1} 재생 중` : cur < steps.length - 1 ? <>STEP {cur + 1} 끝<b>→ 키를 눌러 다음 태스크로 넘기세요</b></> : `STEP ${cur + 1} 끝 · 마지막 스텝`}</span> : <i className="fill" />}
+            </div>
+          )}
+        </div>
         <button className={`round ${waiting && cur < steps.length - 1 ? 'cue' : ''}`} onClick={() => go(cur + 1)} disabled={cur === steps.length - 1} aria-label="다음">→</button>
         {/* 스텝 재생 진행 표시 (html[data-playbar]): B1 폰 아래 얇은 바(재생 중 스윕 → 끝나면 채움) / B2 → 버튼 둘레 링 / B3 상단 '재생 중' 칩 */}
-        {playbarV !== 'off' && (
-          <div className={`playbar pb-${playbarV} ${playing ? 'playing' : 'done'}`} aria-hidden>
-            {playbarV === 'B3' ? <span className="lbl"><i />{playing ? `STEP ${cur + 1} 재생 중` : cur < steps.length - 1 ? <>STEP {cur + 1} 끝<b>→ 키를 눌러 다음 태스크로 넘기세요</b></> : `STEP ${cur + 1} 끝 · 마지막 스텝`}</span> : <i className="fill" />}
-          </div>
-        )}
         {waiting && cur < steps.length - 1 && stepcueV !== 'off' && (
           <div className={`step-cue sc-${stepcueV}`} aria-live="polite">
             {stepcueV === 'V1' && <span className="lbl">다음 스텝 →</span>}

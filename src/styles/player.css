@@ -430,19 +430,19 @@ html.m, html.m body { width: 100%; max-width: 100%; overflow-x: hidden; }
 /* ── 스텝 재생 중 표시 (html[data-playbar], 2026-09-16) ── */
 .playbar { position: absolute; z-index: 5; pointer-events: none; }
 /* B1 폰 아래 얇은 바 — 폰 폭(393 × 배율) 가운데. 재생 중 스윕, 끝나면 채움 */
-.playbar.pb-B1 { left: 50%; transform: translateX(-50%); bottom: 34px; width: min(393px, 60%); height: 2px; border-radius: 2px; background: rgba(75,89,255,.14); overflow: hidden; }
+.playbar.pb-B1 { left: 50%; transform: translateX(-50%); bottom: -14px; width: min(393px, 60%); height: 2px; border-radius: 2px; background: rgba(75,89,255,.14); overflow: hidden; }
 .playbar.pb-B1 .fill { position: absolute; top: 0; bottom: 0; left: 0; width: 28%; border-radius: 2px; background: var(--fg-brand-solid, #4B59FF); animation: pbSweep 1.4s cubic-bezier(.65,0,.35,1) infinite; }
 .playbar.pb-B1.done .fill { animation: none; width: 100%; transition: width .35s cubic-bezier(.22,1,.36,1); }
 @keyframes pbSweep { 0% { left: -28%; } 100% { left: 100%; } }
 /* B2 → 버튼 둘레 링 — stage 3열 그리드의 마지막 열 자리(64px) */
-.playbar.pb-B2 { right: 28px; top: 50%; width: 64px; height: 64px; margin-top: -32px; border-radius: 50%; }
+.playbar.pb-B2 { right: -92px; top: 50%; width: 64px; height: 64px; margin-top: -32px; border-radius: 50%; }
 .playbar.pb-B2 .fill { position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(75,89,255,.14); border-top-color: var(--fg-brand-solid, #4B59FF); animation: pbSpin 1.1s linear infinite; }
 .playbar.pb-B2.done .fill { animation: none; border-color: var(--fg-brand-solid, #4B59FF); transition: border-color .35s; }
 @keyframes pbSpin { to { transform: rotate(360deg); } }
 /* B3 폰 위 재생 중 칩 */
 /* B3 는 폰 프레임 위(폰 밖)에 — 스테이지 위 여백을 그만큼 벌려 폰을 가리지 않는다 (사용자 2026-09-16 "폰 위에 떠 있으니까 애매") */
-html[data-playbar="B3"] .stage { padding-top: 84px; }   /* 칩(약 30) + 아래 여백 36 — 폰 프레임과 겹치지 않고 떨어져 있게 (사용자 2026-09-16) */
-.playbar.pb-B3 { left: 50%; transform: translateX(-50%); top: 18px; white-space: nowrap; }
+html[data-playbar="B3"] .stage { padding-top: 88px; }   /* 칩(약 30) + 아래 여백 36 — 폰 프레임과 겹치지 않고 떨어져 있게 (사용자 2026-09-16) */
+.playbar.pb-B3 { left: 50%; transform: translateX(-50%); top: auto; bottom: calc(100% + 25px); white-space: nowrap; }   /* phone-wrap 기준: 폰 프레임 위 25px 고정 */
 .playbar.pb-B3 .lbl b { font-weight: 500; color: var(--fg-neutral-solid, #060C1F); margin-left: 4px; padding-left: 8px; border-left: 1px solid rgba(6,12,31,.12); }
 html[data-playbar="B3"] .step-cue.sc-V1 { display: none; }   /* 글은 칩이 맡고, → 버튼은 펄스만 */
 .playbar.pb-B3 .lbl { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #fff; box-shadow: 0 4px 16px rgba(16,49,140,.12); font-size: 12px; font-weight: 600; letter-spacing: -.02em; color: var(--fg-neutral-mute, #4F5972); }
