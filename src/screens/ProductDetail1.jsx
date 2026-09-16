@@ -758,6 +758,7 @@ const IcoExit = () => (
 const PA_CUR = { name: '0 청년 69', price: '월 62,800원', caps: '데이터 20GB・통화 무제한・문자 무제한' }
 const PA_REC = { name: PLAN_REC, price: '월 99,000원', caps: '데이터 무제한・통화 무제한・문자 무제한' }
 function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, exitRef, yesRef }) {
+  const hdr = variant('exithdr') || 'H1'
   return (
     <div className={`pa ${state}`} aria-hidden={state === 'off'}>
       <AgentBackground />
@@ -765,9 +766,21 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
       <div className="ai-header-fixed pa-head">
         <AgentBackground />
         <StatusBar />
-        <div className="appbar-ai">
-          <div className="left"><div className="contextual-chip">요금제 추천 &amp; 변경<i className="chev-d" /></div></div>
-          <div className="right"><div className="btn-icon-ai"><IcoNewChat /></div><div className="btn-icon-ai exit" ref={exitRef} aria-label="나가기"><IcoExit /></div></div>
+        {/* 헤더 (Figma 473:146215 = 선택이 끝난 뒤): 칩 안에 ‹ 되돌아가기 + "요금제 추천 & 변경 | 7/20 선택 완료", 우측은 새 대화 하나.
+            그 상태로 바뀌는 방식 html[data-exithdr]: H1 [네] 뒤 칩이 자라며 ‹ · 카운트가 들어오고 우측 [나가기] 가 사라짐 / H2 처음부터 그 헤더(6/20 선택 중 → 7/20 선택 완료 롤) / H3 라벨이 통째로 "7/20 선택 완료" 로 롤 */}
+        <div className={`appbar-ai eh-${hdr} ${picked ? 'done' : ''}`}>
+          <div className="left">
+            <div className={`contextual-chip ${hdr === 'H2' || picked ? 'has-back' : ''}`} ref={exitRef} aria-label="나가기">
+              <span className="back"><IcoBack size={18} /></span>
+              <span className="lbl-wrap">
+                <span className={`lbl ${hdr === 'H3' && picked ? 'swap-out' : ''}`}>요금제 추천 &amp; 변경</span>
+                {hdr === 'H3' && picked && <span className="lbl alt swap-in">7/20 선택 완료</span>}
+              </span>
+              <i className="chev-d" />
+              {hdr !== 'H3' && <span className="cnt" key={picked ? 'done' : 'cur'}><em>|</em>{picked ? '7/20 선택 완료' : '6/20 선택 중'}</span>}
+            </div>
+          </div>
+          <div className="right"><div className="btn-icon-ai"><IcoNewChat /></div><div className="btn-icon-ai exit" aria-hidden><IcoExit /></div></div>
         </div>
       </div>
       <div className="chat-scroll pa-scroll" ref={scrollRef}>

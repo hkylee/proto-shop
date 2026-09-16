@@ -432,3 +432,31 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .pa-think .thinking { order: 0; }
 .pd1 .pa .pa-think.out { opacity: 0; transition: opacity .18s; }
 .pd1 .pa .done-line { flex: none; }
+
+/* ── 풀팝업 헤더 · 선택이 끝난 뒤의 모양 (Figma ixGPs9 473:146215, 2026-09-16) — 칩 [‹ 요금제 추천 & 변경 | 7/20 선택 완료] + 우측 새 대화만.
+   바뀌는 방식 html[data-exithdr]: H1 [네] 뒤 자라남 / H2 처음부터 / H3 라벨 롤 ── */
+.pd1 .pa .contextual-chip { position: relative; gap: 0; padding: 0 18px; overflow: hidden; transition: padding .45s var(--kb-ease); }
+.pd1 .pa .contextual-chip .back { display: inline-flex; align-items: center; width: 0; opacity: 0; margin-left: -6px; overflow: hidden; transition: width .45s var(--kb-ease), opacity .3s, margin .45s var(--kb-ease); }
+.pd1 .pa .contextual-chip.has-back .back { width: 22px; opacity: 1; margin-left: -4px; }
+.pd1 .pa .contextual-chip.has-back { padding-left: 12px; }
+.pd1 .pa .contextual-chip .lbl-wrap { position: relative; display: inline-flex; align-items: center; height: 18px; line-height: 18px; white-space: nowrap; }
+.pd1 .pa .contextual-chip .lbl { display: inline-block; font-size: 14px; font-weight: 500; letter-spacing: -.04em; }
+.pd1 .pa .contextual-chip .chev-d { margin-left: 6px; transition: width .35s var(--kb-ease), opacity .25s, margin .35s var(--kb-ease); overflow: hidden; }
+.pd1 .pa .appbar-ai.done .contextual-chip .chev-d, .pd1 .pa .appbar-ai.eh-H2 .contextual-chip .chev-d { width: 0; margin-left: 0; opacity: 0; }
+.pd1 .pa .contextual-chip .cnt { display: inline-flex; align-items: center; white-space: nowrap; font-size: 14px; font-weight: 400; letter-spacing: -.04em; color: var(--fg-neutral-mute); max-width: 0; opacity: 0; overflow: hidden; transition: max-width .5s var(--kb-ease), opacity .35s .1s; }
+.pd1 .pa .contextual-chip .cnt em { font-style: normal; color: rgba(6,12,31,.25); margin: 0 6px; }
+.pd1 .pa .appbar-ai.done .contextual-chip .cnt, .pd1 .pa .appbar-ai.eh-H2 .contextual-chip .cnt { max-width: 160px; opacity: 1; }
+/* 우측 [나가기] 는 선택이 끝나면(H1·H3) 사라지고, H2 에서는 처음부터 없다 */
+.pd1 .pa .appbar-ai .right .exit { transition: opacity .3s, transform .35s var(--kb-ease), width .35s var(--kb-ease), margin .35s var(--kb-ease); }
+.pd1 .pa .appbar-ai.done .right .exit, .pd1 .pa .appbar-ai.eh-H2 .right .exit { opacity: 0; transform: scale(.6); width: 0; margin-left: -6px; pointer-events: none; }
+/* H2: 카운트 글자가 바뀔 때 롤 (key 교체 → 마운트 애니메이션) */
+.pd1 .pa .appbar-ai.eh-H2 .contextual-chip .cnt { animation: ehRoll .4s cubic-bezier(.22,1,.36,1) both; }
+@keyframes ehRoll { from { opacity: 0; transform: translateY(8px); } }
+/* H3: 라벨이 위로 빠지고 "7/20 선택 완료" 가 아래에서 들어온다 */
+.pd1 .pa .contextual-chip .lbl.swap-out { opacity: 0; transform: translateY(-10px); animation: ehOut .4s cubic-bezier(.65,0,.35,1) both; }   /* 끝 상태를 명시 — reduced motion 에서도 겹치지 않게 */
+.pd1 .pa .contextual-chip .lbl.alt { position: absolute; left: 0; top: 0; }
+.pd1 .pa .contextual-chip .lbl.swap-in { animation: ehIn .45s cubic-bezier(.22,1,.36,1) both .12s; }
+@keyframes ehOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-10px); } }
+@keyframes ehIn { from { opacity: 0; transform: translateY(10px); } }
+.pd1 .pa .appbar-ai.eh-H3.done .contextual-chip .lbl-wrap { min-width: 84px; }
+.pd1 .pa .contextual-chip.pressing { transform: scale(.96); }
