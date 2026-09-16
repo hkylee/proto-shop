@@ -2551,7 +2551,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {!inForm && <Thinking />}
             {inForm
               ? <FinDone label={FIN_LABEL[3]} value={PHONE} line={FIN_DONE[3]} />
-              : <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>}   {/* 2안: 안내 없이 완료 선만 (사용자 2026-09-16 "개통 신청서 작성이 완료되었어요. 만 뜨면") */}
+              : <AnswerBubble pairs={[[FSHEETS[0], fv.rrn ? fv.rrn.replace(/●/g, '*') : ''], [FSHEETS[1], `${ADDR_LINE} ${ADDR_DETAIL}`], [FSHEETS[2], fv.email || EMAIL], [FSHEETS[3], fv.phone || PHONE]].map(([q, a]) => [q.replace(/\.$/, ''), a])} />}   {/* 2안: 시트 4장의 질문·답이 한 말풍선에 (Figma ixGPs9 545:163804, 사용자 2026-09-16) — 주민등록번호만 마스킹 */}
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
