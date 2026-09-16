@@ -368,7 +368,8 @@ export default function ProductDetail1({ stage = 'top' }) {
       await wait(1600); if (!alive()) return false
       // 생각 점(…) = 시안 1-1·1-2 의 think(): 텍스트 자리에 0.75s 보이다 0.16s 에 사라지고 그 자리에 문장 (사용자 2026-09-16 "로딩될 때 … 뜨는 거")
       const think = async (n) => { setAph(n); await wait(750); if (!alive()) return false; setTout(true); await wait(160); if (!alive()) return false; setTout(false); setAph(n + 1); return alive() }
-      if (!await think(3)) return false                              // 3 타이틀이 접히고 … → 4 이용현황 안내 문장
+      // 첫 턴은 오프닝 타이틀이 '기다림' 을 맡으므로 생각 점 없이 타이틀이 접히며 곧 안내 문장 (시안 1 규칙: … 은 타이틀 없는 턴 앞에만)
+      setAph(4)
       await wait(1000); if (!alive()) return false
       setAph(5); if (!await agPan(600)) return false                 // 5 이용중 요금제 카드
       await wait(900); if (!alive()) return false
@@ -812,9 +813,8 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
       <div className="chat-scroll pa-scroll" ref={scrollRef}>
         {aph >= 1 && <UserMessage className="pa-in">{PLAN_Q}</UserMessage>}
         {/* 오프닝 타이틀은 답이 시작되면 접혀 사라진다 (시안 1 collapse C-2: 글자 먼저 → 높이). Figma 두 번째 프레임에는 타이틀이 없다 */}
-        {aph >= 2 && aph < 11 && <div className={`opening pa-in ${aph >= 3 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
+        {aph >= 2 && aph < 11 && <div className={`opening pa-in ${aph >= 4 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
         {/* 생각 점은 두 자리 — 첫 안내 앞(3), 그래프 뒤 추천 앞(7). 한 자리에서 조건만 바꾸면 두 번째 점이 맨 위에 떴다 (버그, 2026-09-16) */}
-        {aph === 3 && <div className={`pa-think pa-in ${tout ? 'out' : ''}`}><Thinking /></div>}
         {aph >= 4 && <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>}
         {aph >= 5 && <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>}
         {aph >= 6 && <Card className="pa-in"><UsageGraph /></Card>}

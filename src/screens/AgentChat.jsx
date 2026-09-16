@@ -103,7 +103,7 @@ const TAIL = SCREEN_H - SEARCH_TOP + GAP                      // 채팅 끝 여�
 const PEN_TAIL = SCREEN_H - CHAT_TOP - 44 + 30               // 말풍선 아래 답변 자리 여백 → 말풍선을 시작선까지 올릴 수 있는 tail
 const OPENING_MT = 23, TURN_GAP = 8                          // .opening margin-top · 턴 컨테이너 flex gap (agent.css 와 동일)
 const OPENING_OUTER = OPENING_MT + TURN_GAP
-const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'opts2', 'replan', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
+const LATER_THAN_ALT = ['sheet', 'penalty', 'opts1', 'opts', 'opts2', 'replan', 'form', 'addr', 'contact', 'review', 'auth', 'pay', 'payout']   // usage 보다 뒤인 스텝들
 /* 15 [결제하기] 탭 → 결제(외부) 화면으로 이동해 마무리 (T1mhl 10906:6338: 흰 화면 · 닫기 · '외부이동'). 돌아오지 않는다 = 플로우 끝 */
 /* 14 [실물 신분증 촬영] 탭 → 밖(신분증 촬영)으로 → 복귀 → '신원 인증 완료' 선 → 요금 납부 방식(기존 수단 유지 추천 → 탭) → 요금안내서(Bill Letter 추천 → 탭) → 결제 안내 + 시트 [결제하기] (T1mhl 10906:5737)
    업무처리 결과 선(txt_complete)은 왼쪽 → 오른쪽으로 그려진다: 시안 html[data-line] D1 선만 / D2 순차(체크 → 글 → 선) / D3 한 붓 */
@@ -528,6 +528,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const opts1 = stage === 'opts1'
   const reselect = stage === 'reselect'
   const opts2 = stage === 'opts2'
+  const opts = stage === 'opts'      // 스텝 7 = 예전 7(opts1) + 8(opts2) 을 한 스텝으로 (사용자 2026-09-16)
   const form = stage === 'form'
   const addr = stage === 'addr'
   const contact = stage === 'contact'
@@ -2142,7 +2143,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     let finalsOnly = true
     const run = (fn) => { finalsOnly = false; return fn() }
     const PARK_FOR = {
-      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current, /* 9 를 지났으면 아래의 새 CTA */
+      usage: () => allRef.current, sheet: () => applyRef.current, penalty: () => discRow(), replan: () => foldRow()?.querySelector('em'), opts1: () => optRow(OPT_RESELECT.sec, OPT_RESELECT.row), reselect: () => optRow(LAST_OPT, OPTS[LAST_OPT].rec), opts2: () => doneChipRef.current, opts: () => doneChipRef.current, /* 9 를 지났으면 아래의 새 CTA */
       form: () => (inForm ? fsEl('rrn') : fsEl('next')), addr: () => (inForm ? fsEl('chk') : fsEl('next')), contact: () => (inForm ? fsEl('phone') : fsEl('next')), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'),
     }
@@ -2206,6 +2207,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         else if ((prevRef.current === 'opts2' || prevRef.current === 'replan') && !reduced) run(pForm)
         else { resetForm(); upToReplan(); fForm(true) }
         prevRef.current = 'form'; return
+      }
+      if (opts) {
+        // 7+8 합침: 할인 · 쿠폰 · 결제(옛 7) 를 재생하고 이어서 추가 혜택 → 선택 완료(옛 8) 까지 한 번에. 최종 상태와 이후 스텝의 되감기는 옛 8 과 같다
+        if (prevRef.current === 'penalty' && !reduced) run(async () => { await playOpts1(); if (!alive()) return; await playOpts2() })
+        else { resetForm(); unstale(); upToOpts2() }
+        prevRef.current = 'opts2'; return
       }
       if (opts2) {
         if (prevRef.current === 'opts1' && !reduced) run(playOpts2)

@@ -1015,7 +1015,7 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
    P3 이어짐: 텍스트 쉬머가 지나간 흐름이 카드로 넘어가 블롭이 늦게(0.5s 뒤) 더 길게(2.2s) 피어난다 — 한 번의 물결 */
 html[data-procfx]:not([data-procfx="off"]) .msg-ai.in, html[data-procfx]:not([data-procfx="off"]) .msg-ai.pa-in {
   color: transparent; -webkit-background-clip: text; background-clip: text;
-  background-image: linear-gradient(110deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 30%, #267AFF 42%, #591FEA 50%, #773CFF 56%, var(--fg-neutral-solid) 68%, var(--fg-neutral-solid) 100%);
+  background-image: linear-gradient(110deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 35%, #267AFF 45%, #591FEA 52%, #773CFF 57%, var(--fg-neutral-solid) 68%, var(--fg-neutral-solid) 100%);
   background-size: 320% 100%; background-repeat: no-repeat;
   animation: txtShimmer 1.3s cubic-bezier(.4,0,.2,1) both;
 }
@@ -1042,7 +1042,7 @@ html[data-procfx="P3"] .ai-card.in::before, html[data-procfx="P3"] .ai-card.pa-i
 /* T1 본문만 · 왼쪽 → 오른쪽으로 출력되며 그라디언트 (사용자 2026-09-16 "본문만, text-shimmer 가 왼쪽에서 오른쪽으로 출력되며 그라디언트 형식으로").
    마스크가 왼쪽부터 글을 드러내고(부드러운 가장자리 14%), 드러나는 가장자리는 보라 → 파랑, 지나간 자리는 본문색으로 안착. 카드에는 아무 효과 없음 */
 html[data-procfx="T1"][data-procfx] .msg-ai.in, html[data-procfx="T1"][data-procfx] .msg-ai.pa-in {   /* 공통 P 규칙(0,4,1)과 같은 특이도, 뒤에 있어 이긴다 */
-  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 22%, #267AFF 31%, #773CFF 37%, #B79CFF 42%, #B79CFF 100%);
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 35%, #267AFF 42%, #773CFF 47%, #B79CFF 52%, #B79CFF 100%);
   background-size: 300% 100%;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 36%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 36%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%);
   -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
@@ -1056,14 +1056,14 @@ html[data-procfx="T1"][data-procfx] .ai-card.in::before, html[data-procfx="T1"][
    T3 틴트 하나: 연한 하늘(#9EC8FB) 한 색만 가장자리에, 22%, 1.7s. 가장 조용
    T4 드러난 뒤 안착: 움직이는 그라디언트 없이 글 전체가 연한 파랑으로 드러나고(1.4s, 가장자리 24%) 끝난 뒤 0.9s 동안 본문색으로 천천히 안착 */
 html[data-procfx="T2"][data-procfx] .msg-ai.in, html[data-procfx="T2"][data-procfx] .msg-ai.pa-in {
-  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 16%, #6C8CFF 30%, #B7C6FF 40%, #B7C6FF 100%);
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 35%, #6C8CFF 46%, #B7C6FF 54%, #B7C6FF 100%);   /* 끝 위치(0%)에서 보이는 0~33.3% 창이 전부 본문색 — 마지막에 오른쪽이 흐리게 남던 문제 (2026-09-16) */
   background-size: 300% 100%;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,0) 58%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,0) 58%, rgba(0,0,0,0) 100%);
   -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   animation: txtStream 1.9s cubic-bezier(.25,.1,.25,1) both;
 }
 html[data-procfx="T3"][data-procfx] .msg-ai.in, html[data-procfx="T3"][data-procfx] .msg-ai.pa-in {
-  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 20%, #9EC8FB 34%, #9EC8FB 100%);
+  background-image: linear-gradient(90deg, var(--fg-neutral-solid) 0%, var(--fg-neutral-solid) 35%, #9EC8FB 46%, #9EC8FB 100%);
   background-size: 300% 100%;
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(90deg, #000 0%, #000 32%, rgba(0,0,0,0) 54%, rgba(0,0,0,0) 100%);
   -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
