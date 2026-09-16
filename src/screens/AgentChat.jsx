@@ -1803,10 +1803,13 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setZipList(true)
       await wait(900); if (!alive()) return
       await ptr?.tap(rootRef.current?.querySelector('.zip-item'), { move: 360, pause: 90 }); if (!alive()) return
-      ptr?.hide(); setZipPop(false); setF('zip', ADDR_ZIP); setF('line', ADDR_LINE); setFfocus('detail')
-      setKbField(true)
+      ptr?.hide(); setZipPop(false); setF('zip', ADDR_ZIP); setF('line', ADDR_LINE)
+      setKbOpen(false); setFfocus('')                             // 팝업이 내려가는 동안 키패드도 같이 내려간다 — 겹쳐서 깜빡이는 문제 방지 (사용자 2026-09-16)
+      await wait(550); if (!alive()) return                       // 팝업 닫힘(0.5s) 이 끝난 뒤 상세 주소 입력으로
+      setFfocus('detail'); setKbField(true)
       await kbFit(card); if (!alive()) return
-      await wait(400); if (!alive()) return
+      setKbOpen(true)
+      await wait(200); if (!alive()) return
       if (!await fillField('detail', ADDR_DETAIL, 120)) return
       setFfocus(''); setKbOpen(false); await wait(420); if (!alive()) return
       await ptr?.tap(fsEl('chk'), { move: 300, pause: 80 }); if (!alive()) return

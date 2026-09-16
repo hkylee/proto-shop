@@ -12,3 +12,5 @@ deploy/*/index.html
 
 # 시안 확인용 단일 HTML 산출물 (build-single.mjs)
 exports/
+
+.env*

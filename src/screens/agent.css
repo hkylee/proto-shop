@@ -453,8 +453,9 @@ html:not([data-flat="C0"]) .ai-card.flatable.opt-card { gap: 8px; }
 .fill-chip { align-self: flex-start; padding: 10px 14px; border-radius: 999px; background: var(--bg-ai-subtle); border: 1px solid var(--border-ai-subtle); box-shadow: var(--shadow-chip); font-size: 13px; font-weight: 500; letter-spacing: -.04em; }
 .button-ai.gone { opacity: 0; pointer-events: none; transition: opacity .25s; }
 
-/* ── 카드 필드 타이핑 중 (.kbf): SearchAi 숨김 · 스크림 없음(카드가 읽혀야 함) · html[data-kbfield] K1/K2 는 스크롤 정렬, K3 는 키패드 위 입력 바 ── */
-.ai-screen.kbf .search-ai { opacity: 0; pointer-events: none; transition: opacity .2s; }
+/* ── 카드 필드 타이핑 중 (.kbf): SearchAi 숨김 · 스크림 없음(카드가 읽혀야 함) · html[data-kbfield] K1/K2 는 스크롤 정렬, K3 는 키패드 위 입력 바 ──
+   키패드가 실제로 떠 있을 때만 숨긴다(.kbf.kb) — 카드 전환 사이 키패드가 내려간 순간에도 kbField 가 남아 있어 입력 바가 계속 사라져 있던 문제 (사용자 2026-09-16) */
+.ai-screen.kbf.kb .search-ai { opacity: 0; pointer-events: none; transition: opacity .2s; }
 .ai-screen.kbf .kb-scrim { opacity: 0 !important; }
 .kb-field-bar { position: absolute; left: 0; right: 0; bottom: 310px; height: 60px; padding: 0 20px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line-weak); display: flex; align-items: center; gap: 12px; z-index: 5; font-size: 16px; font-weight: 500; letter-spacing: -.04em; transform: translateY(100%); opacity: 0; transition: transform var(--kb-ms) var(--kb-ease), opacity .25s; }
 .kb-field-bar.on { transform: none; opacity: 1; }
