@@ -154,3 +154,6 @@
 /* ── 요금제 영역 = 스텝 4 세로 리스트 (html[data-planlist], 2026-09-16) — .plan-pick 는 agent.css 의 공통 행 ── */
 .pd2 .plan-list { display: flex; flex-direction: column; gap: 4px; }
 .pd2 .plan-list .plan-all { margin-top: 8px; height: 48px; border-radius: 12px; background: rgba(39,59,157,.05); display: grid; place-items: center; font-size: 14px; font-weight: 500; letter-spacing: -.04em; color: var(--fg-neutral-mute); }
+/* 요금제 리스트 행의 > 는 아코디언 ∨ 규칙(.pd2 .chev, 아래 방향)을 덮어 스텝 4 와 같은 오른쪽 화살표로 (2026-09-16 '애로우가 뻑났어') */
+.pd2 .plan-pick .chev { width: 18px; height: 18px; color: var(--fg-neutral-subtle); transition: none; }
+.pd2 .plan-pick .chev::before { left: 5px; top: 5px; width: 7px; height: 7px; border: 0; border-right: 1.6px solid currentColor; border-top: 1.6px solid currentColor; transform: rotate(45deg); }
