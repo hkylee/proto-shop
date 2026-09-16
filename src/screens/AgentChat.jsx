@@ -314,8 +314,10 @@ function UserMessage({ children, className = '' }) {
   return <div className={`msg-user ${className}`}><span>{children}</span></div>
 }
 // 2안: 시트에서 고른 결과 = 사용자 말풍선 "질문: {시트 제목} / 답: {선택}" (Figma ixGPs9 155:88000). 다음 턴의 상단 앵커가 된다
-function AnswerBubble({ q, a, innerRef, className = '' }) {
-  return <div className={`msg-user t2-bubble ${className}`} ref={innerRef}><span><em className="q">질문: {q}</em><b className="a">답: {a}</b></span></div>
+// pairs: [[q, a], ...] 여러 세트를 한 말풍선에 (1-2 스텝 4 — 추천 시트의 답과 전체 팝업의 답이 한 세트, Figma ixGPs9 442:158816)
+function AnswerBubble({ q, a, pairs, innerRef, className = '' }) {
+  const list = pairs || [[q, a]]
+  return <div className={`msg-user t2-bubble ${className}`} ref={innerRef}><span>{list.map(([qq, aa], i) => <span className="qa" key={i}><em className="q">질문: {qq}</em><b className="a">답: {aa}</b></span>)}</span></div>
 }
 function AiMessage({ children, className = '' }) {
   return <p className={`msg-ai ${className}`}>{children}</p>
@@ -331,6 +333,23 @@ function Opening({ status, title, className = '', innerRef }) {
 // N-2 생각 점: 타이틀 없는 전시 턴에서 텍스트가 오기 전 0.9s 동안 보이는 인디케이터 (순서 배열에서는 제외, CSS order:-1 로 텍스트 자리)
 function Thinking() {
   return <div className="thinking" aria-hidden><i /><i /><i /></div>
+}
+/* 입력이 끝난 자리에 남는 것 (html[data-findone], Figma ixGPs9 540:149303 — 사용자 2026-09-16 "개인정보 바닥에서 입력했을 때 나오는 컴포넌트 형태 일괄 변경")
+   off 기존: '│ ○○ 입력이 완료되었어요 ─ 수정하기' 선
+   K1 Figma 그대로: 흰 카드(라운드 28 · 테두리) 안에 라벨 + [재입력]
+   K2 라벨 + 입력값: 같은 카드에 입력한 값이 라벨 아래 회색으로 (주민등록번호는 마스킹) — 무엇을 넣었는지 카드에서 확인
+   K3 라벨 + 완료 체크: 라벨 앞에 작은 체크 — 기존 완료 선의 '끝났다' 신호를 카드로 옮김 */
+const FIN_REDO = '재입력'
+function FinDone({ label, value, line }) {
+  const K = variant('findone') || 'off'
+  if (K === 'off') return <div className="form-line"><span>{line}</span><a>{FORM_REDO}</a></div>
+  return (
+    <div className={`form-line fin-done ${K.toLowerCase()}`}>
+      {K === 'K3' && <i className="fd-chk" />}
+      <span className="fd-body"><b>{label}</b>{K === 'K2' && value && <small>{value}</small>}</span>
+      <a>{FIN_REDO}</a>
+    </div>
+  )
 }
 function Card({ children, className = '', innerRef }) {
   return <section className={`ai-card ${className}`} ref={innerRef}>{children}</section>
@@ -2437,7 +2456,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           {inForm && <>
             {/* 11번: 주민등록번호 완료 선 → 안내 → 주소 카드 (Figma 360:79547) */}
             <div className="addr fin" ref={finAddrRef}>
-              <div className="form-line"><span>{FIN_DONE[0]}</span><a>{FORM_REDO}</a></div>
+              <FinDone label={FIN_LABEL[0]} value={fv.rrn} line={FIN_DONE[0]} />
               <AiMessage>{FIN_NEXT[0][0]}<br />{FIN_NEXT[0][1]}</AiMessage>
               <Card className="form-card fin-card">
                 <h3>{FIN_LABEL[1]}</h3>
@@ -2451,13 +2470,13 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             </div>
             {/* 12번: 주소 완료 선 → 이메일 카드 → 이메일 완료 선 → 개통 시 연락받을 번호 카드 (Figma 360:79595 → 360:79648) */}
             <div className="contact fin" ref={finContactRef}>
-              <div className="form-line"><span>{FIN_DONE[1]}</span><a>{FORM_REDO}</a></div>
+              <FinDone label={FIN_LABEL[1]} value={`${ADDR_LINE} ${ADDR_DETAIL}`} line={FIN_DONE[1]} />
               <AiMessage>{FIN_NEXT[1][0]}<br />{FIN_NEXT[1][1]}</AiMessage>
               <Card className="form-card fin-card">
                 <h3>{FIN_LABEL[2]}</h3>
                 <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="email" ph={EMAIL_PH} /></div>
               </Card>
-              <div className="form-line"><span>{FIN_DONE[2]}</span><a>{FORM_REDO}</a></div>
+              <FinDone label={FIN_LABEL[2]} value={EMAIL} line={FIN_DONE[2]} />
               <AiMessage>{FIN_NEXT[2][0]}<br />{FIN_NEXT[2][1]}</AiMessage>
               <Card className="form-card fin-card">
                 <h3>{FIN_LABEL[3]}</h3>
@@ -2471,7 +2490,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           <div className={`review ${inForm ? 'fin' : ''}`} ref={reviewRef}>
             {!inForm && <Thinking />}
             {inForm
-              ? <div className="form-line"><span>{FIN_DONE[3]}</span><a>{FORM_REDO}</a></div>
+              ? <FinDone label={FIN_LABEL[3]} value={PHONE} line={FIN_DONE[3]} />
               : <>
                 <AiMessage>{FORM_INTRO[0]}<br />{FORM_INTRO[1]}</AiMessage>
                 <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>
@@ -2526,7 +2545,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
                 <h3>{PAY1_LABEL}</h3>
                 <div className="fs-slot"><FsField fv={fv} ffocus={ffocus} k="p2phone" ph={PHONE_PH} /></div>
               </Card>
-              <div className="form-line"><span>{PAY1_LINE}</span><a>{FORM_REDO}</a></div>
+              <FinDone label={PAY1_LABEL} value={PHONE} line={PAY1_LINE} />
               <div className="done-line"><i className="chk" /><span>{PAY1_CHK}</span><em /></div>
               <AiMessage>{PAY1_AFTER[0]}</AiMessage>
               <AiMessage>{PAY1_AFTER[1]}</AiMessage>

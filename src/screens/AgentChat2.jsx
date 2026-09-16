@@ -484,7 +484,8 @@ export default function AgentChat2({ stage = 'usage' }) {
 
         {/* 요금제 적용 결과 카드 (Figma 96:40978) — 스텝 4 끝 */}
         <div className="turn2 plan-res" ref={planResRef}>
-          <AnswerBubble q={PLAN_SHEET_TITLE} a={REC.name} />
+          {/* 추천 시트에서 [다른 요금제 살펴보기] → 전체 팝업에서 고른 것까지 두 세트 (Figma 442:158816, 사용자 2026-09-16). 옛 recflow 는 팝업 한 세트 */}
+          <AnswerBubble pairs={recflow === 'old' ? [[PLAN_SHEET_TITLE, REC.name]] : [[REC_SHEET_TITLE, REC_CHOICES[1]], [PLAN_SHEET_TITLE, REC.name]]} />
         </div>
 
         {/* 시트로 고르는 턴들: 생각 점 → 안내 → (시트) → 고른 결과 한 줄 */}

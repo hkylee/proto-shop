@@ -1124,3 +1124,12 @@ html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2 > .msg-ai:first-child
 
 /* 접힌 요약 줄(.opt-fold · .pen-fold-host)은 .in 이 아니라 .on 으로 켜져 등장 규칙의 translateY(4px) 가 남아 있었다 → 위 16 · 아래 8 로 보였다. 자리를 잡은 뒤에는 옮김 없이 (S-4 12 · 24, 2026-09-16) */
 html[data-stackgap]:not([data-stackgap="off"]) .opt-turn > .plan-fold.opt-fold.on, html[data-stackgap]:not([data-stackgap="off"]) .pen > .pen-fold-host.on, html[data-stackgap]:not([data-stackgap="off"]) .pen-fold-host.on > .plan-fold { transform: none; }
+
+/* ── 입력이 끝난 자리에 남는 카드 (html[data-findone], Figma ixGPs9 540:149303 RadioCard 442:156172) ── */
+.form-line.fin-done { padding: 22px; border: 1.4px solid var(--border-neutral-subtle, #EBEEF6); border-left-width: 1.4px; border-radius: 28px; background: #fff; min-height: 0; gap: 14px; align-items: center; }
+.form-line.fin-done .fd-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-left: 2px; }
+.form-line.fin-done .fd-body b { font-size: 15px; font-weight: 600; line-height: 20px; letter-spacing: -.04em; color: var(--fg-neutral-solid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.form-line.fin-done .fd-body small { font-size: 13px; line-height: 18px; letter-spacing: -.03em; color: var(--fg-neutral-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.form-line.fin-done a { font-size: 16px; font-weight: 400; line-height: 22px; letter-spacing: -.04em; color: var(--fg-neutral-mute); text-decoration: underline; text-underline-offset: 2px; padding-right: 0; flex: none; }
+.form-line.fin-done .fd-chk { width: 20px; height: 20px; border-radius: 50%; background: var(--fg-neutral-solid); position: relative; flex: none; }
+.form-line.fin-done .fd-chk::before { content: ""; position: absolute; left: 6px; top: 3px; width: 5px; height: 9px; border-right: 1.8px solid #fff; border-bottom: 1.8px solid #fff; transform: rotate(45deg); }

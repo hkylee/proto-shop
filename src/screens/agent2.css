@@ -118,3 +118,5 @@ html[data-sheetlook="L3"] .ai2 .sheet2,
 html[data-sheetlook="L3"] .ai-sheet { background: rgba(238,240,246,.94); backdrop-filter: blur(50px); }
 html[data-sheetlook="L3"] .ai2 .sheet2 .plan-row,
 html[data-sheetlook="L3"] .ai-sheet .plan-row { background: #fff; box-shadow: 0 2px 10px rgba(6,12,31,.06); }
+
+.t2-bubble .qa { display: flex; flex-direction: column; }   /* 질문·답 한 세트. 여러 세트가 위아래로 이어진다 (Figma 442:158816) */
