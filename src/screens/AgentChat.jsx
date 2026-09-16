@@ -5,7 +5,7 @@ import Pointer, { userTap } from '../components/pointer.js'
 import { useSheetOut } from '../lib/sheet.js'
 import { wait, tween, scrollTo, panTo, inOut, inOutSine, inOutQuart, outExpo, cubicOut, clamp01, linear, afterLayout, reducedMotion } from '../lib/motion.js'
 import { variant } from '../lib/variants.js'
-import { PRE_MSG, PRE_MSG2, PRE_ROWS, PRE_CHIP, LAST_Q, LAST_A } from '../data/an2.js'
+import { PRE_MSG, PRE_MSG_B, PRE_MSG2, PRE_ROWS, PRE_CHIP, LAST_Q, LAST_A } from '../data/an2.js'
 import { SCREEN_H as SH } from '../lib/screen.js'
 
 const SHEET_TABS = ['베스트', '라이트', '전용', '스마트기기', '다이렉트', '전체']
@@ -2379,6 +2379,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <div className="an2-hist" ref={histRef}>
               <AnswerBubble q={LAST_Q} a={LAST_A} />
               <AiMessage>{PRE_MSG}</AiMessage>
+              <AiMessage>{PRE_MSG_B}</AiMessage>
               <AiMessage>{PRE_MSG2[0]}<br />{PRE_MSG2[1]}</AiMessage>
               <Card className="review-card">
                 <h3>가입자 정보</h3>

@@ -4,7 +4,7 @@ import { AgentBackground, StatusBar, AppbarAi, ContextHeader, SearchAi, HomeIndi
 import { AnswerBubble, reveal, showNow, unreveal, hideOpening, rv, collapseOpening, anchorBottom, UserMessage, AiMessage, Opening, Thinking, Card, PlanRow, BenefitBadges, POP_PLANS, POP_PLANS_LIGHT, SHEET_TABS, TAIL, CHIP_DEFAULT } from './AgentChat.jsx'
 import { wait, scrollTo, tween, linear, reducedMotion, afterLayout } from '../lib/motion.js'
 import { variant } from '../lib/variants.js'
-import { PRE_MSG, PRE_MSG2, PRE_ROWS, PRE_CHIP } from '../data/an2.js'
+import { PRE_MSG, PRE_MSG_B, PRE_MSG2, PRE_ROWS, PRE_CHIP } from '../data/an2.js'
 import { useSheetOut, SHEET_KEEP_MS } from '../lib/sheet.js'
 import './agent2.css'
 import { SCREEN_H as SH, SCREEN_W } from '../lib/screen.js'
@@ -435,11 +435,13 @@ export default function AgentChat2({ stage = 'usage' }) {
     const hideNextChip = () => nextChipRef.current?.classList.remove('on')
     const playDone = async () => {
       // 완료 안내 → '고객 정보 조회 중' 타이틀(내 정보 조회 턴이라 타이틀 있음) → 접힘 → 안내 → 가입자 정보 카드 → [신청서 작성하기] 대기
-      const el = doneRef.current, [msg, opening, msg2, card, chipWrap] = kids(el)
+      const el = doneRef.current, [msg, msgB, opening, msg2, card, chipWrap] = kids(el)
       el.classList.add('on'); void el.offsetHeight
       setTail(topAnchor() ? SCREEN_H : 420)
       if (!await dots(el, prevResult(TURNS.length))) return
       reveal(msg); await follow(msg); if (!alive()) return
+      await wait(T.text + 650); if (!alive()) return                 // '완료되었어요.' 뒤 한 박자 (1안과 같은 리듬)
+      reveal(msgB); await follow(msgB); if (!alive()) return
       await wait(T.text); if (!alive()) return
       reveal(opening); await follow(opening); if (!alive()) return
       await wait(T.hold2); if (!alive()) return
@@ -520,6 +522,7 @@ export default function AgentChat2({ stage = 'usage' }) {
         <div className="turn2 done2" ref={doneRef}>
           <Thinking />
           <AiMessage>{PRE_MSG}</AiMessage>
+          <AiMessage>{PRE_MSG_B}</AiMessage>
           <Opening status="고객 정보 조회 중" title={<>고객님의 정보를<br />조회하고 있어요</>} />
           <AiMessage>{PRE_MSG2[0]}<br />{PRE_MSG2[1]}</AiMessage>
           <Card className="review-card">
