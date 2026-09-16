@@ -28,6 +28,47 @@ const WBS = [
   { id: 'B2', label: 'B-2 사이드 레일', desc: '패널 왼쪽에 좁은 레일(Slack 워크스페이스 식). 1·2·3 숫자 타일이 세로로 서 있고 고른 타일이 패널과 이어진다. 패널 안은 안 제목·개념 헤더 + 단계·스텝. 안 전환과 스텝 이동이 공간으로 분리' },
   { id: 'B3', label: 'B-3 아코디언 트리', desc: '한 패널에 1·2·3안이 접히는 섹션으로 쌓이고, 고른 안만 펼쳐져 개념 → 단계 → 스텝이 안으로 들여 이어진다. 접힌 안엔 스텝 수만. 안 → 단계 → 스텝이 완전한 한 나무' },
 ]
+/* 좌측 설명 영역 (html[data-brief]) — '고민' 문서의 장점·고려 지점을 시안 1-1 · 1-2 에 싣는다 (사용자 2026-09-16). 파란 상태 캡션(구현 상태 · 스텝 수)은 걷었다
+   D1 태그 목록: 제목 → 컨셉 → [장점]/[고려 지점] 알약 태그 + 문장 한 줄씩
+   D2 두 묶음: 제목 → '장점' 묶음 · '고려 지점' 묶음 (문서 그대로, 컨셉 문단 생략)
+   D3 접이식: 제목 → 컨셉 → '장점 2 · 고려 지점 1' 줄을 펼치면 목록 (스텝 목록이 위로 남는다)
+   off 기존: 제목 → 컨셉 */
+const KIND_CLS = { '장점': 'pro', '고려 지점': 'con', '제약 사항': 'con' }
+function Brief({ p }) {
+  const D = document.documentElement.dataset.brief || CONFIRMED.brief
+  const pts = p.points || []
+  const [open, setOpen] = useState(false)
+  if (D === 'off' || !pts.length) return <div className="concept"><b>{p.title}</b><p>{p.concept}</p></div>
+  if (D === 'D2') {
+    const groups = [['장점', pts.filter((x) => x.kind === '장점')], [pts.find((x) => x.kind !== '장점')?.kind || '고려 지점', pts.filter((x) => x.kind !== '장점')]].filter(([, l]) => l.length)
+    return (
+      <div className="concept brief d2">
+        <b>{p.title}</b>
+        {groups.map(([k, l]) => (
+          <div className={`grp ${KIND_CLS[k]}`} key={k}><span className="gk">{k}</span><ul>{l.map((x, i) => <li key={i}>{x.text}</li>)}</ul></div>
+        ))}
+      </div>
+    )
+  }
+  if (D === 'D3') {
+    const nPro = pts.filter((x) => x.kind === '장점').length, con = pts.find((x) => x.kind !== '장점')
+    return (
+      <div className={`concept brief d3 ${open ? 'open' : ''}`}>
+        <b>{p.title}</b><p>{p.concept}</p>
+        <button className="sum" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+          <span className="pro">장점 {nPro}</span>{con && <span className="con">{con.kind} {pts.length - nPro}</span>}<i className="chev" />
+        </button>
+        {open && <ul className="pts">{pts.map((x, i) => <li key={i} className={KIND_CLS[x.kind]}><span className="tag">{x.kind}</span><span>{x.text}</span></li>)}</ul>}
+      </div>
+    )
+  }
+  return (   // D1
+    <div className="concept brief d1">
+      <b>{p.title}</b><p>{p.concept}</p>
+      <ul className="pts">{pts.map((x, i) => <li key={i} className={KIND_CLS[x.kind]}><span className="tag">{x.kind}</span><span>{x.text}</span></li>)}</ul>
+    </div>
+  )
+}
 function AnPanel({ wb, pid, pick, sc, cur, go }) {
   const p = sc
   if (wb === 'B2') return (
@@ -36,7 +77,7 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
         {PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)} title={q.title}><b>{q.id}</b><span>{q.short}</span></button>)}
       </nav>
       <aside className="rnav1">
-        <div className="head an-head"><span className="num">{anName(p.id)} · {p.status}</span><b>{p.title}</b><span>{p.concept}</span></div>
+        <div className="head an-head"><span className="num">{anName(p.id)}</span><b>{p.title}</b><span>{p.concept}</span></div>
         <PhaseList sc={sc} cur={cur} go={go} />
       </aside>
     </div>
@@ -47,7 +88,7 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
         {PROPOSALS.map((q) => { const on = q.id === pid; return (
           <li key={q.id} className={on ? 'on' : ''}>
             <button className="an-row" onClick={() => pick(q.id)} aria-expanded={on}>
-              <span className="num">{q.id}</span><span className="tt"><b>{q.title}</b><small>{q.status} · {q.steps.length} 스텝</small></span><i className="chev" />
+              <span className="num">{q.id}</span><span className="tt"><b>{q.title}</b></span><i className="chev" />
             </button>
             {on && <div className="an-body"><p>{q.concept}</p><PhaseList sc={sc} cur={cur} go={go} /></div>}
           </li>
@@ -59,7 +100,7 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
   return (
     <aside className="rnav1 wb1" aria-label="안 · 스텝">
       <div className="seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{anName(q.id)}</button>)}</div>
-      <div className="concept"><span className="num">{p.status} · {p.steps.length} 스텝</span><b>{p.title}</b><p>{p.concept}</p></div>
+      <Brief p={p} />
       <PhaseList sc={sc} cur={cur} go={go} />
     </aside>
   )
@@ -250,7 +291,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, shellswap: (LAB && Q0.get('ss')) || CONFIRMED.shellswap, sheetwait: (LAB && Q0.get('sw')) || CONFIRMED.sheetwait, stepcue: (LAB && Q0.get('sc')) || CONFIRMED.stepcue, playbar: (LAB && Q0.get('pb')) || CONFIRMED.playbar, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, brief: (LAB && Q0.get('br')) || CONFIRMED.brief, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, shellswap: (LAB && Q0.get('ss')) || CONFIRMED.shellswap, sheetwait: (LAB && Q0.get('sw')) || CONFIRMED.sheetwait, stepcue: (LAB && Q0.get('sc')) || CONFIRMED.stepcue, playbar: (LAB && Q0.get('pb')) || CONFIRMED.playbar, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -492,6 +533,13 @@ const CTAUPS = [
   { id: 'Q2', label: 'Q-2 한 박자 읽고', desc: '내려온 뒤 1.2s 머물러 CTA 문구를 읽을 시간을 준 다음 되감는다. 포인터 없음. 여기서 마음이 바뀌었다는 서사가 또렷하지만 진입이 한 박자 길다' },
   { id: 'Q3', label: 'Q-3 등장과 겹쳐서', desc: 'CTA 가 아직 페이드 인 하는 중(0.15s)에 되감기가 출발한다. 화면이 CTA 를 따라 내려오지 않으므로 아래에 뜬 것이 스치듯 보이고 곧바로 요금제 줄로 올라간다. 가장 빠르지만 CTA 를 못 볼 수 있다' },
   { id: 'off', label: '없음 (기존)', desc: '비교용. 화면이 CTA 를 따라 내려오고 포인터가 그 위에 "탭" 으로 머문 뒤(1.5s) 되감기 — 지금 배포된 상태' },
+]
+// 좌측 설명 영역 (html[data-brief]) — 사용자 2026-09-16 "'고민' 뷰어에서 좌측 설명영역 1-1, 1-2 적용한 시안 3개"
+const BRIEFS = [
+  { id: 'D1', label: 'D-1 태그 목록', desc: '제목 → 컨셉 문단 → [장점] [고려 지점] 알약 태그가 붙은 문장이 한 줄씩. 문서의 표기를 그대로 살려 훑기 쉽고, 장점과 고려 지점이 색으로 구분된다' },
+  { id: 'D2', label: 'D-2 두 묶음', desc: '제목 → "장점" 묶음 → "고려 지점/제약 사항" 묶음. 고민 문서의 구조 그대로이고 컨셉 문단은 뺀다. 가장 문서답고 비교에 집중하지만 패널이 길어진다' },
+  { id: 'D3', label: 'D-3 접이식', desc: '제목 → 컨셉 → "장점 2 · 고려 지점 1" 한 줄. 누르면 목록이 펼쳐진다. 스텝 목록이 접힌 채 위쪽에 남아 화면을 보는 데 방해가 없고, 필요할 때만 읽는다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 제목 → 컨셉 문단만 (파란 상태 캡션은 걷은 상태)' },
 ]
 // 스텝 9 되감기 질감 (html[data-rewind]) — 사용자 2026-09-16 "스크롤 올리는 액션이 지금은 너무 빠르고 사람이 움직인다는 느낌이 덜 들어서"
 const REWINDS = [
@@ -976,6 +1024,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.reviewaway = reviewawayV }, [reviewawayV])
   const [replanendV, setReplanendV] = useState(() => (LAB ? (Q0.get('re') || CONFIRMED.replanend) : CONFIRMED.replanend))
   useEffect(() => { document.documentElement.dataset.replanend = replanendV }, [replanendV])
+  const [briefV, setBriefV] = useState(() => (LAB ? (Q0.get('br') || CONFIRMED.brief) : CONFIRMED.brief))
+  useEffect(() => { document.documentElement.dataset.brief = briefV }, [briefV])
   const [rewindV, setRewindV] = useState(() => (LAB ? (Q0.get('rw') || CONFIRMED.rewind) : CONFIRMED.rewind))
   useEffect(() => { document.documentElement.dataset.rewind = rewindV }, [rewindV])
   const [ctaupV, setCtaupV] = useState(() => (LAB ? (Q0.get('cu') || CONFIRMED.ctaup) : CONFIRMED.ctaup))
@@ -1130,7 +1180,7 @@ export default function App() {
         <nav className="an-tabs" aria-label="안 선택">
           {PROPOSALS.map((p) => (
             <button key={p.id} className={p.id === pid ? 'on' : ''} onClick={() => pick(p.id)}>
-              <span className="num">{anName(p.id)}</span><b>{p.title}</b><small>{p.id === 3 ? p.example : p.concept}</small><em>{p.status}</em>
+              <span className="num">{anName(p.id)}</span><b>{p.title}</b><small>{p.id === 3 ? p.example : p.concept}</small>
             </button>
           ))}
         </nav>
@@ -1685,6 +1735,15 @@ export default function App() {
           </div>
           )}
           {SHOW_ALL && (
+          <div className="variants v-brief">
+            <b className="vtitle">뷰어 · 좌측 설명 영역 — 시안 1-1 · 1-2 의 장점 · 고려 지점</b>
+            {BRIEFS.map((v) => (
+              <button key={v.id} aria-pressed={briefV === v.id} onClick={() => { document.documentElement.dataset.brief = v.id; setBriefV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{BRIEFS.find((v) => v.id === briefV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
           <div className="variants v-rewind">
             <b className="vtitle">시안 1-1 · 스텝 9 되감기 질감 — 올라가는 속도와 손맛 — W-1 확정</b>
             {REWINDS.map((v) => (
@@ -1820,7 +1879,7 @@ export default function App() {
           <div className="phones3">
             {PROPOSALS.map((p) => { const st = p.steps[Math.min(cur, p.steps.length - 1)]; const over = cur > p.steps.length - 1; return (
               <div className={`col ${p.id === pid ? 'on' : ''}`} key={p.id} onClick={() => pick(p.id)}>
-                <div className="col-head"><span className="num">{anName(p.id)}</span><b>{p.short}</b><em>{p.status}</em></div>
+                <div className="col-head"><span className="num">{anName(p.id)}</span><b>{p.short}</b></div>
                 <div className="scaled"><Phone key={`${replay}-${p.id}`} view={st.view} /></div>
                 <div className="col-foot"><span className="no num">{over ? '—' : `STEP ${cur + 1}`}</span><span>{over ? '이 안은 여기서 끝' : st.screen}</span></div>
               </div>

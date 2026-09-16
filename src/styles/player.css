@@ -470,3 +470,26 @@ html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-
 .stage { align-items: start; }
 .stage .phone-wrap { align-self: start; }
 .stage .round { align-self: start; margin-top: calc(872px / 2 - 28px); }
+
+/* ── 좌측 설명 영역 시안 (html[data-brief]) — 장점·고려 지점 ── */
+.wb1 .concept.brief { gap: 6px; }
+.wb1 .brief .pts { list-style: none; margin: 8px 0 0; padding: 10px 0 0; border-top: 1px solid var(--line-weak); display: flex; flex-direction: column; gap: 10px; }
+.wb1 .brief .pts li { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; line-height: 17px; letter-spacing: -.02em; color: var(--fg-neutral-solid); word-break: keep-all; }
+.wb1 .brief .tag { align-self: flex-start; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; line-height: 14px; letter-spacing: -.02em; }
+.wb1 .brief .pro .tag, .wb1 .brief .sum .pro { background: var(--blue-50); color: var(--blue-600); }
+.wb1 .brief .con .tag, .wb1 .brief .sum .con { background: #FFF4E5; color: #B25E09; }
+/* D-2 두 묶음 */
+.wb1 .brief.d2 .grp { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.wb1 .brief.d2 .grp + .grp { padding-top: 10px; border-top: 1px solid var(--line-weak); }
+.wb1 .brief.d2 .gk { font-size: 11.5px; font-weight: 700; letter-spacing: -.02em; }
+.wb1 .brief.d2 .grp.pro .gk { color: var(--blue-600); }
+.wb1 .brief.d2 .grp.con .gk { color: #B25E09; }
+.wb1 .brief.d2 ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.wb1 .brief.d2 li { position: relative; padding-left: 10px; font-size: 12.5px; line-height: 17px; letter-spacing: -.02em; color: var(--fg-neutral-solid); word-break: keep-all; }
+.wb1 .brief.d2 li::before { content: ""; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; border-radius: 1px; background: currentColor; opacity: .45; }
+/* D-3 접이식 */
+.wb1 .brief.d3 .sum { display: flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 0 0; border-top: 1px solid var(--line-weak); width: 100%; text-align: left; }
+.wb1 .brief.d3 .sum span { padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; line-height: 14px; }
+.wb1 .brief.d3 .sum .chev { margin-left: auto; width: 8px; height: 8px; border-right: 1.5px solid var(--fg-neutral-subtle); border-bottom: 1.5px solid var(--fg-neutral-subtle); transform: rotate(45deg) translateY(-2px); transition: transform .25s; }
+.wb1 .brief.d3.open .sum .chev { transform: rotate(-135deg) translateY(-2px); }
+.wb1 .brief.d3 .pts { margin-top: 4px; padding-top: 0; border-top: 0; }

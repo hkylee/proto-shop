@@ -2,7 +2,7 @@ import { AgentBackground, StatusBar, AppbarAi, ContextHeader, SearchAi, HomeIndi
 import { IcoWon } from '../components/Icons.jsx'
 
 // Figma 11996:19903 / 11996:20120 — Agent 실행 직후 홈 (키보드 열림)
-const SUGGESTIONS = ['구독 상품 해지하고 싶어', '가족 결합 현황 확인해줘', '이번달 요금이 많이 나온 이유 알려줘']
+const SUGGESTIONS = ['지금 이용중인 휴대폰과 뭐가 달라', '기기변경하면 받을 수 있는 혜택 뭐있어', '나의 이용현황에 맞는 요금제 추천해줘']   // 시안 2(ProductDetail1 SUGGEST)와 같은 문구로 일괄 (사용자 2026-09-16)
 
 const TYPE_DELAY = 700  // Agent 홈 노출 후 타이핑 시작까지
 

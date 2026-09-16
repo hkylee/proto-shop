@@ -11,7 +11,7 @@ import { SCREEN_W } from '../lib/screen.js'
 //  L1 딤 + 한 덩어리 슬라이드업 : 칩·입력창·키패드가 한 몸으로 아래에서 올라옴 (Figma 정지 화면 그대로)
 //  L2 블러 딤 + 순차 등장       : 상품 상세가 흐려지고, 키패드·입력창 먼저 → 칩이 아래에서 위로 하나씩
 //  L3 AI 버튼에서 확장          : 좌하단 AI 버튼 자리에서 입력창이 커지며 올라오고, 칩이 입력창에서 튀어나옴
-const SUGGESTIONS = ['구독 상품 해지하고 싶어', '가족 결합 현황 확인해줘', '이번달 요금이 많이 나온 이유 알려줘']
+const SUGGESTIONS = ['지금 이용중인 휴대폰과 뭐가 달라', '기기변경하면 받을 수 있는 혜택 뭐있어', '나의 이용현황에 맞는 요금제 추천해줘']   // 시안 2(ProductDetail1 SUGGEST)와 같은 문구로 일괄 (사용자 2026-09-16)
 const TYPE_DELAY = { L1: 900, L2: 1300, L3: 1300 }   // 오버레이가 자리 잡은 뒤 타이핑 시작까지
 
 export default function LaunchOverlay({ typed = '' }) {
