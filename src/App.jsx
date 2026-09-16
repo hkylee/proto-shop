@@ -174,6 +174,13 @@ const SHEETWAITS = [
   { id: 'off', label: '기존 (바로)', desc: '비교용. 문장이 나오는 즉시 시트' },
 ]
 /* 뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 (html[data-stepcue]) — 사용자 2026-09-16 "끝난다는 걸 알리고 싶다" */
+/* 뷰어 · 스텝이 재생 중이라는 표시 (html[data-playbar]) — 사용자 2026-09-16 "프로그레스 바로 스텝마다 지금 재생 중이라는 걸" */
+const PLAYBARS = [
+  { id: 'B1', label: 'B-1 폰 아래 얇은 바', desc: '폰 바로 아래 폰 폭의 2px 바. 재생 중엔 브랜드색 토막이 왼쪽에서 오른쪽으로 계속 흐르고(길이를 미리 알 수 없어 스윕), 끝나면 한 번에 채워지며 V-1 화살표 펄스가 켜진다' },
+  { id: 'B2', label: 'B-2 → 버튼 둘레 링', desc: '→ 버튼 둘레를 도는 브랜드색 링. 재생 중엔 링이 돌고, 끝나면 멈춰 꽉 찬 원이 되며 V-1 펄스로 이어진다. 안내와 진행 표시가 한 자리에 모인다' },
+  { id: 'B3', label: 'B-3 상단 재생 중 칩', desc: '폰 위에 "STEP n 재생 중 ●" 칩. 점이 깜빡이다 끝나면 "STEP n 끝" 으로 바뀐다. 글로 말해 가장 분명하지만 폰 위 공간을 쓴다' },
+  { id: 'off', label: '없음', desc: '비교용' },
+]
 const STEPCUES = [
   { id: 'V1', label: 'V-1 화살표 펄스 + 라벨', desc: '폰 오른쪽 → 버튼에 브랜드 링이 숨 쉬듯 번지고 그 위에 "다음 스텝 →" 라벨이 뜬다. 눌러야 할 것 바로 옆이라 시선 이동이 가장 짧다' },
   { id: 'V2', label: 'V-2 폰 아래 한 줄', desc: '폰 바로 아래 가운데에 "이 스텝의 재생이 끝났어요 · 폰의 대기 자리를 탭하거나 → 를 누르세요" 한 줄이 떠오른다. 두 가지 진행 방법을 다 말해 주지만 글이 길다' },
@@ -237,7 +244,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, sheetwait: (LAB && Q0.get('sw')) || CONFIRMED.sheetwait, stepcue: (LAB && Q0.get('sc')) || CONFIRMED.stepcue, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, sheetwait: (LAB && Q0.get('sw')) || CONFIRMED.sheetwait, stepcue: (LAB && Q0.get('sc')) || CONFIRMED.stepcue, playbar: (LAB && Q0.get('pb')) || CONFIRMED.playbar, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -882,9 +889,10 @@ export default function App() {
   // 완료 토스트: 마지막 스텝에 들어온 뒤 (마지막 모션 여유 + 1.5s) 표시. 스텝이 바뀌면 숨김
   /* 스텝 재생이 끝나 포인터가 탭 자리에서 기다리는 순간 뷰어(폰 밖)에 안내 (html[data-stepcue], 사용자 2026-09-16 "다음을 누르세요 라고 모바일 화면 밖에서 보여줄 구좌") */
   const [waiting, setWaiting] = useState(false)
+  const [playing, setPlaying] = useState(true)   // 스텝이 바뀌면 재생 중 → 끝 신호(ptr-park / ptr-wait)에 false (html[data-playbar] 진행 표시)
   // 자동 재생(웹 뷰어 기본, tapmode=auto)에서는 포인터가 'ptr-park' 로 멈춤을 알리고, 사용자 탭 모드에서는 'ptr-wait' — 둘 다 "이 스텝은 끝났다"
-  useEffect(() => { const on = () => setWaiting(true); window.addEventListener('ptr-wait', on); window.addEventListener('ptr-park', on); return () => { window.removeEventListener('ptr-wait', on); window.removeEventListener('ptr-park', on) } }, [])
-  useEffect(() => { setWaiting(false) }, [cur, pid, replay])
+  useEffect(() => { const on = () => { setWaiting(true); setPlaying(false) }; window.addEventListener('ptr-wait', on); window.addEventListener('ptr-park', on); return () => { window.removeEventListener('ptr-wait', on); window.removeEventListener('ptr-park', on) } }, [])
+  useEffect(() => { setWaiting(false); setPlaying(true) }, [cur, pid, replay])
   const [doneToast, setDoneToast] = useState(false)
   useEffect(() => {
     setDoneToast(false)
@@ -922,6 +930,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.stackgap = stackgapV }, [stackgapV])
   const [sheetwaitV, setSheetwaitV] = useState(() => (LAB ? (Q0.get('sw') || CONFIRMED.sheetwait) : CONFIRMED.sheetwait))
   useEffect(() => { document.documentElement.dataset.sheetwait = sheetwaitV }, [sheetwaitV])
+  const [playbarV, setPlaybarV] = useState(() => (LAB ? (Q0.get('pb') || CONFIRMED.playbar) : CONFIRMED.playbar))
+  useEffect(() => { document.documentElement.dataset.playbar = playbarV }, [playbarV])
   const [stepcueV, setStepcueV] = useState(() => (LAB ? (Q0.get('sc') || CONFIRMED.stepcue) : CONFIRMED.stepcue))
   useEffect(() => { document.documentElement.dataset.stepcue = stepcueV }, [stepcueV])
   const [sugfxV, setSugfxV] = useState(() => (LAB ? (Q0.get('sb') || CONFIRMED.sugfx) : CONFIRMED.sugfx))
@@ -1462,8 +1472,15 @@ export default function App() {
             <span className="vdesc">{GROWRADS.find((v) => v.id === growradV)?.desc}</span>
           </div>
           )}
+          <div className="variants v-playbar">
+            <b className="vtitle">뷰어 · 스텝 재생 중 표시 — 미확정</b>
+            {PLAYBARS.map((v) => (
+              <button key={v.id} aria-pressed={playbarV === v.id} onClick={() => { setPlaybarV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{PLAYBARS.find((v) => v.id === playbarV)?.desc}</span>
+          </div>
           <div className="variants v-stepcue">
-            <b className="vtitle">뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 — 미확정</b>
+            <b className="vtitle">뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 — V-1 확정</b>
             {STEPCUES.map((v) => (
               <button key={v.id} aria-pressed={stepcueV === v.id} onClick={() => { setStepcueV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1786,6 +1803,12 @@ export default function App() {
         <button className="round" onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="이전">←</button>
         <div className="phone-wrap"><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
         <button className={`round ${waiting && cur < steps.length - 1 ? 'cue' : ''}`} onClick={() => go(cur + 1)} disabled={cur === steps.length - 1} aria-label="다음">→</button>
+        {/* 스텝 재생 진행 표시 (html[data-playbar]): B1 폰 아래 얇은 바(재생 중 스윕 → 끝나면 채움) / B2 → 버튼 둘레 링 / B3 상단 '재생 중' 칩 */}
+        {playbarV !== 'off' && (
+          <div className={`playbar pb-${playbarV} ${playing ? 'playing' : 'done'}`} aria-hidden>
+            {playbarV === 'B3' ? <span className="lbl"><i />{playing ? `STEP ${cur + 1} 재생 중` : `STEP ${cur + 1} 끝`}</span> : <i className="fill" />}
+          </div>
+        )}
         {waiting && cur < steps.length - 1 && stepcueV !== 'off' && (
           <div className={`step-cue sc-${stepcueV}`} aria-live="polite">
             {stepcueV === 'V1' && <span className="lbl">다음 스텝 →</span>}
