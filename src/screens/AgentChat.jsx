@@ -207,6 +207,7 @@ const DISC_LIST = [
 ]
 const DISC_PICK = 0                                  // 추천·선택 = 공통지원금 (Figma 435:178652 검은 테두리)
 const DISC_FOLD = '선택한 할인방법'
+const FOLD_REDO = '재선택'   // 접힌 요약 줄의 되돌리기 라벨 (사용자 2026-09-16: '다시 선택하기' → '재선택')
 const PEN_ANSWER = ['지금 요금제를 변경해도 위약금이나 할인반환금은 발생하지 않아요. 안심하고 변경하셔도 돼요.', '이어서 할인 방법을 선택할까요?']
 const BEN_MSG = '추가 혜택을 받을 수 있어요. 적용할 혜택 방식을 선택해 주세요. 데이터를 넉넉하게 쓰시려면 청년 데이터 60GB 추가를 추천드려요.'
 const BEN_LIST = [
@@ -2361,7 +2362,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           </Card>
           )}
           {/* 요금제 선택이 끝나면 카드가 접히고 이 요약 줄이 남는다 (Figma ixGPs9 261:117032 마지막 프레임) */}
-          <div className="plan-fold at-card" ref={foldCardRef}><span className="lbl">{foldLbl}</span><b>{planName}</b><em>다시 선택하기</em></div>
+          <div className="plan-fold at-card" ref={foldCardRef}><span className="lbl">{foldLbl}</span><b>{planName}</b><em>{FOLD_REDO}</em></div>
 
           {/* 5번 끝: 요금제를 적용하면 곧바로 할인 방법이 이어진다 (Figma 435:177019). 위약금 질문이 이 위에서 끼어든다 */}
           <div className="dis" ref={disRef}>
@@ -2383,12 +2384,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {/* 6→7: 할인 방법을 고르면 이 재출력 카드도 요약 줄로 접힌다 (Figma ixGPs9 271:125825) */}
             <div className="pen-fold-host" ref={penFoldRef}>
               {/* 스텝 6 카드는 할인 방법 3행이므로 남는 줄도 '선택한 할인방법 · 공통지원금' (사용자 2026-09-16). 요금제 줄은 A2·A3 에서만 두 번째로 */}
-              <div className="plan-fold pf-1"><span className="lbl">{DISC_FOLD}</span><b>{DISC_LIST[discPick >= 0 ? discPick : DISC_PICK][0]}</b><em>다시 선택하기</em></div>
-              <div className="plan-fold pf-2"><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
+              <div className="plan-fold pf-1"><span className="lbl">{DISC_FOLD}</span><b>{DISC_LIST[discPick >= 0 ? discPick : DISC_PICK][0]}</b><em>{FOLD_REDO}</em></div>
+              <div className="plan-fold pf-2"><span className="lbl">선택한 요금제</span><b>{planName}</b><em>{FOLD_REDO}</em></div>
             </div>
           </div>
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
-          <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>다시 선택하기</em></div>
+          <div className="plan-fold at-tail" ref={foldTailRef}><span className="lbl">{foldLbl}</span><b>{foldPlanName}</b><em>{FOLD_REDO}</em></div>
 
           {/* 7~9번: 옵션 순차 선택 (Figma 26:31995 → 26:33289). 추천은 안내문 + '추천' 배지로만, 선택은 포인터 탭 */}
           <div className="opts" ref={optsRef}>
@@ -2405,7 +2406,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
                   ))}
                 </Card>
                 {/* 고르면 이 줄로 접힌다 (Figma ixGPs9 271:126718 — 모든 옵션 턴 공통 규칙) */}
-                <div className="plan-fold opt-fold"><span className="lbl">선택한 {o.sum}</span><b>{optPick[i] >= 0 ? [o.rows[optPick[i]][0], o.rows[optPick[i]][2]].filter(Boolean).join(' ') : ''}</b><em>다시 선택하기</em></div>
+                <div className="plan-fold opt-fold"><span className="lbl">선택한 {o.sum}</span><b>{optPick[i] >= 0 ? [o.rows[optPick[i]][0], o.rows[optPick[i]][2]].filter(Boolean).join(' ') : ''}</b><em>{FOLD_REDO}</em></div>
               </div>
             ))}
             <div className="opt-turn done">
@@ -2419,7 +2420,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           <div className="replan-out" ref={replanOutRef}>
             <AiMessage>요금제가 {planName}에서 {POP_PLANS[REPLAN_PICK].name}으로 변경되었어요.</AiMessage>
             {/* Figma 250:154093 은 이 줄의 라벨이 '선택한 요금제' — 위 줄(선택됨)과 달리 바꾼 결과를 다시 이름 붙여 준다 */}
-            <div className="plan-fold at-new" ref={foldNewRef}><span className="lbl">선택한 요금제</span><b>{POP_PLANS[REPLAN_PICK].name}</b><em>다시 선택하기</em></div>
+            <div className="plan-fold at-new" ref={foldNewRef}><span className="lbl">선택한 요금제</span><b>{POP_PLANS[REPLAN_PICK].name}</b><em>{FOLD_REDO}</em></div>
             {/* 끝맺음 (html[data-replanend]) — E2 에서만 보이는 한 마디 */}
             <AiMessage className="re-ask">{REPLAN_ASK}</AiMessage>
             <div className="cta-stack re-cta"><div className="button-ai" ref={reChipRef}>{DONE_CHIP}</div></div>
@@ -2537,7 +2538,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
               <Card className="plans flatable pay-ask">
                 {PAY1_ROWS.map((t, i) => <PlanRow key={t} name={t} sel={p2pick === i} style={{ '--i': i }} />)}
               </Card>
-              <div className="plan-fold at-new"><span className="lbl">{PAY1_FOLD}</span><b>{PAY1_ROWS[Math.max(p2pick, 0)]}</b><em>다시 선택하기</em></div>
+              <div className="plan-fold at-new"><span className="lbl">{PAY1_FOLD}</span><b>{PAY1_ROWS[Math.max(p2pick, 0)]}</b><em>{FOLD_REDO}</em></div>
               <AiMessage>{PAY1_NEED}</AiMessage>
               <Card className="form-card fin-card">
                 <h3>{PAY1_LABEL}</h3>
