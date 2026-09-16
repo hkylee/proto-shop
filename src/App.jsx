@@ -107,13 +107,17 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
 }
 // 마지막 스텝이 끝나면 1.5s 뒤 뜨는 완료 토스트 (Figma ixGPs9 26:40069 · 51:23693 형식). 1·2·3안 공통. 탭하면 다음 안의 첫 스텝으로(3안이면 1안으로)
 const DONE_DELAY = 1500
+// 종료 연출 (사용자 2026-09-16 "명확히 종료되었다고 딤 깔아주라, 1-2초 뒤 딤 → 플로팅"): 마지막 스텝 끝 1.8s 뒤 화면 위에 딤 + '테스트 종료', 0.7s 뒤 토스트
 function DoneToast({ show, onNext }) {
-  return (
-    <button className={`done-toast ${show ? 'on' : ''}`} onClick={onNext} aria-hidden={!show}>
+  const [toast, setToast] = useState(false)
+  useEffect(() => { if (!show) { setToast(false); return } const t = setTimeout(() => setToast(true), 700); return () => clearTimeout(t) }, [show])
+  return (<>
+    <div className={`done-dim ${show ? 'on' : ''}`} aria-hidden={!show}><b>테스트 종료</b></div>
+    <button className={`done-toast ${toast ? 'on' : ''}`} onClick={onNext} aria-hidden={!toast}>
       <span className="row"><b>프로토타이핑이 완료되었습니다.</b><i className="chev" /></span>
       <small>다음 테스트로 넘어가시려면 눌러주세요.</small>
     </button>
-  )
+  </>)
 }
 const WEBS = [
   { id: 'WA', label: 'W-A 상단 탭', desc: '헤더 아래 1·2·3안 세그먼트 탭. 탭마다 제목 + 한 줄 개념. 고르면 왼쪽 스텝퍼·폰·목적 카드가 그 안의 것으로 바뀐다. 한 번에 한 안만 보되 전환이 가장 빠름' },

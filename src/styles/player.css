@@ -493,3 +493,10 @@ html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-
 .wb1 .brief.d3 .sum .chev { margin-left: auto; width: 8px; height: 8px; border-right: 1.5px solid var(--fg-neutral-subtle); border-bottom: 1.5px solid var(--fg-neutral-subtle); transform: rotate(45deg) translateY(-2px); transition: transform .25s; }
 .wb1 .brief.d3.open .sum .chev { transform: rotate(-135deg) translateY(-2px); }
 .wb1 .brief.d3 .pts { margin-top: 4px; padding-top: 0; border-top: 0; }
+
+/* ── 테스트 종료 딤 (2026-09-16): 폰 화면 위에 깔리고 가운데 '테스트 종료', 그 위로 완료 토스트 ── */
+.done-dim { position: absolute; inset: 0; border-radius: 44px; background: rgba(6,12,31,.58); z-index: 29; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .5s cubic-bezier(.65,0,.35,1); }
+.done-dim.on { opacity: 1; pointer-events: auto; }
+.done-dim b { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: -.03em; transform: translateY(-40px); text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+.m-stage .done-dim { inset: auto; left: 0; top: 0; width: var(--cw, 393px); height: var(--ch, 852px); transform: scale(var(--ms)); transform-origin: 0 0; border-radius: 40px; }
+.m-root.desk .m-stage .done-dim { left: calc((var(--fw) - var(--cw, 393px) * var(--ms)) / 2); top: calc((var(--fh) - var(--ch, 852px) * var(--ms)) / 2); border-radius: 0; }
