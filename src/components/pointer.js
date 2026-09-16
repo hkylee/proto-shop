@@ -9,7 +9,7 @@ import { SCREEN_W } from '../lib/screen.js'
 // 사용자 탭 모드 (html[data-tapmode="user"], 폰 도메인 기본 · 2026-09-10): 시나리오의 모든 탭 지점에서 멈춰 대상 위에 '탭' 안내를 띄우고
 // 사용자가 그 자리를 실제로 탭해야 이어진다. 스텝 끝 대기(park)도 사용자가 탭하면 'ptr-park-tap' 이벤트 → 셸이 다음 스텝으로.
 export const userTap = () => document.documentElement.dataset.tapmode === 'user'
-const emit = (name) => window.dispatchEvent(new CustomEvent(name))
+const emit = (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail }))
 // 스텝 끝 대기 자리를 사용자가 탭했으면 그 자리를 '장전'해 두고, 다음 스텝의 첫 tap 이 같은 자리면 다시 기다리지 않는다 (한 번 탭 = 한 번 진행)
 let armed = null
 const sameSpot = (a, b) => {
@@ -114,6 +114,8 @@ export default class Pointer {
       this._startWait(el, () => { armed = el; emit('ptr-park-tap') }); this.layer.classList.add('park')
     })
   }
+  // 포인터 없이 스텝을 넘긴다 — 자동 재생 셸이 ptr-park 와 같은 신호로 받되 지연은 호출자가 정한다 (스텝 8 → 9, html[data-ctaup] 2026-09-16)
+  handoff(delay = 0) { this.hide(); emit('ptr-park', { delay }) }
   hold() { this.layer.classList.add('press') }     // 누른 채 (드래그 시작)
   release() { this.layer.classList.remove('press') }
   hover() {

@@ -38,8 +38,16 @@ html = html.replace(/<script type="module"[^>]*src="(\/assets\/[^"]+\.js)"[^>]*>
 html = html.replace(/<link rel="stylesheet" as="style" crossorigin href="https:\/\/cdn\.jsdelivr[^>]*>|<!doctype html>|<\/?html[^>]*>|<\/?head>|<\/?body>|<meta[^>]*>/gi, '')
 
 // 주소창이 없는 아티팩트용 기본 쿼리 (예: `node scripts/build-single.mjs out.html "lab=all&an=3&step=9&ru=U1"`)
-const q = process.argv[3]
+const q = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : ''
 if (q) html = `<script>window.__LAB_Q=${JSON.stringify(q)}</script>` + html
+
+// --local: 더블클릭(file://)으로 열 수 있는 완전한 HTML 문서. 아티팩트용 래퍼 제거 상태로는 charset 이 없고,
+// history.replaceState('/1?step=1') 이 file:// 에서 SecurityError 로 막혀 빈 화면이 되므로 셤으로 우회 (2026-09-15)
+if (process.argv.includes('--local')) {
+  const shim = '<script>(function(){if(location.protocol!=="file:")return;for(const k of ["pushState","replaceState"]){const o=history[k].bind(history);history[k]=function(s,t,u){try{if(typeof u==="string"){const i=u.indexOf("?");u=location.pathname+(i>=0?u.slice(i):"")}return o(s,t,u)}catch(e){}}}})()</script>'
+  html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+    + html.replace(/<title>[^<]*<\/title>/, (m) => `${m}</head><body>${shim}`) + '</body></html>'
+}
 
 const out = process.argv[2] || join(root, 'dist', 'single.html')
 writeFileSync(out, html.trim())

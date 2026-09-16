@@ -16,6 +16,9 @@ const stepOf = (p, st) => {
 }
 const PROPOSALS = proposalsData.proposals.map((p) => p.id === 1 ? { ...p, steps: data.steps, phases: data.phases } : { ...p, steps: p.steps.map((st) => stepOf(p, st)) })   // 2026-09-12 시안 번호 교체: 구현된 안(steps.json) 이 1안
 const scOf = (pid) => PROPOSALS.find((p) => p.id === pid) || PROPOSALS[0]
+// 안 이름 (사용자 2026-09-16 "시안 1, 2, 3 워딩 → 시안 1-1, 1-2, 시안 2"): Agent 중심 두 안은 1-1 · 1-2, Static 중심은 2. URL(/1 /2 /3)과 id 는 그대로
+const AN_NAME = { 1: '시안 1-1', 2: '시안 1-2', 3: '시안 2' }
+const anName = (id) => AN_NAME[id] || `${id}안`
 // 아래 헬퍼들은 현재 시나리오(sc)에 대해 동작하도록 함수형으로
 const stepIdxIn = (sc, id) => sc.steps.findIndex((s) => s.id === id)
 const phaseOfIn = (sc, i) => sc.phases.findIndex((p) => p.steps.includes(sc.steps[i].id))
@@ -33,7 +36,7 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
         {PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)} title={q.title}><b>{q.id}</b><span>{q.short}</span></button>)}
       </nav>
       <aside className="rnav1">
-        <div className="head an-head"><span className="num">{p.id}안 · {p.status}</span><b>{p.title}</b><span>{p.concept}</span></div>
+        <div className="head an-head"><span className="num">{anName(p.id)} · {p.status}</span><b>{p.title}</b><span>{p.concept}</span></div>
         <PhaseList sc={sc} cur={cur} go={go} />
       </aside>
     </div>
@@ -55,7 +58,7 @@ function AnPanel({ wb, pid, pick, sc, cur, go }) {
   // B1
   return (
     <aside className="rnav1 wb1" aria-label="안 · 스텝">
-      <div className="seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{q.id}안</button>)}</div>
+      <div className="seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{anName(q.id)}</button>)}</div>
       <div className="concept"><span className="num">{p.status} · {p.steps.length} 스텝</span><b>{p.title}</b><p>{p.concept}</p></div>
       <PhaseList sc={sc} cur={cur} go={go} />
     </aside>
@@ -83,7 +86,7 @@ const CARDS = Q0.get('cards') === '1'   // 오른쪽 설명 카드(고객 발화
 const SHOW_ALL = LAB && Q0.get('lab') === 'all'   // 확정된 시안 그룹까지 모두 보기
 if (LAB && Q0.get('only')) document.documentElement.dataset.only = Q0.get('only')   // 그 그룹의 토글만 남기고 나머지 시안 줄은 숨긴다
 // CSS 는 두 속성을 견줄 수 없어 화이트리스트로 두었더니 새 시안 줄이 걸러졌다 (2026-09-15) — 클래스 이름으로 직접 켠다
-const showOnly = () => { const k = LAB && Q0.get('only'); if (k) document.querySelectorAll(`.variants.v-${k}`).forEach((el) => { el.style.display = 'flex' }) }
+const showOnly = () => { const k = LAB && Q0.get('only'); if (k) k.split(',').forEach((g) => document.querySelectorAll(`.variants.v-${g}`).forEach((el) => { el.style.display = 'flex' })) }   // 콤마로 여러 그룹
 /* 위치 복원 (2026-09-10). 브라우저(Chrome 메모리 절약·Safari)가 백그라운드 탭을 정리한 뒤 다시 로드하면 페이지 상태가 모두 사라진다.
    → 안·스텝을 URL(?step=) 과 sessionStorage 에 항상 기록하고, 재로드로 돌아온 경우 <html data-restored="1"> 을 세워 화면들이
    재생 대신 최종 상태(reducedMotion() 경로)로 바로 앉게 한다. 플래그는 사용자가 다음 이동을 하는 순간 지운다 */
@@ -106,6 +109,45 @@ const MOBILE_Q = '(max-width: 700px)'
 /* → 를 누르지 않아도 재생이 끝나면(포인터 대기 신호) 다음 스텝으로 넘어가는 구간 (사용자 2026-09-15).
    2안: 5~8 할인·SIM·혜택·할인수단 · 10~13 신청서 · 14~16 인증·결제 — 값은 '이 스텝이 끝나면 넘어간다' 인 1-based 스텝 번호 */
 const AUTO_CHAIN = { 2: [5, 6, 7, 10, 11, 12, 14, 15] }
+// 1안 스텝 8 → 9 는 ctaup 시안이 켜져 있을 때만 이어진다 (CTA 가 뜨고 포인터 대기 없이 되감기 — 신호는 Pointer.handoff)
+const chainedCtaup = (pid, next) => pid === 1 && next === 8 && (document.documentElement.dataset.ctaup || CONFIRMED.ctaup) !== 'off'
+/* 3안 AI Agent 우측 상단 [나가기] → '고른 값은 저장돼요' confirm (html[data-exitpop]) — 사용자 2026-09-15 */
+/* 그 팝업의 저장 내역을 '직접 고른 값 / T 에게 물어본 값' 으로 나누는 방식 (html[data-exitlist]) — 사용자 2026-09-15 */
+/* D-1 두 묶음의 위계 (html[data-exithier]) — 사용자 2026-09-15 "직접 고른거랑 aiagent 한테 물어본거 좀 더 위계 드러나게" */
+const EXITHIERS = [
+  { id: 'H1', label: 'H-1 무게로 가른다', desc: "'T 에게 물어본 것'(요금제) 만 흰 카드에 올리고 값을 크게, 그 아래 '직접 고른 것' 은 배경 없이 작은 회색 목록으로 둔다. 시선이 요금제에 먼저 닿고 나머지는 '참고' 로 읽힌다. 가장 조용하고 팝업도 짧다" },
+  { id: 'H2', label: 'H-2 카드 두 장으로 뗀다', desc: '두 묶음을 각각 박스로 떼고, 물어본 쪽에 옅은 브랜드 틴트와 테두리를 준다. 경계가 눈으로 바로 잘려 "이건 T 가, 이건 내가" 가 가장 분명하다. 대신 박스가 둘이라 팝업이 가장 길다' },
+  { id: 'H3', label: 'H-3 물어본 것만 펼치고 나머지는 접는다', desc: "요금제만 카드로 펼치고 '직접 고른 것 6개 ›' 는 한 줄로 접는다. 위계가 '펼침 / 접힘' 이라는 가장 센 신호로 드러나고 팝업이 짧다. 대신 직접 고른 값은 한 번 더 눌러야 보인다" },
+]
+const EXITLISTS = [
+  { id: 'D1', label: 'D-1 두 묶음으로 갈라 보여주기', desc: "'T 에게 물어본 것'(용량 · 요금제) 과 '직접 고른 것'(색상 · 수령 · 납부 · 가입 · 사용자) 을 소제목으로 나눠 둘 다 펼친다. 무엇을 Agent 가 도왔고 무엇을 내가 골랐는지 경계가 가장 또렷하다. 대신 항목이 늘수록 팝업이 길어진다" },
+  { id: 'D2', label: 'D-2 한 목록에 ✦ 표시로 구분', desc: '줄을 하나로 이어 두고 물어본 항목 앞에만 ✦ 를 붙인다. "지금까지 고른 전부" 를 한눈에 훑기 좋고 길이도 가장 짧다. 대신 표시가 작아 구분이 약하고, 범례 한 줄이 따라붙는다' },
+  { id: 'D3', label: 'D-3 물어본 것만, 나머지는 한 줄로', desc: "T 가 답한 둘만 보여주고 직접 고른 것은 '직접 고르신 5개도 그대로 저장돼요' 한 줄로 접는다. 팝업이 가장 짧고 Agent 가 한 일에 초점이 선다. 대신 직접 고른 값이 무엇이었는지는 확인할 수 없다" },
+]
+/* 시안 2 스텝 3 · 용량 질의 답의 그릇 (html[data-askmodal]) — 사용자 2026-09-16 "용량은 ai agent 한테 바로 질의 → 모달로" */
+const ASKMODALS = [
+  { id: 'Q1', label: 'Q-1 스트립 · AiAgentBottomSheet', desc: 'Figma 360:86975 그대로. 입력창 위 글라스 카드에 ✦ 용량 선택 · 이유 한 줄 + 추천 · [이어서 대화하기] [추천 선택하기 ›]. 추천 항목은 페이지 위에서 표시된다' },
+  { id: 'Q2', label: 'Q-2 시트 · 추천 1장', desc: '입력창 위로 2안 언어의 바텀 시트가 올라온다. 제목 · 이유 한 줄 · 추천 용량(512G) 카드 한 장 · [이 항목으로 선택]. 답과 선택이 한 그릇에 있어 가장 짧게 닫힌다. 대신 다른 용량은 시트 안에서 볼 수 없다' },
+  { id: 'Q3', label: 'Q-3 시트 · 용량 3개', desc: '같은 시트에 256G · 512G · 1TB 가 모두 있고 추천 행에만 [AI 추천] 배지 + 파란 테두리. 행을 탭하면 바로 고르고 닫힌다 (2안 시트 규칙). 비교가 되는 대신 시트가 길고 페이지의 목록과 내용이 겹친다' },
+]
+/* 시안 2 스텝 5→6 · Agent 에서 나가는 순서 (html[data-exitflow]) — 사용자 2026-09-16 "질의 이후 나갈 때 confirm popup 뜨면서 다시 상품 상세로" */
+/* 시안 2 스텝 5 · SearchAi 1줄 → 2줄 전환 (html[data-sinput], Figma 472:144639) — 사용자 2026-09-16 "인풋필드 변화를 매끄럽게" */
+const SINPUTS = [
+  { id: 'M1', label: 'M-1 제자리에서 자라기', desc: '한 줄을 넘치는 글자가 찍히는 순간 입력창이 0.35s 로 위로 자라고(52 → 110) 본문이 바로 두 줄로 흐른다. ✦ 는 아래 줄로 내려가고 음성 아이콘은 사라지며 [↑] 가 나타난다. 한 박자, 가장 자연스러운 "늘어남"' },
+  { id: 'M2', label: 'M-2 두 박자 · 층이 먼저', desc: '넘치는 순간 먼저 아이콘 줄이 아래로 내려가 층이 생기고(94), 0.38s 뒤 본문이 줄바꿈되며 110 으로 한 번 더 자란다. "칸이 생겼다 → 글이 채워진다" 가 읽혀 무슨 일이 일어났는지 가장 분명하다. 대신 두 번 움직인다' },
+  { id: 'M3', label: 'M-3 크로스페이드', desc: '넘치는 순간 안쪽이 0.15s 사라지고 두 줄 레이아웃으로 페이드업. 높이만 0.26s 로 이어진다. 글자가 옮겨 다니는 모습이 없어 가장 깔끔하지만 "자란다" 는 느낌은 약하다' },
+]
+const EXITFLOWS = [
+  { id: 'F1', label: 'F-1 시트 [네] → 나가기 → 확인', desc: 'Figma 대로 "추천된 요금제를 선택하실래요?" 시트에서 [네] 를 눌러 고르고(선택 완료 선), 우측 상단 [나가기] 를 누르면 확인 팝업이 뜬다. 고르는 일과 나가는 일이 나뉘어 가장 또박또박하다. 대신 탭이 두 번' },
+  { id: 'F2', label: 'F-2 시트 없이 나가기 한 번', desc: '비교표 뒤 안내 한 줄만 남기고 [나가기] 를 누른다. 확인 팝업이 "추천 요금제로 선택하고 돌아갈까요?" 로 선택까지 맡는다. 가장 짧지만 시트가 없어 Figma 와 다르고, 고객이 고른 순간이 팝업 안에 숨는다' },
+  { id: 'F3', label: 'F-3 [네] 자리에 확인이 이어짐', desc: '시트에서 [네] 를 누르면 시트가 내려가며 곧바로 확인 팝업이 뜬다. [나가기] 를 따로 누르지 않아 흐름이 한 줄로 이어진다. 대신 "돌아간다" 를 고객이 정하지 않았는데 팝업이 먼저 묻는다' },
+]
+const EXITPOPS = [
+  { id: 'X1', label: 'X-1 가운데 알럿', desc: '화면 가운데 뜨는 가장 익숙한 형태. 딤이 뒤를 덮어 "여기서 한 번 정하고 간다" 가 분명하고, 글이 짧아 판단이 빠르다. 대신 무엇이 저장되는지는 문장으로만 말한다' },
+  { id: 'X2', label: 'X-2 하단 시트', desc: '아래에서 올라오는 시트. 이 프로토타입의 다른 선택(요금제·인증)과 같은 언어라 흐름이 끊기는 느낌이 가장 적고, 손이 닿는 자리에 버튼이 온다. 대신 "확인하고 넘어가는 관문" 이라는 무게는 약하다' },
+  { id: 'X3', label: 'X-3 저장 내역을 보여주는 카드', desc: '요금제·색상·용량처럼 지금까지 고른 값을 목록으로 펼쳐 보여준다. "정말 저장되나?" 라는 불안을 문장이 아니라 눈으로 지운다. 대신 팝업이 길어지고, 항목이 늘면 스크롤이 생긴다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 확인 없이 바로 상세로 돌아간다' },
+]
 const MSHELLS = [
   { id: 'M0', label: 'M-0 풀페이지', desc: '컨트롤 없음. 폰 폭에 맞춰 화면만. 옆으로 밀거나 좌우 가장자리를 탭해 스텝 이동, 상단 가운데(상태바 자리)를 탭하면 안·스텝·목적 시트' },
   { id: 'M3', label: 'M-3 하단 알약', desc: '아래 76px 띠에 알약 하나: ‹  1안 · 2/6 색상 질의  ›. 폰 화면을 가리지 않는다(0.9x). 가운데를 누르면 안·스텝·목적 시트' },
@@ -113,7 +155,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -351,6 +393,20 @@ const REPLANENDS = [
   { id: 'E2', label: 'E-2 한 마디 덧붙이고 CTA', desc: '줄이 뜬 뒤 "변경된 요금제로 신청서 작성을 이어갈게요." 한 줄을 더하고 CTA 를 낸다. 재선택이라는 곁길이 말로 닫히고 본 흐름으로 돌아왔다는 것이 분명하지만, 한 박자 길어진다' },
   { id: 'E3', label: 'E-3 위의 흐려진 CTA 를 걷고 새로', desc: '재선택 전에 있던 [신청서 작성 시작하기] 가 먼저 걷히고(0.34s, 줄어든 높이만큼 스크롤 보정) 새 자리에 다시 뜬다. 대화에 CTA 가 언제나 하나만 있어 어디를 눌러야 하는지 헷갈리지 않는다' },
   { id: 'off', label: '없음 (기존)', desc: '비교용. 변경 안내와 요금제 줄까지만 — 지금 배포된 상태(요금제 줄은 CSS 버그로 보이지도 않았다)' },
+]
+// 스텝 8 → 9 · [신청서 작성 시작하기] 가 뜬 뒤 포인터가 머무는 대신 곧장 되감기로 (html[data-ctaup]) — 사용자 2026-09-16 "버튼 누르는 듯한 액션 나오기 전에 위로 바로 올렸음"
+const CTAUPS = [
+  { id: 'Q1', label: 'Q-1 뜨고 바로', desc: '[신청서 작성 시작하기] 가 뜨고 화면이 그 자리까지 내려온 뒤 0.3s 만에 되감기가 출발한다. 포인터는 나오지 않는다. "CTA 는 봤다, 그런데 요금제부터 다시" 가 가장 짧게 읽힌다' },
+  { id: 'Q2', label: 'Q-2 한 박자 읽고', desc: '내려온 뒤 1.2s 머물러 CTA 문구를 읽을 시간을 준 다음 되감는다. 포인터 없음. 여기서 마음이 바뀌었다는 서사가 또렷하지만 진입이 한 박자 길다' },
+  { id: 'Q3', label: 'Q-3 등장과 겹쳐서', desc: 'CTA 가 아직 페이드 인 하는 중(0.15s)에 되감기가 출발한다. 화면이 CTA 를 따라 내려오지 않으므로 아래에 뜬 것이 스치듯 보이고 곧바로 요금제 줄로 올라간다. 가장 빠르지만 CTA 를 못 볼 수 있다' },
+  { id: 'off', label: '없음 (기존)', desc: '비교용. 화면이 CTA 를 따라 내려오고 포인터가 그 위에 "탭" 으로 머문 뒤(1.5s) 되감기 — 지금 배포된 상태' },
+]
+// 스텝 9 되감기 질감 (html[data-rewind]) — 사용자 2026-09-16 "스크롤 올리는 액션이 지금은 너무 빠르고 사람이 움직인다는 느낌이 덜 들어서"
+const REWINDS = [
+  { id: 'W1', label: 'W-1 느린 곡선 (손가락 없음)', desc: '지금(P-1, 약 1.4s)의 절반 속도. 사인 곡선으로 천천히 출발해 천천히 멎는다(1.6~2.6s). 인디케이터만 켜진다. 사람 손은 안 보이지만 "화면이 훑어 올라간다" 는 시간감이 생긴다' },
+  { id: 'W2', label: 'W-2 엄지 두 번 튕기기', desc: '손가락이 화면을 짧게 튕겨 반쯤 올라오고(관성 감속) 240ms 멈칫한 뒤 한 번 더 튕겨 도착한다. 실제로 엄지로 두 번 스크롤하는 리듬이라 사람이 움직인다는 느낌이 가장 또렷하다. 총 2.5s 안팎' },
+  { id: 'W3', label: 'W-3 한 번 밀고 긴 관성', desc: '손가락이 화면의 절반을 끌어올리고 놓으면 나머지가 1.5s 동안 길게 감속하다 14px 넘겼다 되돌아온다. 한 번의 힘찬 플링 — 손은 한 번만 보이고 관성이 사람 손맛을 대신한다' },
+  { id: 'off', label: '없음 (이전 U-1)', desc: '비교용. 인디케이터 + P-1 곡선(가속-감속 대칭) 약 1.4s — W-1 확정 전 상태' },
 ]
 // 스텝 9 진입 · 대화 위쪽의 '선택한 요금제 · 다시 선택하기' 줄로 화면을 되감는 방법 (html[data-replanup], U-1 확정 2026-09-14) — 사용자 2026-09-14 "[다시 선택하기] 누르려면 화면이 거기로 앵커링이 되어 있는 상황에서"
 const REPLANUPS = [
@@ -626,12 +682,12 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
   const stageRef = useRef(null)
   // 자동 재생 플로우: 스텝 끝 대기(ptr-park) → 1.5s → 다음 스텝. 대기 없이 끝나는 스텝은 폰 화면 DOM 이 4.5s 동안 멈추면 다음. 마지막 스텝은 완료 토스트에서 멈춤
   useEffect(() => {
-    const chained = (AUTO_CHAIN[pid] || []).includes(cur + 1)
+    const chained = (AUTO_CHAIN[pid] || []).includes(cur + 1) || chainedCtaup(pid, cur + 1)
     if ((!AUTOPLAY && !chained) || cur >= n - 1 || !stageRef.current) return
     let t = 0
     const next = () => goRef.current(curRef2.current + 1)
     const arm = (ms) => { clearTimeout(t); t = setTimeout(next, ms) }
-    const onPark = () => arm(1500)
+    const onPark = (e) => arm(e.detail?.delay ?? 1500)   // handoff 는 지연을 직접 넘긴다
     addEventListener('ptr-park', onPark)
     // 체인 구간은 포인터 대기 신호로만 넘어간다 — DOM 정지 감지(4.5s)는 읽는 시간이 긴 스텝을 잘라 먹는다
     if (!AUTOPLAY) return () => { clearTimeout(t); removeEventListener('ptr-park', onPark) }
@@ -653,8 +709,8 @@ function MobileShell({ mshell, mfit, pid, pick, sc, cur, go, step, doneToast, ne
   const onTS = (e) => { tx.current = { x: e.touches[0].clientX, y: e.touches[0].clientY } }
   const onTE = (e) => { const t = tx.current; if (!t) return; const dx = e.changedTouches[0].clientX - t.x, dy = e.changedTouches[0].clientY - t.y; tx.current = null; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1)) }
   const pi = phaseOfIn(sc, cur)
-  const label = `${pid}안 · ${cur + 1}/${n}`
-  const Seg = () => <div className="m-seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{q.id}안</button>)}</div>
+  const label = `${anName(pid)} · ${cur + 1}/${n}`
+  const Seg = () => <div className="m-seg">{PROPOSALS.map((q) => <button key={q.id} className={q.id === pid ? 'on' : ''} onClick={() => pick(q.id)}>{anName(q.id)}</button>)}</div>
   return (
     <div className={`m-root ${fill ? 'fill' : 'desk'} ${sheet ? 'sheet-on' : ''}`} style={{ '--ms': ms, '--cw': `${sw}px`, '--ch': `${sh}px`, '--fw': `${fw}px`, '--fh': `${fh}px` }}>
       {!fill && (
@@ -752,7 +808,9 @@ export default function App() {
   useEffect(() => {
     setDoneToast(false)
     if (cur !== steps.length - 1) return
-    const t = setTimeout(() => setDoneToast(true), DONE_DELAY + (pid === 3 ? 700 : pid === 1 ? 1900 : 300))   // 1안: 주문 확인 화면 슬라이드 0.45 + 대기 0.9 + 팬 ≤1.5 뒤
+    // 시안 2: 시간이 아니라 화면 신호 — 풀팝업이 내려가 상세에 랜딩한('pd1-landed') 2초 뒤 (사용자 2026-09-16)
+    if (pid === 3) { let t; const on = () => { clearTimeout(t); t = setTimeout(() => setDoneToast(true), 2000) }; window.addEventListener('pd1-landed', on); return () => { clearTimeout(t); window.removeEventListener('pd1-landed', on) } }
+    const t = setTimeout(() => setDoneToast(true), DONE_DELAY + (pid === 1 ? 1900 : 300))   // 1안: 주문 확인 화면 슬라이드 0.45 + 대기 0.9 + 팬 ≤1.5 뒤
     return () => clearTimeout(t)
   }, [cur, pid, steps.length, replay])
   const nextTest = () => { userNav(); const n = pid === 3 ? 1 : pid + 1; setPid(n); setCur(0); setReplay((k) => k + 1) }
@@ -761,6 +819,18 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.autokb = autokbV }, [autokbV])
   const [planswipeV, setPlanswipeV] = useState(() => (LAB ? (Q0.get('pw') || CONFIRMED.planswipe) : CONFIRMED.planswipe))
   useEffect(() => { document.documentElement.dataset.planswipe = planswipeV }, [planswipeV])
+  const [exithierV, setExithierV] = useState(() => (LAB ? (Q0.get('xh') || CONFIRMED.exithier) : CONFIRMED.exithier))
+  useEffect(() => { document.documentElement.dataset.exithier = exithierV }, [exithierV])
+  const [exitlistV, setExitlistV] = useState(() => (LAB ? (Q0.get('xl') || CONFIRMED.exitlist) : CONFIRMED.exitlist))
+  useEffect(() => { document.documentElement.dataset.exitlist = exitlistV }, [exitlistV])
+  const [exitpopV, setExitpopV] = useState(() => (LAB ? (Q0.get('xp') || CONFIRMED.exitpop) : CONFIRMED.exitpop))
+  useEffect(() => { document.documentElement.dataset.exitpop = exitpopV }, [exitpopV])
+  const [askmodalV, setAskmodalV] = useState(() => (LAB ? (Q0.get('qm') || CONFIRMED.askmodal) : CONFIRMED.askmodal))
+  useEffect(() => { document.documentElement.dataset.askmodal = askmodalV }, [askmodalV])
+  const [sinputV, setSinputV] = useState(() => (LAB ? (Q0.get('si') || CONFIRMED.sinput) : CONFIRMED.sinput))
+  useEffect(() => { document.documentElement.dataset.sinput = sinputV }, [sinputV])
+  const [exitflowV, setExitflowV] = useState(() => (LAB ? (Q0.get('xf') || CONFIRMED.exitflow) : CONFIRMED.exitflow))
+  useEffect(() => { document.documentElement.dataset.exitflow = exitflowV }, [exitflowV])
   const [planexitV, setPlanexitV] = useState(() => (LAB ? (Q0.get('px') || CONFIRMED.planexit) : CONFIRMED.planexit))
   useEffect(() => { document.documentElement.dataset.planexit = planexitV }, [planexitV])
   const [fincardV, setFincardV] = useState(() => (LAB ? (Q0.get('fc') || CONFIRMED.fincard) : CONFIRMED.fincard))
@@ -769,6 +839,10 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.reviewaway = reviewawayV }, [reviewawayV])
   const [replanendV, setReplanendV] = useState(() => (LAB ? (Q0.get('re') || CONFIRMED.replanend) : CONFIRMED.replanend))
   useEffect(() => { document.documentElement.dataset.replanend = replanendV }, [replanendV])
+  const [rewindV, setRewindV] = useState(() => (LAB ? (Q0.get('rw') || CONFIRMED.rewind) : CONFIRMED.rewind))
+  useEffect(() => { document.documentElement.dataset.rewind = rewindV }, [rewindV])
+  const [ctaupV, setCtaupV] = useState(() => (LAB ? (Q0.get('cu') || CONFIRMED.ctaup) : CONFIRMED.ctaup))
+  useEffect(() => { document.documentElement.dataset.ctaup = ctaupV }, [ctaupV])
   const [replanupV, setReplanupV] = useState(() => (LAB ? (Q0.get('ru') || CONFIRMED.replanup) : CONFIRMED.replanup))
   useEffect(() => { document.documentElement.dataset.replanup = replanupV }, [replanupV])
   const [navV, setNavV] = useState(() => (LAB ? (Q0.get('n') || 'R1') : CONFIRMED.nav))
@@ -909,7 +983,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <b>Agent Scenario Player</b>
-          <span>{pid}안 · {sc.title} · {persona.goal}</span>
+          <span>{anName(pid)} · {sc.title} · {persona.goal}</span>
         </div>
         <div className="hint"><kbd>←</kbd> <kbd>→</kbd> 스텝 이동</div>
       </header>
@@ -919,7 +993,7 @@ export default function App() {
         <nav className="an-tabs" aria-label="안 선택">
           {PROPOSALS.map((p) => (
             <button key={p.id} className={p.id === pid ? 'on' : ''} onClick={() => pick(p.id)}>
-              <span className="num">{p.id}안</span><b>{p.title}</b><small>{p.id === 3 ? p.example : p.concept}</small><em>{p.status}</em>
+              <span className="num">{anName(p.id)}</span><b>{p.title}</b><small>{p.id === 3 ? p.example : p.concept}</small><em>{p.status}</em>
             </button>
           ))}
         </nav>
@@ -931,7 +1005,7 @@ export default function App() {
           {/* 확정된 시안 그룹(스텝 탐색 UI R-1 · Agent 실행 오버레이 L-2)은 LAB 스위처에서 숨김 — ?lab=all 로만 다시 보임. 검토 중인 그룹만 노출 */}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">시트 내려가기 (2안 스텝 5~8 · 3안 신청서 시트 · 스텝 4에서 →) — X-2 확정</b>
+            <b className="vtitle">시트 내려가기 (시안 1-2 스텝 5~8 · 시안 2 신청서 시트 · 스텝 4에서 →) — X-2 확정</b>
             {SHEETOUTS.map((v) => (
               <button key={v.id} aria-pressed={sheetoutV === v.id} onClick={() => { setSheetoutV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -940,7 +1014,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">바텀 모달 등장 모션 2차 (2안 스텝 5~8 · 3안 스텝 10~ · 신청서 시트 포함) — R-2 확정</b>
+            <b className="vtitle">바텀 모달 등장 모션 2차 (시안 1-2 스텝 5~8 · 시안 2 스텝 10~ · 신청서 시트 포함) — R-2 확정</b>
             {SHEETFXS.map((v) => (
               <button key={v.id} aria-pressed={sheetfxV === v.id} onClick={() => { setSheetfxV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -949,7 +1023,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">1안 · 아래로 스크롤 제스처 (스텝 3~5 · 스텝 2에서 →) — D-3 확정</b>
+            <b className="vtitle">시안 1-1 · 아래로 스크롤 제스처 (스텝 3~5 · 스텝 2에서 →) — D-3 확정</b>
             {PDSCROLLS.map((v) => (
               <button key={v.id} aria-pressed={pdscrollV === v.id} onClick={() => { setPdscrollV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -958,7 +1032,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">1안 · T+ → 입력창 모핑 (스텝 2~4, 스텝 1에서 →) — T-1 확정</b>
+            <b className="vtitle">시안 1-1 · T+ → 입력창 모핑 (스텝 2~4, 스텝 1에서 →) — T-1 확정</b>
             {TMORPHS.map((v) => (
               <button key={v.id} aria-pressed={tmorphV === v.id} onClick={() => { setTmorphV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1118,7 +1192,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
             <div className="variants">
-              <b className="vtitle">웹 셸 · 1·2·3안 보기 방식</b>
+              <b className="vtitle">웹 셸 · 시안 전체 보기 방식</b>
               {WEBS.map((v) => (
                 <button key={v.id} aria-pressed={webV === v.id} onClick={() => setWebV(v.id)}>{v.label}</button>
               ))}
@@ -1154,7 +1228,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 상단 앵커링 + 대화창을 덮는 모달 (스텝 4~8) — 아래 20px 고정</b>
+            <b className="vtitle">시안 1-2 상단 앵커링 + 대화창을 덮는 모달 (스텝 4~8) — 아래 20px 고정</b>
             {S2COVERS.map((v) => (
               <button key={v.id} aria-pressed={s2coverV === v.id} onClick={() => { setS2coverV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1163,7 +1237,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 시트가 올라올 때 안내문 위치 (스텝 4~8 · 시트 상단 위 30px) — G-1 확정</b>
+            <b className="vtitle">시안 1-2 시트가 올라올 때 안내문 위치 (스텝 4~8 · 시트 상단 위 30px) — G-1 확정</b>
             {SHEETGAPS.map((v) => (
               <button key={v.id} aria-pressed={sheetgapV === v.id} onClick={() => { setSheetgapV(v.id); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1172,7 +1246,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 바텀시트 딤 농도 (스텝 4~8 시트가 올라올 때) — A-3 확정</b>
+            <b className="vtitle">시안 1-2 바텀시트 딤 농도 (스텝 4~8 시트가 올라올 때) — A-3 확정</b>
             {DIMS.map((v) => (
               <button key={v.id} aria-pressed={dimV === v.id} onClick={() => setDimV(v.id)}>{v.label}</button>
             ))}
@@ -1181,14 +1255,14 @@ export default function App() {
           )}
           {SHOW_ALL && (<>
           <div className="variants">
-            <b className="vtitle">1안 · AI 추천 표시 (스텝 2~5 · 스텝 1에서 →) — R-1 확정</b>
+            <b className="vtitle">시안 1-1 · AI 추천 표시 (스텝 2~5 · 스텝 1에서 →) — R-1 확정</b>
             {AIHINTS.map((v) => (
               <button key={v.id} aria-pressed={aihintV === v.id} onClick={() => setAihintV(v.id)}>{v.label}</button>
             ))}
             <span className="vdesc">{AIHINTS.find((v) => v.id === aihintV)?.desc}</span>
           </div>
           <div className="variants">
-            <b className="vtitle">1안 · Agent 응답 시 하단 그라데이션 딤 — D-1 확정 (키패드 단계 제외)</b>
+            <b className="vtitle">시안 1-1 · Agent 응답 시 하단 그라데이션 딤 — D-1 확정 (키패드 단계 제외)</b>
             {AIDIMS.map((v) => (
               <button key={v.id} aria-pressed={aidimV === v.id} onClick={() => setAidimV(v.id)}>{v.label}</button>
             ))}
@@ -1197,7 +1271,7 @@ export default function App() {
           </>)}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">1안 · Ambient Layer (스텝 2~4 색상·용량·요금제 + 스텝 3 수령 직접 선택 시연) — A-1 확정</b>
+            <b className="vtitle">시안 1-1 · Ambient Layer (스텝 2~4 색상·용량·요금제 + 스텝 3 수령 직접 선택 시연) — A-1 확정</b>
             {AMBIENTS.map((v) => (
               <button key={v.id} aria-pressed={ambientV === v.id} onClick={() => { setAmbientV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1206,7 +1280,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2·3안 · 신청서 2/4 주소 [검색] → 주소 검색 풀페이지 팝업 (3안 스텝 10 → 11 / 2안 스텝 9 → 10) — Z-1 확정</b>
+            <b className="vtitle">시안 1-2·2 · 신청서 2/4 주소 [검색] → 주소 검색 풀페이지 팝업 (시안 2 스텝 10 → 11 / 시안 1-2 스텝 9 → 10) — Z-1 확정</b>
             {ZIPPOPS.map((v) => (
               <button key={v.id} aria-pressed={zippopV === v.id} onClick={() => { setZippopV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1215,7 +1289,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 · 스텝 4 추천 요금제 → 모달 [다른 요금제 살펴보기] → 풀팝업 (Figma 210:124536, 스텝 3에서 →) — P-1 확정</b>
+            <b className="vtitle">시안 1-2 · 스텝 4 추천 요금제 → 모달 [다른 요금제 살펴보기] → 풀팝업 (Figma 210:124536, 스텝 3에서 →) — P-1 확정</b>
             {RECFLOWS.map((v) => (
               <button key={v.id} aria-pressed={recflowV === v.id} onClick={() => { setRecflowV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1224,7 +1298,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 풀팝업 하강과 [선택됨] 변환의 맞물림 (스텝 5에서 → 스텝 6) — T-1 확정</b>
+            <b className="vtitle">시안 2 · 풀팝업 하강과 [선택됨] 변환의 맞물림 (스텝 5에서 → 스텝 6) — T-1 확정</b>
             {FOLDSYNCS.map((v) => (
               <button key={v.id} aria-pressed={foldsyncV === v.id} onClick={() => { setFoldsyncV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1232,15 +1306,63 @@ export default function App() {
           </div>
           )}
           <div className="variants v-autokb">
-            <b className="vtitle">1·2안 · 텍스트 입력이 있는 시트가 뜰 때 (스텝 10~12 신청서 · 2안 번호 인증) — T-2 확정</b>
+            <b className="vtitle">시안 1-1·1-2 · 텍스트 입력이 있는 시트가 뜰 때 (스텝 10~12 신청서 · 시안 1-2 번호 인증) — T-2 확정</b>
             {AUTOKBS.map((v) => (
               <button key={v.id} aria-pressed={autokbV === v.id} onClick={() => { setAutokbV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{AUTOKBS.find((v) => v.id === autokbV)?.desc}</span>
           </div>
+          <div className="variants v-exithier">
+            <b className="vtitle">시안 2 · [나가기] 팝업 · 두 묶음의 위계 — 미확정</b>
+            {EXITHIERS.map((v) => (
+              <button key={v.id} aria-pressed={exithierV === v.id} onClick={() => { setExithierV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{EXITHIERS.find((v) => v.id === exithierV)?.desc}</span>
+          </div>
+          {SHOW_ALL && (
+          <div className="variants v-exitlist">
+            <b className="vtitle">시안 2 · [나가기] 팝업의 저장 내역 나누기 — 미확정</b>
+            {EXITLISTS.map((v) => (
+              <button key={v.id} aria-pressed={exitlistV === v.id} onClick={() => { setExitlistV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{EXITLISTS.find((v) => v.id === exitlistV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
+          <div className="variants v-askmodal">
+            <b className="vtitle">시안 2 · 스텝 3 용량 질의 답의 그릇 (Figma 360:86975) — Q-1 확정</b>
+            {ASKMODALS.map((v) => (
+              <button key={v.id} aria-pressed={askmodalV === v.id} onClick={() => { setAskmodalV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{ASKMODALS.find((v) => v.id === askmodalV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
+          <div className="variants v-exitflow">
+            <b className="vtitle">시안 2 · 스텝 5→6 Agent 에서 나가는 순서 — F-1 확정</b>
+            {EXITFLOWS.map((v) => (
+              <button key={v.id} aria-pressed={exitflowV === v.id} onClick={() => { setExitflowV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{EXITFLOWS.find((v) => v.id === exitflowV)?.desc}</span>
+          </div>
+          )}
+          <div className="variants v-sinput">
+            <b className="vtitle">시안 2 · 스텝 5 요금제 발화 — SearchAi 1줄 → 2줄 (Figma 472:144639) — 미확정</b>
+            {SINPUTS.map((v) => (
+              <button key={v.id} aria-pressed={sinputV === v.id} onClick={() => { setSinputV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{SINPUTS.find((v) => v.id === sinputV)?.desc}</span>
+          </div>
+          <div className="variants v-exitpop">
+            <b className="vtitle">시안 2 · [나가기] 확인 팝업 (Agent 우측 상단) — X-3 확정</b>
+            {EXITPOPS.map((v) => (
+              <button key={v.id} aria-pressed={exitpopV === v.id} onClick={() => { setExitpopV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{EXITPOPS.find((v) => v.id === exitpopV)?.desc}</span>
+          </div>
           {SHOW_ALL && (
           <div className="variants v-planswipe">
-            <b className="vtitle">1·2안 · 요금제 카드를 미는 동작 (스텝 2) — S-1 확정</b>
+            <b className="vtitle">시안 1-1·1-2 · 요금제 카드를 미는 동작 (스텝 2) — S-1 확정</b>
             {PLANSWIPES.map((v) => (
               <button key={v.id} aria-pressed={planswipeV === v.id} onClick={() => { setPlanswipeV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1249,7 +1371,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants v-planexit">
-            <b className="vtitle">1·2안 · 밀어 본 뒤 Agent 로 가는 출구 (스텝 2) — W-1 확정</b>
+            <b className="vtitle">시안 1-1·1-2 · 밀어 본 뒤 Agent 로 가는 출구 (스텝 2) — W-1 확정</b>
             {PLANEXITS.map((v) => (
               <button key={v.id} aria-pressed={planexitV === v.id} onClick={() => { setPlanexitV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1257,7 +1379,7 @@ export default function App() {
           </div>
           )}
           <div className="variants v-fincard">
-            <b className="vtitle">1안 · 입력이 끝난 카드 → 완료 선 (스텝 10~13) — 미확정</b>
+            <b className="vtitle">시안 1-1 · 입력이 끝난 카드 → 완료 선 (스텝 10~13) — 미확정</b>
             {FINCARDS.map((v) => (
               <button key={v.id} aria-pressed={fincardV === v.id} onClick={() => { setFincardV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1265,7 +1387,7 @@ export default function App() {
           </div>
           {SHOW_ALL && (
           <div className="variants v-reviewaway">
-            <b className="vtitle">1·2안 · [개통 이어가기] 뒤 신청서 카드 (스텝 13에서 → 14) — W-1 확정</b>
+            <b className="vtitle">시안 1-1·1-2 · [개통 이어가기] 뒤 신청서 카드 (스텝 13에서 → 14) — W-1 확정</b>
             {REVIEWAWAYS.map((v) => (
               <button key={v.id} aria-pressed={reviewawayV === v.id} onClick={() => { setReviewawayV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1274,7 +1396,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants v-replanend">
-            <b className="vtitle">1안 · 스텝 9 끝맺음 — 변경 안내 → 요금제 줄 → [신청서 작성 시작하기] (스텝 9) — E-1 확정</b>
+            <b className="vtitle">시안 1-1 · 스텝 9 끝맺음 — 변경 안내 → 요금제 줄 → [신청서 작성 시작하기] (스텝 9) — E-1 확정</b>
             {REPLANENDS.map((v) => (
               <button key={v.id} aria-pressed={replanendV === v.id} onClick={() => { setReplanendV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1282,8 +1404,26 @@ export default function App() {
           </div>
           )}
           {SHOW_ALL && (
+          <div className="variants v-ctaup">
+            <b className="vtitle">시안 1-1 · 스텝 8 → 9 — [신청서 작성 시작하기] 뒤 포인터 대기 없이 바로 되감기</b>
+            {CTAUPS.map((v) => (
+              <button key={v.id} aria-pressed={ctaupV === v.id} onClick={() => { setCtaupV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{CTAUPS.find((v) => v.id === ctaupV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
+          <div className="variants v-rewind">
+            <b className="vtitle">시안 1-1 · 스텝 9 되감기 질감 — 올라가는 속도와 손맛 — W-1 확정</b>
+            {REWINDS.map((v) => (
+              <button key={v.id} aria-pressed={rewindV === v.id} onClick={() => { setRewindV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{REWINDS.find((v) => v.id === rewindV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
           <div className="variants v-replanup">
-            <b className="vtitle">1안 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>
+            <b className="vtitle">시안 1-1 · 스텝 9 진입 — [다시 선택하기] 줄로 화면 되감기 (스텝 8에서 → 스텝 9) — U-1 확정</b>
             {REPLANUPS.map((v) => (
               <button key={v.id} aria-pressed={replanupV === v.id} onClick={() => { setReplanupV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1292,7 +1432,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 접힘 뒤 화면의 기준 (공통, 스텝 6~8) — K-2 확정</b>
+            <b className="vtitle">시안 2 · 접힘 뒤 화면의 기준 (공통, 스텝 6~8) — K-2 확정</b>
             {FOLDANCHORS.map((v) => (
               <button key={v.id} aria-pressed={foldanchorV === v.id} onClick={() => { setFoldanchorV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1301,7 +1441,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 6→7 재출력 카드가 접힐 때 무엇이 남나 (스텝 6에서 → 스텝 7) — A-3 확정</b>
+            <b className="vtitle">시안 2 · 6→7 재출력 카드가 접힐 때 무엇이 남나 (스텝 6에서 → 스텝 7) — A-3 확정</b>
             {PENFOLDS.map((v) => (
               <button key={v.id} aria-pressed={penfoldV === v.id} onClick={() => { setPenfoldV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1310,7 +1450,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 흰 박스가 [선택됨] 으로 바뀔 때의 오파시티 (스텝 5에서 → 스텝 6) — N-2 확정</b>
+            <b className="vtitle">시안 2 · 흰 박스가 [선택됨] 으로 바뀔 때의 오파시티 (스텝 5에서 → 스텝 6) — N-2 확정</b>
             {SELFADES.map((v) => (
               <button key={v.id} aria-pressed={selfadeV === v.id} onClick={() => { setSelfadeV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1319,7 +1459,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 흰 박스로 줄어들 때 내용이 사라지는 방식 — 원래 기조 유지</b>
+            <b className="vtitle">시안 2 · 흰 박스로 줄어들 때 내용이 사라지는 방식 — 원래 기조 유지</b>
             {BOXFADES.map((v) => (
               <button key={v.id} aria-pressed={boxfadeV === v.id} onClick={() => { setBoxfadeV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1328,7 +1468,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 흰 박스가 내려앉는 느낌 — 스무스한 랜딩 (스텝 5에서 → 스텝 6) — E-3</b>
+            <b className="vtitle">시안 2 · 흰 박스가 내려앉는 느낌 — 스무스한 랜딩 (스텝 5에서 → 스텝 6) — E-3</b>
             {BOXLANDS.map((v) => (
               <button key={v.id} aria-pressed={boxlandV === v.id} onClick={() => { setBoxlandV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1337,7 +1477,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">3안 · 요금제 카드가 줄어들어 흰 박스가 되고 [선택됨] 으로 (스텝 5에서 → 스텝 6) — B-1</b>
+            <b className="vtitle">시안 2 · 요금제 카드가 줄어들어 흰 박스가 되고 [선택됨] 으로 (스텝 5에서 → 스텝 6) — B-1</b>
             {PLANFOLDS.filter((v) => v.id[0] === 'B' || v.id === 'off').map((v) => (
               <button key={v.id} aria-pressed={planfoldV === v.id} onClick={() => { setPlanfoldV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1346,7 +1486,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2·3안 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나) — L-2 확정</b>
+            <b className="vtitle">시안 1-2·2 · 모달 안 행이 배경과 구분되지 않는 문제 (아무 모달 스텝에서나) — L-2 확정</b>
             {SHEETLOOKS.map((v) => (
               <button key={v.id} aria-pressed={sheetlookV === v.id} onClick={() => { setSheetlookV(v.id); userNav() }}>{v.label}</button>
             ))}
@@ -1355,7 +1495,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2·3안 · 상품 상세에서 옵션으로 들어가는 방식 (스텝 1에서 → 스텝 2) — E-1 확정</b>
+            <b className="vtitle">시안 1-2·2 · 상품 상세에서 옵션으로 들어가는 방식 (스텝 1에서 → 스텝 2) — E-1 확정</b>
             {PDENTERS.map((v) => (
               <button key={v.id} aria-pressed={pdenterV === v.id} onClick={() => { setPdenterV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1364,7 +1504,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2·3안 · 모달 뒤 딤 (아무 모달 스텝에서나) — G-1 확정</b>
+            <b className="vtitle">시안 1-2·2 · 모달 뒤 딤 (아무 모달 스텝에서나) — G-1 확정</b>
             {DIMFXS.map((v) => (
               <button key={v.id} aria-pressed={dimfxV === v.id} onClick={() => { setDimfxV(v.id); userNav() }}>{v.label}</button>
             ))}
@@ -1373,7 +1513,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 · SIM 시트 × 를 눌렀을 때 어떻게 돌아오나 (스텝 5에서 → 스텝 6, Figma 234:92897) — S-1 확정</b>
+            <b className="vtitle">시안 1-2 · SIM 시트 × 를 눌렀을 때 어떻게 돌아오나 (스텝 5에서 → 스텝 6, Figma 234:92897) — S-1 확정</b>
             {SIMXS.map((v) => (
               <button key={v.id} aria-pressed={simxV === v.id} onClick={() => { setSimxV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1382,7 +1522,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 · ∨ 등장 타이밍 (K-1 확정 · 스텝 3에서 → 스텝 4) — T-0 확정</b>
+            <b className="vtitle">시안 1-2 · ∨ 등장 타이밍 (K-1 확정 · 스텝 3에서 → 스텝 4) — T-0 확정</b>
             {KNOBTIMES.map((v) => (
               <button key={v.id} aria-pressed={knobtimeV === v.id} onClick={() => { setKnobtimeV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1391,7 +1531,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants">
-            <b className="vtitle">2안 · 모달이 응답을 가릴 때 ∨ 플로팅 (Figma 210:122678, 스텝 3에서 → 스텝 4) — K-1 확정</b>
+            <b className="vtitle">시안 1-2 · 모달이 응답을 가릴 때 ∨ 플로팅 (Figma 210:122678, 스텝 3에서 → 스텝 4) — K-1 확정</b>
             {KNOBS.map((v) => (
               <button key={v.id} aria-pressed={knobV === v.id} onClick={() => { setKnobV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1408,7 +1548,7 @@ export default function App() {
           <div className="phones3">
             {PROPOSALS.map((p) => { const st = p.steps[Math.min(cur, p.steps.length - 1)]; const over = cur > p.steps.length - 1; return (
               <div className={`col ${p.id === pid ? 'on' : ''}`} key={p.id} onClick={() => pick(p.id)}>
-                <div className="col-head"><span className="num">{p.id}안</span><b>{p.short}</b><em>{p.status}</em></div>
+                <div className="col-head"><span className="num">{anName(p.id)}</span><b>{p.short}</b><em>{p.status}</em></div>
                 <div className="scaled"><Phone key={`${replay}-${p.id}`} view={st.view} /></div>
                 <div className="col-foot"><span className="no num">{over ? '—' : `STEP ${cur + 1}`}</span><span>{over ? '이 안은 여기서 끝' : st.screen}</span></div>
               </div>

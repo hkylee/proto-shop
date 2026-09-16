@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import Pointer, { userTap } from '../components/pointer.js'
 import { IcoSparkleAi, IcoSparkle, IcoVoice, IcoBack } from '../components/Icons.jsx'
 import { StatusBar, Keyboard, TYPE_MS } from './AgentShell.jsx'
-import { PlanCard } from './AgentChat.jsx'
+import { PlanCard, UsageGraph, UserMessage, AiMessage, Card, BenefitBadges } from './AgentChat.jsx'
+import { AgentBackground, SearchAi } from './AgentShell.jsx'
+import { IcoNewChat } from '../components/Icons.jsx'
 import OrderConfirm from './OrderConfirm.jsx'
 import { variant } from '../lib/variants.js'
 import { wait, scrollTo, tween, inOut, inOutSine, inOutQuart, cubicOut, outExpo, reducedMotion } from '../lib/motion.js'
@@ -13,10 +15,14 @@ import { SCREEN_W } from '../lib/screen.js'
 /* 1안 · Static 중심 + AI 일시 호출 — 상품 상세 (3안 v2 화면 구조 그대로, Figma T1mhl… 10547:16625)
    E-1 배지 + 팬: T+ 버튼이 입력창으로 모핑 → 질의 → 입력창 위 답변 스트립 → 페이지의 추천 항목에 [AI 추천] 배지 →
    스트립의 [이 항목으로 선택] 을 눌러야 props 가 selected 로 바뀐다 → selected 가 되는 순간 배지는 디졸브로 사라지고, 스트립·입력창이 닫히며 T+ 로 복귀.
+   ── 2026-09-16 흐름 개편 (사용자): 색상 직접 → 용량은 모달 질의 → 수령·납부·사용자·가입 직접 → 요금제는 Agent 풀팝업 질의 → [나가기] 확인 팝업 → 상세 랜딩(선택값 유지) 끝 ──
    stage 'top'     : 진입 직후, 미선택
-   stage 'color'   : 색상 섹션에서 첫 질의 → 그라파이트 선택
-   stage 'storage' : 수령·납부는 직접 고르고 → 다시 위로 → 용량 질의 → 512G 선택
-   stage 'plan'    : 사용자·가입 직접 → 요금제 질의 → 5GX 프라임 플러스 선택
+   stage 'color'   : 색상 섹션까지 내려가 그라파이트를 직접 탭
+   stage 'storage' : 용량에서 T+ 호출 → 질의 → 답이 모달(html[data-askmodal]: Q1 스트립 / Q2 시트 추천 1장 / Q3 시트 용량 3개) → 512G 선택
+   stage 'opts'    : 수령(택배) · 납부(24개월) · 사용자(본인) · 가입(기기변경) 직접 탭
+   stage 'plan'    : 요금제에서 T+ 호출 → 긴 질의 → Agent 풀팝업(Figma ixGPs9 438:190278): 이용현황 → 그래프 → 추천 → 비교표 → 시트 "추천된 요금제를 선택하실래요?"
+   stage 'exit'    : 우측 상단 [나가기] → 확인 팝업(exitpop X-3) → [돌아가기] → 풀팝업 하강 → 요금제 섹션에 AI PICK 선택된 채 랜딩('pd1-landed' → 2s 뒤 완료 토스트) → SIM 개통까지 내려가 멈춤, 선택 없음 (끝). 나가는 방식 html[data-exitflow]: F1 시트 [네] 뒤 나가기 / F2 시트 없이 나가기 한 번 / F3 [네] 자리에 확인이 이어짐
+   (아래 'rest' · 'payout' 은 예전 흐름 코드 보존 — ORDER 에서 빠져 재생되지 않는다)
    stage 'payout'  : [주문하기] 탭 → 주문 정보 확인 화면(OrderConfirm · Figma 134:60488)이 오른쪽에서 슬라이드 인 → 아래로 팬 → 시나리오 종료
    stage 'payout'  : [주문하기] 탭 → 결제 화면(3안 스텝 16 과 같은 외부 결제 페이지)이 오른쪽에서 슬라이드 인 → 시나리오 종료
    T+ → 입력창 모핑 시안 html[data-tmorph]: T1 늘어나기 / T2 올라가서 펴지기 / T3 CTA 와 합쳐지기
@@ -29,11 +35,15 @@ import { SCREEN_W } from '../lib/screen.js'
 import { px, anchorSec, NAME, COLORS, STORAGE, DELIVERY, TERMS, USER, JOIN, SIM, GIFTS, COUPONS, TRADEIN, INSURANCE, SERVICES, CARD_NOTE, AI_TEXT, Logo, ComboRows } from './ProductDetail2.jsx'   // 3안과 같은 데이터·정적 조각 (한 곳에서만 고친다)
 const KB_MS = 500          // 키패드 상승·하강 (--kb-ms)
 const THINK_MS = 1000      // 스트립 생각 점
+// 요금제 질의 (Figma 438:190278 두 번째 프레임 문장 그대로) — 이것만 Agent 풀팝업으로 넘어간다
+const PLAN_Q = '요금제를 변경하고 싶어. 어떤 요금제가 적합한지 추천해주고 보기 쉽게 비교표로 답변해줘'
+const PLAN_REC = '5GX 프라임 플러스'
+const AG_MS = 500           // 풀팝업 상승·하강 (.pa transition)
 
 // ── 세 번의 AI 질의 (E-1): 섹션 · 발화 · 추천 항목 · 이유 ──
 const ASKS = {
   color:   { sec: '색상',   q: '제일 인기 많은 색이 뭐야?',                    key: 'color',   rec: 2, opt: '그라파이트',        why: 'Z 폴드8 구매 고객 중 41%가 골랐고, 지금 바로 출고돼요' },
-  storage: { sec: '용량',   q: '사진 많이 찍는데 용량은 뭐로 하는 게 좋아?',     key: 'storage', rec: 1, opt: '512G',              why: '지금 폰에 사진 38,000장, 256G의 74%를 쓰고 있어요' },
+  storage: { sec: '용량',   q: '사진 많이 찍는데 용량은 뭐로 하는 게 좋을까?',     key: 'storage', rec: 1, opt: '512G',              why: '지금 폰에 사진 38,000장, 256G의 74%를 쓰고 있어요' },
   plan:    { sec: '요금제', q: '이용 현황에 맞춰서 적합한 요금제 추천해줘',      key: 'plan',    rec: 0, opt: '5GX 프라임 플러스', why: '6개월 평균 22.4GB, 최근 3개월은 20GB를 넘겼어요', josa: '를' },
   ins:     { sec: '보험',   q: '보험은 뭐가 제일 인기 많아?',                    key: 'ins',     rec: 0, opt: 'T ALL케어+ 5',      why: 'Z 폴드8 구매 고객 10명 중 7명이 골랐고, 폴더블은 파손 보상이 특히 유리해요', josa: '를' },
 }
@@ -59,12 +69,14 @@ const REST_SEL = { ...Object.fromEntries([...REST_A, ...REST_B].map(([k, , v]) =
 const FINAL = {
   top: NONE,
   color: { ...NONE, color: 2 },
-  storage: { ...NONE, color: 2, delivery: 0, term: 1, storage: 1 },
-  plan: { ...NONE, color: 2, delivery: 0, term: 1, storage: 1, user: 0, join: 2, plan: 0 },
+  storage: { ...NONE, color: 2, storage: 1 },
+  opts: { ...NONE, color: 2, storage: 1, delivery: 0, term: 1, user: 0, join: 2 },
 }
-FINAL.rest = { ...FINAL.plan, ...REST_SEL }
+FINAL.plan = FINAL.opts                     // 풀팝업이 열려 있는 동안 상세의 요금제는 아직 미선택
+FINAL.exit = { ...FINAL.opts, plan: 0 }     // 돌아오면 AI PICK 카드가 selected
+FINAL.rest = { ...FINAL.exit, ...REST_SEL }
 FINAL.payout = FINAL.rest
-const ORDER = ['top', 'color', 'storage', 'plan', 'rest', 'payout']
+const ORDER = ['top', 'color', 'storage', 'opts', 'plan', 'exit']
 
 // [AI 추천] 배지 (.pd1 .ai-badge: 파란 칩 + 흰 스파클). 자기 자신을 렌더하던 재귀(무한 렌더로 1안 전체가 멈춤, 2026-09-08) 수정
 const AiBadge = () => <span className="ai-badge"><i className="sp"><IcoSparkleAi size={12} /></i>AI 추천</span>
@@ -103,6 +115,15 @@ export default function ProductDetail1({ stage = 'top' }) {
   const [payReady, setPayReady] = useState(() => stage === 'rest' || stage === 'payout')   // 모든 옵션 선택 → CTA [주문하기]
   const [payOn, setPayOn] = useState(false)          // 결제 화면 슬라이드 인
   const prevRef = useRef(stage), seqRef = useRef(0)
+  // Agent 풀팝업(요금제 질의): agent = off | in | out ; aph = 드러난 턴 수(0~5) ; asheet = 추천 시트 ; apick = 시트에서 [네] 를 눌러 선택됨 ; xpop = [나가기] 확인 팝업
+  const [agent, setAgent] = useState('off')
+  const [aph, setAph] = useState(0)
+  const [asheet, setAsheet] = useState(false)
+  const [apick, setApick] = useState(false)
+  const [xpop, setXpop] = useState(false)
+  const agScrollRef = useRef(null), exitBtnRef = useRef(null), yesRef = useRef(null), backRef = useRef(null)
+  // SearchAi 1줄 → 2줄(SearchAiMulti, Figma 472:144639) 전환: multi = 두 줄 레이아웃 · wrap = 본문 줄바꿈 허용 · fade = M3 크로스페이드 중
+  const [multi, setMulti] = useState(false), [wrap, setWrap] = useState(false), [fade, setFade] = useState(false)
 
   useEffect(() => { if (rootRef.current && ptrLayerRef.current) ptrRef.current = new Pointer(rootRef.current, ptrLayerRef.current) }, [])
   useEffect(() => {
@@ -120,15 +141,20 @@ export default function ProductDetail1({ stage = 'top' }) {
     const ambV = variant('ambient'), ambientOn = ambV && ambV !== 'off'
     const pick = (k, v) => setSel((s) => ({ ...s, [k]: v }))
     // 사용자 탭 모드: 스텝이 끝나면 '다음 스텝이 처음 탭할 자리' 에 대기 — 사용자가 그 자리를 탭해 넘어간다 (2026-09-10)
-    const NEXT_TAP = { top: () => dockRef.current, color: () => secs.delivery.current?.querySelector('.radio-card:nth-child(1)'), storage: () => secs.user.current?.querySelector('.radio-card:nth-child(1)'), plan: () => secs[REST_A[0][0]].current?.querySelector(REST_A[0][1]), rest: () => ctaRef.current }
-    const NEXT_LABEL = { top: 'T 호출', rest: '주문하기' }
+    const XF = variant('exitflow') || 'F1'
+    const NEXT_TAP = { top: () => secs.color.current?.querySelector('.swatch:nth-child(3)'), color: () => dockRef.current, storage: () => secs.delivery.current?.querySelector('.radio-card:nth-child(1)'), opts: () => dockRef.current, plan: () => (XF === 'F3' ? yesRef.current : exitBtnRef.current) }
+    const NEXT_LABEL = { color: 'T 호출', opts: 'T 호출', plan: XF === 'F3' ? '네' : '나가기' }
     const parkNext = (delay = 0) => { if (!userTap() || !NEXT_TAP[stage]) return; setTimeout(() => { if (alive()) ptr?.park(NEXT_TAP[stage](), 400, NEXT_LABEL[stage] || '탭') }, delay) }
     const settle = () => {   // 즉시 최종 상태 (건너뛰기 · 뒤로 가기 · reduced motion)
-      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null)
+      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false)
       setPayReady(stage === 'rest' || stage === 'payout'); setPayOn(stage === 'payout'); ptr?.hide()
+      // 요금제 스텝의 최종 상태 = 풀팝업이 열려 답이 모두 나온 뒤 (F1: [네] 눌러 선택 완료 · F2: 안내만 · F3: 시트가 떠 있음)
+      if (stage === 'plan') { setAgent('in'); setAph(5); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
+      else { setAgent('off'); setAph(0); setAsheet(false); setApick(false) }
       if (stage === 'top') scrollTo(el, 0, 500, inOut)
       else if (stage === 'rest' || stage === 'payout') el.scrollTop = el.scrollHeight
-      else el.scrollTop = anchorSec(secs[stage].current)
+      else el.scrollTop = anchorSec(secs[stage === 'opts' ? 'join' : stage === 'exit' ? 'sim' : stage].current)
+      if (stage === 'exit') setTimeout(() => window.dispatchEvent(new CustomEvent('pd1-landed')), 80)   // 직접 로드: 부모(App) effect 가 리스너를 단 뒤에 신호
     }
     const forward = ORDER.indexOf(prev) === ORDER.indexOf(stage) - 1
     if (!forward || reducedMotion()) { settle(); parkNext(650); return cancel }
@@ -198,10 +224,10 @@ export default function ProductDetail1({ stage = 'top' }) {
       await wait(200); ind.hide()
       return alive()
     }
-    const tapIn = async (secRef, selector, key, val, opts) => {
+    const tapIn = async (secRef, selector, key, val, opts, { ambient = true } = {}) => {
       if (!await swipeTo(anchorSec(secRef.current))) return false
       // Ambient 시연: 이 섹션에 머무르면(1.5s) 참고 문구가 떠 있다가, 사용자가 직접 고르는 순간 사라진다 (Props 갱신 규칙)
-      if (ambientOn && AMBIENT[key]) { await wait(DWELL_MS); if (!alive()) return false; setAmb(key); await wait(1400); if (!alive()) return false }
+      if (ambient && ambientOn && AMBIENT[key]) { await wait(DWELL_MS); if (!alive()) return false; setAmb(key); await wait(1400); if (!alive()) return false }
       await ptr?.tap(secRef.current.querySelector(selector), opts); if (!alive()) return false
       pick(key, val); setAmb(null); await wait(380); return alive()
     }
@@ -263,22 +289,111 @@ export default function ProductDetail1({ stage = 'top' }) {
       return alive()
     }
 
+    // ── 요금제 질의: T+ → 타이핑 → 전송과 함께 Agent 풀팝업이 올라온다 → 턴이 차례로 드러나며 아래로 팬 → 추천 시트 ──
+    const agPan = async (dur = 650) => {
+      const a = agScrollRef.current; if (!a) return alive()
+      await wait(40); if (!alive()) return false
+      await scrollTo(a, a.scrollHeight - a.clientHeight, dur, inOutQuart); return alive()
+    }
+    const askPlan = async () => {
+      const secEl = secs.plan.current
+      if (!await swipeTo(anchorSec(secEl))) return false
+      await wait(400); if (!alive()) return false
+      await ptr?.tap(dockRef.current, { move: 500, pause: 120, label: 'T 호출' }); if (!alive()) return false
+      ptr?.hide()
+      setAsk({ ...ASKS.plan, q: PLAN_Q }); setDock('open'); setAmb(null)
+      await wait(KB_MS + 350); if (!alive()) return false
+      const tq = dockRef.current.querySelector('.tq'), fieldEl = dockRef.current.querySelector('.field')
+      fieldEl.classList.add('filled')
+      const T = TYPE_MS * 1.8   // 긴 문장
+      // 한 줄을 넘치는 순간 SearchAi → SearchAiMulti (html[data-sinput]): M1 제자리에서 자라며 줄바꿈 / M2 두 박자(아이콘 줄이 먼저 내려가고 → 줄바꿈) / M3 넘치는 순간 크로스페이드
+      const MV = variant('sinput') || 'M1'
+      let grown = false
+      const grow = async () => {
+        grown = true
+        if (MV === 'M3') { setFade(true); await wait(150); if (!alive()) return; setMulti(true); setWrap(true); setFade(false); return }
+        setMulti(true)
+        if (MV === 'M2') { await wait(380); if (!alive()) return }
+        setWrap(true)
+      }
+      for (let i = 1; i <= PLAN_Q.length; i++) {
+        tq.textContent = PLAN_Q.slice(0, i)
+        if (!grown && fieldEl.scrollWidth > fieldEl.clientWidth + 1) { await grow(); if (!alive()) return false }
+        await wait(T / PLAN_Q.length); if (!alive()) return false
+      }
+      setTyped(PLAN_Q)
+      await wait(600); if (!alive()) return false
+      // 전송 → 키패드가 내려가는 동안 풀팝업이 올라온다. 뒤의 입력창은 팝업에 가린 뒤 T+ 로 조용히 복귀
+      setAgent('in'); setAph(1); setDock('closing')
+      await wait(AG_MS); if (!alive()) return false
+      setDock('idle'); setTyped(''); setAsk(null); setMulti(false); setWrap(false)
+      await wait(900); if (!alive()) return false
+      setAph(2); if (!await agPan(800)) return false          // 이용현황 안내 + 이용중 요금제 + 그래프
+      await wait(1500); if (!alive()) return false
+      setAph(3); if (!await agPan(700)) return false          // 추천 문장 + 추천 요금제 카드
+      await wait(1300); if (!alive()) return false
+      setAph(4); if (!await agPan(700)) return false          // 현재 요금제와 비교
+      await wait(1400); if (!alive()) return false
+      if (XF === 'F2') { setAph(5); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
+      setAsheet(true)                                          // "추천된 요금제를 선택하실래요?"
+      await wait(900); if (!alive()) return false
+      if (XF === 'F3') return alive()                          // [네] 위에서 대기 — 다음 스텝에서 확인 팝업이 이어진다
+      await ptr?.tap(yesRef.current, { move: 420, pause: 140, label: '네' }); if (!alive()) return false
+      ptr?.hide(); setAsheet(false); setApick(true); setAph(5)
+      await wait(200); if (!alive()) return false
+      await agPan(600); return alive()
+    }
+    // ── [나가기]: 확인 팝업(X-3) → [돌아가기] → 풀팝업 하강 → 요금제 섹션, AI PICK 카드 selected ──
+    const leaveAgent = async () => {
+      const popOn = variant('exitpop') !== 'off'
+      if (XF === 'F3') {
+        await ptr?.tap(yesRef.current, { move: 420, pause: 140, label: '네' }); if (!alive()) return false
+        setAsheet(false); setApick(true)
+        await wait(popOn ? 350 : 700); if (!alive()) return false
+        if (popOn) setXpop(true)
+      } else {
+        await ptr?.tap(exitBtnRef.current, { move: 480, pause: 140, label: '나가기' }); if (!alive()) return false
+        if (popOn) setXpop(true)
+      }
+      if (popOn) {
+        await wait(1500); if (!alive()) return false
+        await ptr?.tap(backRef.current, { move: 420, pause: 140, label: '돌아가기' }); if (!alive()) return false
+        setXpop(false)
+      }
+      ptr?.hide()
+      pick('plan', 0)                                          // 상세의 AI PICK 카드가 selected 로 (팝업이 내려가며 드러난다)
+      await wait(120); if (!alive()) return false
+      setAgent('out')
+      await wait(AG_MS + 100); if (!alive()) return false
+      setAgent('off'); setAph(0); setApick(false)
+      // 랜딩 신호 (App: 2초 뒤 완료 토스트) → 잠시 숨 고르고 다음 옵션인 SIM 개통까지 내려가 멈춘다. 선택은 하지 않는다 (사용자 2026-09-16)
+      window.dispatchEvent(new CustomEvent('pd1-landed'))
+      await wait(500); if (!alive()) return false
+      await swipeTo(anchorSec(secs.sim.current))
+      return alive()
+    }
+
     ;(async () => {
       await wait(400); if (!alive()) return
-      if (stage === 'color') { if (await askAI(ASKS.color, '.swatch:nth-child(3)')) parkNext(); return }
-      if (stage === 'storage') {
-        // 수령·납부(단말기 납부 기간)까지 직접 고르다가 → 다시 위로 올라와 용량 질의
-        if (!await tapIn(secs.delivery, '.radio-card:nth-child(1)', 'delivery', 0)) return
-        if (!await tapIn(secs.term, '.term:nth-child(2)', 'term', 1)) return
-        await wait(350); if (!alive()) return
-        if (await askAI(ASKS.storage, '.radio-card:nth-child(2)')) parkNext(); return
+      // 2: 색상은 직접 (사용자 2026-09-16)
+      // 색상은 Ambient 한 줄을 기다리지 않고 내려가서 바로 탭 (사용자 2026-09-16)
+      if (stage === 'color') { if (await tapIn(secs.color, '.swatch:nth-child(3)', 'color', 2, undefined, { ambient: false })) parkNext(); return }
+      // 3: 용량은 T 에게 짧게 묻고 모달에서 고른다
+      if (stage === 'storage') { if (await askAI(ASKS.storage, '.radio-card:nth-child(2)')) parkNext(); return }
+      // 4: 수령 · 납부 · 사용자 · 가입 직접
+      if (stage === 'opts') {
+        // 직접 고르는 구간은 Ambient 한 줄을 기다리지 않는다 (사용자 2026-09-16 "step 4에서도 ai ambient Layer 안 기다리고 바로")
+        const NA = { ambient: false }
+        if (!await tapIn(secs.delivery, '.radio-card:nth-child(1)', 'delivery', 0, undefined, NA)) return
+        if (!await tapIn(secs.term, '.term:nth-child(2)', 'term', 1, undefined, NA)) return
+        if (!await tapIn(secs.user, '.radio-card:nth-child(1)', 'user', 0, { move: 300, pause: 80 }, NA)) return
+        if (!await tapIn(secs.join, '.radio-card:nth-child(3)', 'join', 2, { move: 300, pause: 80 }, NA)) return
+        parkNext(); return
       }
-      if (stage === 'plan') {
-        if (!await tapIn(secs.user, '.radio-card:nth-child(1)', 'user', 0, { move: 300, pause: 80 })) return
-        if (!await tapIn(secs.join, '.radio-card:nth-child(3)', 'join', 2, { move: 300, pause: 80 })) return
-        await wait(350); if (!alive()) return
-        if (await askAI(ASKS.plan, '.pcw.opt')) parkNext(); return
-      }
+      // 5: 요금제 — Agent 풀팝업 (Figma 438:190278)
+      if (stage === 'plan') { if (await askPlan()) parkNext(); return }
+      // 6: [나가기] → 확인 팝업 → 상세 랜딩 (끝)
+      if (stage === 'exit') { await leaveAgent(); return }
       if (stage === 'rest') {
         // 나머지 옵션을 쭉 내려가며 직접 탭 → 맨 아래 → 비활성 [주문하기] 가 활성화되고 포인터가 그 위에서 대기 (사용자가 눌러 다음 스텝)
         for (const [key, selector, val] of REST_A) { if (!await tapIn(secs[key], selector, key, val, { move: 300, pause: 80 })) return }
@@ -305,6 +420,9 @@ export default function ProductDetail1({ stage = 'top' }) {
 
   const kbOpen = dock === 'open'
   const stripOn = dock === 'sent'
+  const QM = variant('askmodal') || 'Q1'          // 용량 질의 답의 그릇: Q1 스트립 / Q2 시트 추천 1장 / Q3 시트 용량 3개
+  const sheetAsk = stripOn && QM !== 'Q1' && ask && !ask.fromAmb
+  const XF = variant('exitflow') || 'F1'
   const morph = variant('tmorph')
   const ambV = variant('ambient') || 'off', ambientOn = ambV !== 'off'
   const ambText = amb ? AMBIENT[amb] : ''
@@ -481,16 +599,34 @@ export default function ProductDetail1({ stage = 'top' }) {
         )}
       </div>
 
-      <div className="dock" ref={dockRef} aria-label="T 호출">
+      {/* SearchAi(353×52) ↔ SearchAiMulti(110, Figma 472:144639): 본문이 한 줄을 넘치면 두 줄 + 아래 줄에 ✦ · [↑ 보내기] */}
+      <div className={`dock ${multi ? 'multi' : ''} ${wrap ? 'wrap' : ''} ${fade ? 'fade' : ''} mv-${variant('sinput') || 'M1'}`} ref={dockRef} aria-label="T 호출">
         <div className="tico"><IcoSparkleAi size={26} /></div>
         <div className="sinp">
-          <IcoSparkle size={16} className="spark" />
+          <IcoSparkle size={16} className="spark lead" />
           <div className={`field ${typed ? 'filled' : ''}`}><span className="tq">{typed}</span>{!typed && !kbOpen && 'T에 대해 무엇이든 물어보세요.'}{kbOpen && <i className="caret" />}</div>
           <IcoVoice size={24} className="voice" />
+          <div className="srow"><IcoSparkle size={16} className="spark tail" /><span className="send" aria-label="보내기"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="#060C1F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg></span></div>
         </div>
       </div>
       <div className="ai-dim" aria-hidden />   {/* Agent 호출 시 하단 그라데이션 딤 (html[data-aidim]) */}
       {/* 답변 스트립 (E-1): 입력창 바로 위. 생각 점 → 이유 1줄 + 추천 → [이 항목으로 선택] */}
+      {/* Q2·Q3: 답이 2안 언어의 바텀 시트로 (딤 없음 G-1). 입력창 위 12px, 생각 점 → 제목·답 → 추천 행 → 선택 */}
+      {sheetAsk ? (
+        <div className={`ai-sheet qsheet q-${QM} on ${answered ? 'answered' : ''}`} ref={stripRef}>
+          <div className="hd"><div><h3>{answered ? `${ask.sec}은 이렇게 추천해요` : <span className="think"><i /><i /><i /></span>}</h3>{answered && <p>{ask.why}.</p>}</div><i className="x" /></div>
+          {answered && (QM === 'Q2' ? (
+            <>
+              <div className="qrow rec"><span className="rec-badge">AI 추천</span><div className="top"><b>{STORAGE[ask.rec].t}</b><span>{STORAGE[ask.rec].r}</span></div>{STORAGE[ask.rec].d && <div className="desc">{STORAGE[ask.rec].d}</div>}</div>
+              <div className="qbtn" ref={okRef}>이 항목으로 선택</div>
+            </>
+          ) : (
+            <div className="items qitems">
+              {STORAGE.map((it, i) => <div className={`qrow ${i === ask.rec ? 'rec' : ''}`} key={it.t} ref={i === ask.rec ? okRef : undefined}>{i === ask.rec && <span className="rec-badge">AI 추천</span>}<div className="top"><b>{it.t}</b><span>{it.r}</span></div>{it.d && <div className="desc">{it.d}</div>}</div>)}
+            </div>
+          ))}
+        </div>
+      ) : (
       <div className={`strip ${stripOn ? 'on' : ''} ${answered ? 'answered' : ''}`} ref={stripRef} aria-hidden={!stripOn}>
         {ask && (<>
           {/* AiAgentBottomSheet 룩 (Figma ixGPs9 90:107516): ✦ {섹션} 선택 · × / 본문 15/24 / [이어서 대화하기] [추천 선택하기 ›] */}
@@ -505,11 +641,142 @@ export default function ProductDetail1({ stage = 'top' }) {
           </div>
         </>)}
       </div>
+      )}
       <div className="scroll-ind pd1-ind" ref={scrollIndRef} aria-hidden><i /></div>
       <Keyboard slide open={kbOpen} />
       {/* 주문 정보 확인 화면 (Figma ixGPs9 134:60488) — X-1 앱 전환 슬라이드로 오른쪽에서 덮는다 */}
       <div className={`pay-layer ${payOn ? 'on' : ''}`} aria-hidden={!payOn}>{payOn && <OrderConfirm />}</div>
+      {/* AI Agent 우측 상단 [나가기] → '고른 값은 저장돼요' confirm (Figma ixGPs9 438:190278 방향, 사용자 2026-09-15).
+          시안 html[data-exitpop]: X1 중앙 알럿 · X2 하단 시트 · X3 저장된 값을 보여주는 카드 */}
+      {/* 요금제 질의 → Agent 풀팝업 (Figma ixGPs9 438:190278). 상세 위로 올라오고, [나가기] 뒤 내려가며 selected 된 상세가 드러난다 */}
+      <PlanAgent state={agent} aph={aph} sheet={asheet} picked={apick} flow={XF} scrollRef={agScrollRef} exitRef={exitBtnRef} yesRef={yesRef} />
+      <ExitConfirm open={xpop} flow={XF} backRef={backRef} />
       <div ref={ptrLayerRef} aria-hidden />
+    </div>
+  )
+}
+
+/* [나가기] 시점(요금제 질의 직후)까지의 상태. AI 에게 물어본 것과 직접 고른 것을 나눈다 —
+   전부 'T 가 골라줬다' 고 하면 사실과 다르다 (사용자 2026-09-15 "나는 요금제 질의만 했는데") */
+/* 이 팝업은 AI Agent 풀팝업 안에서 뜬다 — 거기서 물어본 건 요금제 하나뿐이다 (사용자 2026-09-15).
+   용량은 상세 화면의 모달에서 물어본 것이라 아래 '직접 고른 것' 쪽에 함께 남는다 */
+const EXIT_ASKED = [ASKS.plan].map((a) => [a.sec, a.opt])
+/* 나눠 보여주는 방식 시안 (html[data-exitlist])
+   D1 두 묶음: 'AI 에게 물어본 것' / '직접 고른 것' 을 소제목으로 갈라 둘 다 펼친다
+   D2 한 목록 + 표시: 한 줄로 이어 두고 물어본 줄에만 ✦ 를 달아 구분한다
+   D3 물어본 것만: T 가 답한 둘만 보여주고 직접 고른 것은 '그 외 n개' 한 줄로 접는다 */
+const EXIT_PICKED = [['색상', COLORS[ASKS.color.rec]?.name || '그라파이트'], ['용량', ASKS.storage.opt], ['수령 방법', DELIVERY[0]?.t || '택배 배송'], ['납부 기간', TERMS[1]?.t || '24개월'], ['가입 유형', JOIN[2]?.t || '기기변경'], ['사용자', USER[0]?.t || '본인']]
+function ExitSaved() {
+  /* 두 묶음(AI 에게 물어본 것 / 직접 고른 것)의 위계 시안 (html[data-exithier])
+     H1 무게 대비: 물어본 쪽만 흰 카드 + 큰 값, 직접 고른 쪽은 배경 없는 작은 목록
+     H2 카드 분리: 두 묶음을 각각 박스로 떼고 물어본 쪽에 브랜드 틴트 + 테두리
+     H3 접기: 물어본 쪽만 펼치고 직접 고른 쪽은 '직접 고른 것 6개 ›' 한 줄로 */
+  const H = variant('exithier')
+  const Row = ([k, v], cls = '') => <div className={`row ${cls}`} key={k}><span>{k}</span><b>{v}</b></div>
+  const asked = (
+    <div className={`grp asked h-${H}`}>
+      <div className="cap"><img src="/icons/ctx_navigate.svg" alt="" />AI 에게 물어본 것</div>
+      {EXIT_ASKED.map((r) => Row(r, 'big'))}
+    </div>
+  )
+  if (H === 'H3') return (
+    <div className={`exit-saved hier h-${H}`}>
+      {asked}
+      <div className="grp picked fold"><span>직접 고른 것 {EXIT_PICKED.length}개</span><i className="fold-chev" /></div>
+    </div>
+  )
+  return (
+    <div className={`exit-saved hier h-${H}`}>
+      {asked}
+      <div className={`grp picked h-${H}`}>
+        <div className="cap plain">직접 고른 것</div>
+        {EXIT_PICKED.map((r) => Row(r))}
+      </div>
+    </div>
+  )
+}
+function ExitConfirm({ open = false, flow = 'F1', backRef }) {
+  const X = variant('exitpop')
+  if (X === 'off' || !open) return null
+  /* 문구 A (사용자 2026-09-15). '상담' 은 사람 상담원 느낌이고 '끝내고' 는 고른 걸 버리는 뉘앙스라 사실과 반대로 읽혔다
+     — 3안은 상세가 본진이고 Agent 는 잠깐 불러 쓰는 곳이라 '돌아간다' 가 맞다 */
+  // F2(시트 없이 나가기 한 번): 이 팝업이 요금제 선택까지 맡는다 — 문구가 '추천 요금제로 선택하고' 를 품는다
+  const title = flow === 'F2' ? '추천 요금제로 선택하고 돌아갈까요?' : '상품 상세로 돌아갈까요?'
+  const body = flow === 'F2' ? `${PLAN_REC}가 선택된 상태로 상품 상세에 이어져요. 직접 고른 값도 그대로 저장돼요.` : '지금까지 고른 내용은 그대로 저장돼요. 돌아가서 이어서 진행할 수 있어요.'
+  return (
+    <div className={`exit-pop x-${X} on`}>
+      <div className="exit-dim" />
+      <div className="exit-box">
+        {X === 'X2' && <i className="grab" />}
+        <h3>{title}</h3>
+        <p>{X === 'X3' && flow !== 'F2' ? 'AI 에게 물어본 내용은 그대로 저장돼요. 돌아가서 이어서 진행할 수 있어요.' : body}</p>
+        {X === 'X3' && <ExitSaved />}
+        <div className="exit-btns">
+          <button type="button" className="ghost">더 물어보기</button>
+          <button type="button" className="solid" ref={backRef}>돌아가기</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── 요금제 질의 Agent 풀팝업 (Figma ixGPs9 438:190278, 2026-09-16) ──
+   상단: 상태바 · [요금제 추천 & 변경 ∨] 칩 · 새 대화 · [나가기]. 본문은 1안 AgentChat 의 조각(말풍선 · 오프닝 · 카드 · 그래프)을 그대로 빌려 쓴다.
+   aph: 1 질문 + 오프닝 / 2 이용현황 안내 + 이용중 요금제 + 그래프 / 3 추천 문장 + 추천 카드 / 4 현재 요금제와 비교 / 5 마무리(F1 선택 완료 선 · F2 안내) */
+const IcoExit = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" stroke="#101010" strokeWidth="1.7" strokeLinecap="round" /><path d="M3 12h11M10.5 8.5 14 12l-3.5 3.5" stroke="#101010" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+)
+const PA_CUR = { name: '0 청년 69', price: '월 62,800원', caps: '데이터 20GB・통화 무제한・문자 무제한' }
+const PA_REC = { name: PLAN_REC, price: '월 99,000원', caps: '데이터 무제한・통화 무제한・문자 무제한' }
+function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef }) {
+  return (
+    <div className={`pa ${state}`} aria-hidden={state === 'off'}>
+      <AgentBackground />
+      {/* 고정 헤더: AgentChat 의 .ai-header-fixed 와 같은 불투명 basement + 글로우 복제 — 올라오는 본문이 뒤로 가려진다 */}
+      <div className="ai-header-fixed pa-head">
+        <AgentBackground />
+        <StatusBar />
+        <div className="appbar-ai">
+          <div className="left"><div className="contextual-chip">요금제 추천 &amp; 변경<i className="chev-d" /></div></div>
+          <div className="right"><div className="btn-icon-ai"><IcoNewChat /></div><div className="btn-icon-ai exit" ref={exitRef} aria-label="나가기"><IcoExit /></div></div>
+        </div>
+      </div>
+      <div className="chat-scroll pa-scroll" ref={scrollRef}>
+        {aph >= 1 && <UserMessage className="pa-in">{PLAN_Q}</UserMessage>}
+        {aph >= 1 && <div className="opening pa-in"><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
+        {aph >= 2 && (<>
+          <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>
+          <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>
+          <Card className="pa-in"><UsageGraph /></Card>
+        </>)}
+        {aph >= 3 && (<>
+          <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>
+          <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>
+        </>)}
+        {aph >= 4 && (
+          <Card className="compare pa-cmp pa-in">
+            <h3>현재 요금제와 비교</h3>
+            <div className="cmp">
+              <div className="col"><span>기존</span><b>{PA_CUR.name}</b><em>{PA_CUR.price}</em><small>데이터 20GB</small></div>
+              <div className="col new"><span>변경 후</span><b>{PA_REC.name}</b><em>{PA_REC.price}</em><small>데이터 무제한</small></div>
+            </div>
+            <p>월 36,200원이 높지만 데이터가 무제한으로 바뀌어 속도 제한이 사라져요. 가족결합이 가능한 상품이라 함께 쓰면 더 유리해요.</p>
+          </Card>
+        )}
+        {aph >= 5 && picked && (<>
+          <div className="done-line pa-in"><i className="chk" />{PLAN_REC} 선택 완료<em /></div>
+          <AiMessage className="pa-in">상품 상세에도 그대로 적용해 둘게요. 오른쪽 위 [나가기]로 돌아가면 이어서 진행할 수 있어요.</AiMessage>
+        </>)}
+        {aph >= 5 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
+        <div className="pa-tail" />
+      </div>
+      <SearchAi style={{ bottom: 24 }} />
+      <div className={`ai-sheet pa-sheet ${sheet ? 'on' : ''}`}>
+        <div className="pa-down" aria-hidden><i /></div>
+        <div className="hd"><div><h3>추천된 요금제를 선택하실래요?</h3></div><i className="x" /></div>
+        <div className="items"><div className="ai-sheet-item" ref={yesRef}>네</div><div className="ai-sheet-item">다른 요금제 살펴보기</div></div>
+      </div>
+      <div className="home-ind"><i /></div>
     </div>
   )
 }

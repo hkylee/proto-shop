@@ -273,6 +273,7 @@ const PANUP = {
   P1: { speed: 0.55, min: 500, max: 1400, ease: inOut },        // 가속-감속 대칭, 320→550px/s
   P2: { speed: 0.62, min: 550, max: 1500, ease: inThenOut },    // ease-in 출발 → 급가속 → 긴 감속
   P3: { speed: 0.72, min: 480, max: 1300, ease: springSoft },   // 빠르게 도착해 살짝 넘겼다 안착
+  W1: { speed: 0.8, min: 1600, max: 2600, ease: inOutSine },    // 스텝 9 되감기 W-1: P-1 의 절반 속도(≈800px/s), 사인 곡선으로 길게 (사용자 2026-09-16 '너무 빠르다')
 }
 /* 내려갈 때(앵커 칩 탭 후) 이동 시안 — html[data-down] */
 const DOWN = {
@@ -951,6 +952,16 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
         await drag({ to: mid, y0: .3, y1: .72, dur: 520, ease: cubicOut }); if (!alive()) return
         await wait(220); if (!alive()) return
         await drag({ to: target, y0: .32, y1: .78, dur: 560, ease: cubicOut }); if (!alive()) return
+      } else if (SW === 'W2') {
+        // W-2 엄지 두 번 튕기기: 짧게 튕겨 30% 끌고 25% 는 관성 → 240ms 멈칫 → 다시 튕겨 나머지. 사람이 두 번 스크롤하는 리듬 (2026-09-16)
+        await drag({ to: now - total * .55, y0: .34, y1: .64, dur: 320, ease: cubicOut, coast: total * .25, coastDur: 720 }); if (!alive()) return
+        await wait(240); if (!alive()) return
+        await drag({ to: target, y0: .34, y1: .66, dur: 340, ease: cubicOut, coast: total * .2, coastDur: 900 }); if (!alive()) return
+      } else if (SW === 'W3') {
+        // W-3 한 번 밀고 관성으로: 손가락이 45% 를 끌고(0.55s) 놓으면 남은 55% 가 1.5s 동안 길게 감속하다 14px 넘겼다 되돌아온다 (2026-09-16)
+        const over = Math.min(14, Math.max(0, target))                  // 맨 위(0)라면 넘길 곳이 없다
+        await drag({ to: target - over, y0: .3, y1: .8, dur: 550, ease: cubicOut, coast: total * .55, coastDur: 1500 }); if (!alive()) return
+        if (over) { await scrollTo(scroll, target, 360, cubicOut, place); if (!alive()) return }
       } else if (SW === 'H3') {
         // H-3 천천히 끌어 살피기: 손가락에 1:1 로 붙어 느리게 올라오다(1.1~1.6s) 놓으면 살짝 넘겼다 되돌아오는 고무줄 안착
         const dur = Math.min(1600, Math.max(1100, total / 0.45))
@@ -1437,9 +1448,19 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return
       await wait(T.text); if (!alive()) return
+      /* 스텝 9 로 넘기기 (html[data-ctaup], 사용자 2026-09-16 "버튼 누르는 듯한 액션 나오기 전에 위로 바로").
+         off 기존: CTA 를 따라 내려온 뒤 포인터가 그 위에 '탭' 으로 머문다 → 다음 스텝에서 되감기
+         Q1 뜨고 바로: CTA 를 따라 내려온 뒤 0.3s 만에 포인터 없이 되감기 출발
+         Q2 한 박자 읽고: 따라 내려온 뒤 1.2s 머물러 CTA 를 읽게 하고 되감기
+         Q3 겹쳐서: CTA 가 페이드 인 하는 중(0.15s)에 되감기 출발 — 화면이 CTA 를 따라 내려오지 않아 있다는 것만 스친다
+         사용자 탭 모드는 탭할 자리가 필요하므로 기존대로 */
+      const Q = userTap() ? 'off' : (variant('ctaup') || 'off')
+      if (Q === 'Q3') { reveal(chipWrap); await wait(150); if (!alive()) return; setTail(TAIL); ptr?.handoff(0); return }
       reveal(chipWrap); await wait(T.tail); if (!alive()) return
       setTail(TAIL)
       await follow(chipWrap, true); if (!alive()) return
+      if (Q === 'Q1') { ptr?.handoff(300); return }
+      if (Q === 'Q2') { ptr?.handoff(1200); return }
       ptr?.park(doneChipRef.current)
     }
     const finalOpts2 = () => {
@@ -1866,6 +1887,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       const U = variant('replanup')
       const target = Math.max(0, anchorHeader(row))
       if (U === 'off' || scroll.scrollTop <= target + 2) return alive()
+      /* 되감기 질감 (html[data-rewind], 사용자 2026-09-16 "너무 빠르고 사람이 움직인다는 느낌이 덜 든다")
+         W1 느린 곡선(손가락 없음, P-1 의 절반 속도) / W2 엄지 두 번 튕기기 / W3 한 번 밀고 긴 관성 / off 기존 U-1 */
+      const W = variant('rewind')
+      if (W === 'W1') { const ind = showScrollInd(); await panTo(scroll, target, PANUP.W1, ind.place); if (!alive()) return false; await wait(250); ind.hide(); return alive() }
+      if (W === 'W2' || W === 'W3') { await swipeUp(target, W); return alive() }
       if (U === 'U2') { await swipeUp(target, 'H3'); return alive() }
       if (U === 'U3' && jumpChip) {
         jumpChip.textContent = CHIP_PLAN; jumpChip.classList.add('on')
