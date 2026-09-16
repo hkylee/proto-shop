@@ -2567,7 +2567,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
-              <div className="kv-list">{REVIEW_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{reviewMasked ? <>{maskField(k, v)}<IcoEye /></> : v}</b></div>)}</div>
+              <div className="kv-list">{REVIEW_ROWS.map(([k, v]) => <div className="kv" key={k}><span>{k}</span><b>{maskField(k, v)}<IcoEye /></b></div>)}</div>
             </Card>
             {/* W-2: 카드가 접힌 자리에 남는 줄 */}
             <div className="plan-fold review-fold" ref={reviewFoldRef}><span className="lbl">작성한 신청서</span><b>{REVIEW_ROWS[0][1]} · {PHONE}</b><em>다시 보기</em></div>
