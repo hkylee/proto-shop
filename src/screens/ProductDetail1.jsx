@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Pointer, { userTap } from '../components/pointer.js'
 import { IcoSparkleAi, IcoSparkle, IcoVoice, IcoBack } from '../components/Icons.jsx'
 import { StatusBar, Keyboard, TYPE_MS } from './AgentShell.jsx'
-import { PlanCard, UsageGraph, UserMessage, AiMessage, Card, BenefitBadges, Thinking } from './AgentChat.jsx'
+import { PlanCard, UsageGraph, UserMessage, AiMessage, AnswerBubble, Card, BenefitBadges, Thinking } from './AgentChat.jsx'
 import { AgentBackground, SearchAi } from './AgentShell.jsx'
 import { IcoNewChat, IcoWon } from '../components/Icons.jsx'
 import OrderConfirm from './OrderConfirm.jsx'
@@ -832,7 +832,8 @@ function PlanAgent({ state, aph, tout = false, sheet, picked, flow, scrollRef, e
             <p>월 36,200원이 높지만 데이터가 무제한으로 바뀌어 속도 제한이 사라져요. 가족결합이 가능한 상품이라 함께 쓰면 더 유리해요.</p>
           </Card>
         )}
-        {aph >= 11 && picked && <div className="done-line pa-in in"><i className="chk" /><span>{PLAN_REC} 선택 완료</span><em /></div>}
+        {/* 선택 완료는 1-2 와 같은 '질문 · 답' 사용자 말풍선으로 (사용자 2026-09-16) — 이전의 '○○ 선택 완료' 체크 선을 대체 */}
+        {aph >= 11 && picked && <AnswerBubble className="pa-in" q="추천된 요금제를 선택하실래요?" a={PLAN_REC} />}
         {aph >= 11 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
         <div className="pa-tail" />
       </div>
