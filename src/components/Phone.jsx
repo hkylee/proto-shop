@@ -45,7 +45,9 @@ export default function Phone({ view }) {
     setLayers((ls) => {
       const top = ls[ls.length - 1]
       if (top.view.type === view.type) return [...ls.slice(0, -1), { ...top, view }]
-      return [...ls.map((l) => ({ ...l, leaving: true })), { id: `${view.type}:${Date.now()}`, view, leaving: false }]
+      // 같은 Agent 셸(agent-chat2 → agent-chat: 시안 1-2 스텝 9 → 10)끼리의 교체는 헤더가 같으므로 본문만 바꾼다 (html[data-shellswap], 2026-09-16)
+      const same = top.view.type.startsWith('agent-chat') && view.type.startsWith('agent-chat')
+      return [...ls.map((l) => ({ ...l, leaving: true, same })), { id: `${view.type}:${Date.now()}`, view, leaving: false, same }]
     })
   }, [view])
 
@@ -62,7 +64,7 @@ export default function Phone({ view }) {
       <div className="island" />
       <div className="screen">
         {layers.map((l) => (
-          <div key={l.id} className={`view ${l.leaving ? 'view-out' : 'view-in'}`}>
+          <div key={l.id} className={`view ${l.leaving ? 'view-out' : 'view-in'} ${l.same ? 'same-shell' : ''}`}>
             <View view={l.view} />
             {l.view.launch && <LaunchOverlay typed={l.view.launch} />}
           </div>

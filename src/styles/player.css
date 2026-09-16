@@ -449,3 +449,18 @@ html[data-playbar="B3"] .step-cue.sc-V1 { display: none; }   /* 글은 칩이 �
 .playbar.pb-B3 .lbl i { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-brand-solid, #4B59FF); animation: pbBlink 1s ease-in-out infinite; }
 .playbar.pb-B3.done .lbl i { animation: none; background: var(--fg-neutral-subtle, #9AA3B8); }
 @keyframes pbBlink { 50% { opacity: .2; } }
+
+/* ── 같은 Agent 셸끼리 교체될 때 (html[data-shellswap], 시안 1-2 스텝 9 → 10) ──
+   S0 기존: 화면 전체 블러 디졸브 0.6s (헤더까지 새로 그려져 "화면을 다시 출력" 으로 읽힌다)
+   S1 헤더 고정 + 본문 블러 디졸브: 헤더(상태바 · 칩)는 그대로 두고 채팅 본문만 0.6s 블러 디졸브
+   S2 헤더 고정 + 본문 크로스페이드 0.9s: 블러 · 이동 없이 본문만 천천히 겹쳐 바뀐다 */
+html[data-shellswap="S1"] .view.same-shell.view-in, html[data-shellswap="S1"] .view.same-shell.view-out,
+html[data-shellswap="S2"] .view.same-shell.view-in, html[data-shellswap="S2"] .view.same-shell.view-out { animation: none; }
+html[data-shellswap="S1"] .view.same-shell.view-in .chat-scroll { animation: blurIn var(--dis-ms) cubic-bezier(.65,0,.35,1) both; }
+html[data-shellswap="S1"] .view.same-shell.view-out .chat-scroll { animation: blurOut var(--dis-ms) cubic-bezier(.65,0,.35,1) both; }
+html[data-shellswap="S1"] .view.same-shell.view-out .ai-header-fixed, html[data-shellswap="S1"] .view.same-shell.view-out .search-ai, html[data-shellswap="S1"] .view.same-shell.view-out .home-ind { opacity: 0; }
+html[data-shellswap="S2"] .view.same-shell.view-in .chat-scroll { animation: xfIn .9s cubic-bezier(.65,0,.35,1) both; }
+html[data-shellswap="S2"] .view.same-shell.view-out .chat-scroll { animation: xfOut .9s cubic-bezier(.65,0,.35,1) both; }
+html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-shellswap="S2"] .view.same-shell.view-out .search-ai, html[data-shellswap="S2"] .view.same-shell.view-out .home-ind { opacity: 0; }
+@keyframes xfIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes xfOut { from { opacity: 1; } to { opacity: 0; } }
