@@ -1477,7 +1477,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       done.classList.add('on'); void done.offsetHeight
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return
-      await wait(T.text); if (!alive()) return
+      await wait(T.text + 650); if (!alive()) return                // '완료되었어요!' 뒤 한 박자 더 쉰다 (사용자 2026-09-16 '퍼즈 약간 길게') — 0.55s → 1.2s
       reveal(dm2); await follow(dm2); if (!alive()) return          // 두 번째 말풍선이 뒤따른다 (사용자 2026-09-16)
       await wait(T.text); if (!alive()) return
       /* 스텝 9 로 넘기기 (html[data-ctaup], 사용자 2026-09-16 "버튼 누르는 듯한 액션 나오기 전에 위로 바로").
