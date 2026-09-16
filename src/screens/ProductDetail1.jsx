@@ -124,6 +124,7 @@ export default function ProductDetail1({ stage = 'top' }) {
   const agScrollRef = useRef(null), exitBtnRef = useRef(null), yesRef = useRef(null), backRef = useRef(null)
   // SearchAi 1줄 → 2줄(SearchAiMulti, Figma 472:144639) 전환: multi = 두 줄 레이아웃 · wrap = 본문 줄바꿈 허용 · fade = M3 크로스페이드 중
   const [multi, setMulti] = useState(false), [wrap, setWrap] = useState(false), [fade, setFade] = useState(false)
+  const [lift, setLift] = useState(false)   // P3: 보내기 뒤 입력창의 문장이 위로 떠오른다
 
   useEffect(() => { if (rootRef.current && ptrLayerRef.current) ptrRef.current = new Pointer(rootRef.current, ptrLayerRef.current) }, [])
   useEffect(() => {
@@ -146,7 +147,7 @@ export default function ProductDetail1({ stage = 'top' }) {
     const NEXT_LABEL = { color: 'T 호출', opts: 'T 호출', plan: XF === 'F3' ? '네' : '나가기' }
     const parkNext = (delay = 0) => { if (!userTap() || !NEXT_TAP[stage]) return; setTimeout(() => { if (alive()) ptr?.park(NEXT_TAP[stage](), 400, NEXT_LABEL[stage] || '탭') }, delay) }
     const settle = () => {   // 즉시 최종 상태 (건너뛰기 · 뒤로 가기 · reduced motion)
-      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false)
+      setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false); setLift(false)
       setPayReady(stage === 'rest' || stage === 'payout'); setPayOn(stage === 'payout'); ptr?.hide()
       // 요금제 스텝의 최종 상태 = 풀팝업이 열려 답이 모두 나온 뒤 (F1: [네] 눌러 선택 완료 · F2: 안내만 · F3: 시트가 떠 있음)
       if (stage === 'plan') { setAgent('in'); setAph(9); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
@@ -324,14 +325,25 @@ export default function ProductDetail1({ stage = 'top' }) {
         await wait(T / PLAN_Q.length); if (!alive()) return false
       }
       setTyped(PLAN_Q)
-      await wait(600); if (!alive()) return false
-      // 전송 → 키패드가 내려가는 동안 풀팝업이 올라온다. 뒤의 입력창은 팝업에 가린 뒤 T+ 로 조용히 복귀
-      // 풀팝업 등장 (html[data-agentin], 사용자 2026-09-16 "시안 1 처럼 심리스하게"): A1 블러 디졸브 / A2 입력창이 화면으로 커짐 / A3 위에서 스며듦
+      await wait(450); if (!alive()) return false
+      // [↑ 보내기] 를 눌러 전송 — 그 다음 전환의 호흡 (html[data-agentpace], 사용자 2026-09-16 "속도가 너무 빠르고 전환감이 빨라")
+      //   P1 숨 고르기: 누른 뒤 0.5s 멈추고 → 1.0s 디졸브
+      //   P2 두 단계: 먼저 키패드가 내려가고 입력창만 남아 0.7s → 그 다음 상세가 흐려지며 1.0s 디졸브
+      //   P3 떠오르기: 누르는 순간 입력창의 문장이 위로 떠오르고(0.8s) 그 사이 1.2s 디졸브가 이어진다
+      await ptr?.tap(dockRef.current.querySelector('.send'), { move: 320, pause: 120, label: '보내기' }); if (!alive()) return false
+      ptr?.hide()
+      const GP = variant('agentpace') || 'P1'
+      if (GP === 'P1') { await wait(500); if (!alive()) return false }
+      if (GP === 'P2') { setDock('hold'); await wait(700); if (!alive()) return false }
+      if (GP === 'P3') { setLift(true); await wait(300); if (!alive()) return false }
+      // 풀팝업 등장 (html[data-agentin] = A-1 블러 디졸브 확정; A2 입력창이 화면으로 / A3 위에서 스며듦 코드 보존)
       const AI = variant('agentin') || 'A1'
+      const DIS = GP === 'P3' ? 1200 : 1000
       // 시안 1 의 턴 리듬(Figma 483:145930): 말풍선 → 오프닝 타이틀 → (타이틀이 접히며) 안내 문장 → 카드 하나씩 → 추천 → 비교표. 한 번에 한 조각
-      setAgent('in'); setAph(1); setDock('closing')                  // 1 질문 말풍선
-      await wait(AI === 'A1' ? 650 : AG_MS); if (!alive()) return false
-      setDock('idle'); setTyped(''); setAsk(null); setMulti(false); setWrap(false)
+      // 입력창은 T+ 로 되감지 않는다 — 디졸브 동안 그 모양 그대로 흐려지고, Agent 화면이 다 덮은 뒤 조용히 초기화 (사용자 2026-09-16 "몰핑되는 게 아니라 바로 agent 로 랜딩")
+      setAgent('in'); setAph(1)                                      // 1 질문 말풍선
+      await wait(AI === 'A1' ? DIS + 50 : AG_MS); if (!alive()) return false
+      setDock('idle'); setTyped(''); setAsk(null); setMulti(false); setWrap(false); setLift(false)
       await wait(350); if (!alive()) return false
       setAph(2)                                                      // 2 "최근 6개월간 이용현황을 먼저 살펴볼게요 · 나의 요금제 확인"
       await wait(1600); if (!alive()) return false
@@ -447,7 +459,7 @@ export default function ProductDetail1({ stage = 'top' }) {
   const morphPre = variant('planmorph') === 'on' && sel.plan < 0
 
   return (
-    <div className={`pd pd2 pd1 ${morph} dock-${dock} ag-${agent} ain-${variant('agentin') || 'A1'} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
+    <div className={`pd pd2 pd1 ${morph} dock-${dock} ag-${agent} ain-${variant('agentin') || 'A1'} gp-${variant('agentpace') || 'P1'} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
       <div className="pd2-scroll" ref={scrollRef}>
         <StatusBar className="pd-status" />
         <div className="pd2-appbar"><IcoBack /><span className="sp" /><i className="ico-share" /><i className="ico-menu" /></div>
@@ -613,7 +625,7 @@ export default function ProductDetail1({ stage = 'top' }) {
       </div>
 
       {/* SearchAi(353×52) ↔ SearchAiMulti(110, Figma 472:144639): 본문이 한 줄을 넘치면 두 줄 + 아래 줄에 ✦ · [↑ 보내기] */}
-      <div className={`dock ${multi ? 'multi' : ''} ${wrap ? 'wrap' : ''} ${fade ? 'fade' : ''} mv-${variant('sinput') || 'M1'}`} ref={dockRef} aria-label="T 호출">
+      <div className={`dock ${multi ? 'multi' : ''} ${wrap ? 'wrap' : ''} ${fade ? 'fade' : ''} ${lift ? 'lift' : ''} mv-${variant('sinput') || 'M1'}`} ref={dockRef} aria-label="T 호출">
         <div className="tico"><IcoSparkleAi size={26} /></div>
         <div className="sinp">
           <IcoSparkle size={16} className="spark lead" />

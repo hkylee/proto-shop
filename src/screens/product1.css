@@ -344,8 +344,10 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa.in { transform: none; }
 .pd1 .pa.out { transform: translateY(100%); }
 .pd1 .pa.off { visibility: hidden; transition: none; }
-.pd1 .pa .pa-head { z-index: 3; }
-.pd1 .pa .pa-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: -17px; height: 17px; background: linear-gradient(180deg, var(--bg-basement), rgba(226,230,241,0)); }
+/* 헤더 = 시안 1 확정 G-6 을 이 헤더(상태바 59 + 앱바 48 = 107) 에 맞춰 환산: 상태바 100%, 앱바 100 → 70% + blur 30, 아래 56px 꼬리에서 0. 글로우(ai-bg)는 60% 지점부터 사라진다 (사용자 2026-09-16 "헤더 영역에 그라디언트, 지금은 fill") */
+.pd1 .pa .pa-head { z-index: 3; background: transparent; overflow: visible; }
+.pd1 .pa .pa-head::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: -56px; z-index: 0; pointer-events: none; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 107px, rgba(226,230,241,0) 100%); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }
+.pd1 .pa .pa-head .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%); mask-image: linear-gradient(180deg, #000 60%, transparent 100%); }
 .pd1 .pa .appbar-ai .right { display: flex; gap: 6px; }
 .pd1 .pa .btn-icon-ai.exit { transition: transform .15s; }
 .pd1 .pa .btn-icon-ai.pressing { transform: scale(.92); }
@@ -353,8 +355,9 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .contextual-chip .chev-d { width: 12px; height: 12px; position: relative; display: inline-block; }
 .pd1 .pa .contextual-chip .chev-d::before { content: ""; position: absolute; left: 2.5px; top: 1px; width: 5px; height: 5px; border-right: 1.5px solid var(--fg-neutral-solid); border-bottom: 1.5px solid var(--fg-neutral-solid); transform: rotate(45deg); }
 .pd1 .pa .chat-scroll.pa-scroll { padding-top: 124px; gap: 8px; }   /* 상태바 59 + 앱바 48 + 17 */
-.pd1 .pa .pa-in { animation: paIn .5s cubic-bezier(.22,1,.36,1) both; }
-@keyframes paIn { from { opacity: 0; transform: translateY(10px); } }
+/* 등장 질감 = 시안 1 공통 등장 규칙(agent.css --rv-dur/--rv-y/--rv-blur/--rv-scale/--rv-ease, reveal S-1 균일 박자) 그대로 — 안마다 다르게 정의하지 않는다 (사용자 2026-09-16 "공통정의처럼") */
+.pd1 .pa .pa-in { animation: paIn var(--rv-dur) var(--rv-ease) both; }
+@keyframes paIn { from { opacity: 0; transform: translateY(var(--rv-y)) scale(var(--rv-scale)); filter: blur(var(--rv-blur)); } to { opacity: 1; transform: none; filter: none; } }
 .pd1 .pa .opening { gap: 8px; max-height: 140px; }
 /* 답이 시작되면 오프닝 타이틀이 접힌다 — 글자가 먼저 사라지고(0.25s) 높이가 닫힌다(0.4s). 시안 1 collapse C-2 와 같은 순서 */
 .pd1 .pa .opening.gone { animation: paGone .55s cubic-bezier(.65,0,.35,1) both; pointer-events: none; }
@@ -405,3 +408,22 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 
 /* 숨어 있는 동안(off)에는 어떤 등장 방식도 전환하지 않는다 — 출발 값이 조용히 자리 잡도록 */
 .pd1.ain-A1 .pa.off, .pd1.ain-A2 .pa.off, .pd1.ain-A3 .pa.off { transition: none; }
+
+/* ── 보내기 뒤 전환의 호흡 (html[data-agentpace], 2026-09-16 "속도가 너무 빠르고 전환감이 빨라") — 디졸브를 0.6 → 1.0s(P3 1.2s) 로 늦추고 앞에 한 박자를 둔다 ──
+   P1 숨 고르기 / P2 두 단계(키패드 먼저 내려가고 입력창만 남는 dock-hold) / P3 떠오르기(입력창의 문장이 위로 떠오르며 사라지는 .lift) */
+.pd1 .dock .sinp .send { transition: transform .15s; }
+.pd1 .dock .sinp .send.pressing { transform: scale(.88); }
+.pd1.gp-P1 .pa, .pd1.gp-P2 .pa { transition-duration: 1s; }
+.pd1.gp-P3 .pa { transition-duration: 1.2s; }
+.pd1.gp-P1.ag-in .pd2-scroll, .pd1.gp-P1.ag-in .dock, .pd1.gp-P1.ag-in .keyboard, .pd1.gp-P1.ag-in .pd2-bottom,
+.pd1.gp-P2.ag-in .pd2-scroll, .pd1.gp-P2.ag-in .dock, .pd1.gp-P2.ag-in .keyboard, .pd1.gp-P2.ag-in .pd2-bottom { animation-duration: 1s; }
+.pd1.gp-P3.ag-in .pd2-scroll, .pd1.gp-P3.ag-in .dock, .pd1.gp-P3.ag-in .keyboard, .pd1.gp-P3.ag-in .pd2-bottom { animation-duration: 1.2s; }
+/* P2 dock-hold: 열림과 같은 모양(353 · 두 줄)으로 키패드 없이 바닥에 내려앉는다. 키패드는 Keyboard open=false 로 함께 내려간다 */
+.pd1.dock-hold .dock { width: 353px; background: rgba(255,255,255,.92); bottom: 34px; }
+.pd1.dock-hold .dock .tico { opacity: 0; transform: scale(.6); }
+.pd1.dock-hold .dock .sinp { opacity: 1; }
+.pd1.dock-hold .cta { opacity: 0; transform: translateY(20px); pointer-events: none; }
+/* P3 lift: 문장(입력 영역)이 위로 떠오르며 옅어진다 — 말풍선 자리로 올라가는 듯 */
+.pd1 .dock.lift .sinp { translate: 0 -56px; opacity: 0; transition: translate .8s cubic-bezier(.22,1,.36,1), opacity .6s .1s; }
+/* 팝업이 덮은 뒤의 초기화는 보이지 않아야 한다 — Agent 화면 아래에서 dock 이 되감기는 전환을 끈다 */
+.pd1.ag-in .dock, .pd1.ag-in .dock .sinp, .pd1.ag-in .dock .tico, .pd1.ag-in .keyboard { transition: none !important; }
