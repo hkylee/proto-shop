@@ -32,7 +32,7 @@ const TURNS = [
     sheet: '할인 방법을 선택해주세요.', rows: [['공통지원금', '휴대폰 가격에서 바로 할인', '-300,000원'], ['선택약정 12개월', '12개월간 통신요금 25% 할인', '-250,000원'], ['선택약정 24개월', '24개월간 통신요금 25% 할인', '-280,000원']], pick: 0 },
   { id: 'sim',     k: 8,  label: 'SIM 유형',      msgs: ['기기변경으로 진행 중이시니, 쓰시던 유심을 그대로 사용하시면 새로 사지 않아도 되고 개통도 가장 빠르게 끝나요.'],
     sheet: '어떤 SIM으로 개통하시겠어요?', rows: [['eSIM', '칩 없이 QR로 바로 개통해요', '3,000원'], ['새 USIM 구매', '택배로 받아 끼우면 바로 개통돼요', '3,000원'], ['가지고 있는 USIM 사용', '쓰던 USIM을 그대로 사용해요', '3,000원']], pick: 2,
-    xchip: '이어서 진행하기', xmsg: '이어서 진행할게요.' },   // 칩 라벨 '개통 방법 선택하기' → '이어서 진행하기' (사용자 2026-09-16). 시트 × → 복귀 시안 (html[data-simx], Figma 229 234:92897)
+    xchip: '이어서 진행하기', xq: '이어서 진행할까요?', xa: '네' },   // × 뒤 칩 → 질문·답 말풍선 (사용자 2026-09-16)   // 칩 라벨 '개통 방법 선택하기' → '이어서 진행하기' (사용자 2026-09-16). 시트 × → 복귀 시안 (html[data-simx], Figma 229 234:92897)
   { id: 'benefit', k: 12, label: '추가 혜택',     msgs: ['추가로 받을 수 있는 혜택이 있어요.\n원하는 혜택을 선택해 주세요.'],   // 두 줄 (사용자 2026-09-16, 1안과 같은 문구)
     sheet: '어떤 혜택을 선택하시겠어요?', rows: [['청년 데이터 60GB 추가', '매월 데이터를 넉넉하게 사용해요'], ['콘텐츠 이용권', 'YouTube · Netflix · TVING 중 하나'], ['추가 혜택을 선택하지 않을게요', '나중에 Tworld에서 신청할 수 있어요']], pick: 0, icon: true },
   { id: 'disc',    k: 9,  label: '추가 할인 수단', msgs: ['추가로 적용하실 수 있는 할인이 있을까요?\n보유하고 있는 할인 수단이 있다면 선택해 주세요.'],   // 두 줄 (사용자 2026-09-16, 1안과 같은 문구)
@@ -513,7 +513,7 @@ export default function AgentChat2({ stage = 'usage' }) {
             {/* 시트 × → 복귀 시안 S-1 (Figma 234:92897): 안내문 아래 칩 → 탭 → 칩이 사라지고 '이어서 진행할게요.' → 시트 복귀 */}
             {t.xchip && <div className="cta-stack xdetour x-chip"><div className="button-ai">{t.xchip}</div></div>}
             {/* × → [이어서 진행하기] 뒤에는 Agent 멘트 대신 질문·답 사용자 말풍선 (사용자 2026-09-16) — 시트가 다시 올라와 선택이 이어진다 */}
-            {t.xchip && <div className="xdetour x-msg"><AnswerBubble q={t.sheet} a={t.xchip} /></div>}
+            {t.xchip && <div className="xdetour x-msg"><AnswerBubble q={t.xq} a={t.xa} /></div>}
             <div className="t2-result">
               {/* 뒤따르는 merge 턴의 답은 이 말풍선 안에 다음 세트로 이어 붙는다 — 질문·답 두 세트가 한 말풍선 (Figma 442:158815) */}
               {!t.merge && picks[i] >= 0 && <AnswerBubble pairs={[[t.sheet, t.rows[picks[i]][0]], ...TURNS.slice(i + 1).filter((u, j) => u.merge && TURNS.slice(i + 1, i + 1 + j).every((w) => w.merge) && picks[i + 1 + j] >= 0).map((u, j) => [u.sheet, u.rows[picks[i + 1 + j]][0]])]} />}
