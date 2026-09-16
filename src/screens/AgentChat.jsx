@@ -1536,6 +1536,10 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const autoKbBefore = (k) => { if (variant('autokb') !== 'T1') return; setFfocus(k); setKbOpen(true); autoKbField = k }
     const autoKbAfter = async (k) => {
       const A = variant('autokb')
+      if (kbKeep() !== 'off' && kbOpenRef.current) {   // 키패드가 이미 떠 있다 — 커서만 새 칸으로 (B2 는 한 박자 뒤)
+        await wait(kbKeep() === 'B2' ? 300 : 120); if (!alive()) return false
+        setFfocus(k); autoKbField = k; await wait(260); return alive()
+      }
       if (A === 'off' || A === 'T1') return alive()
       if (A === 'T3') { setFfocus(k); await wait(420); if (!alive()) return false; setKbOpen(true); await wait(480) }
       else { await wait(150); setFfocus(k); setKbOpen(true); await wait(520) }
@@ -1564,8 +1568,17 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await wait(350); return alive()
     }
     // [다음] 탭 (키패드 위에서) → 키패드가 먼저 내려가고(0.3s 시차) 그 뒤 내용이 바뀐다 — 두 움직임이 겹치지 않게
+    /* 시트가 연속될 때 키패드를 내리지 않는다 (html[data-kbkeep], 사용자 2026-09-16 "키패드 올라온 상태로 연속되는 건 어떨까요")
+       B1 유지: [다음] 을 눌러도 키패드는 그대로, 시트 내용만 바뀌고 커서가 새 칸으로
+       B2 유지 + 한 박자: 키패드는 그대로, 시트가 바뀌는 동안 커서가 잠깐 사라졌다(0.3s) 새 칸에 — '장이 넘어갔다' 는 표시
+       B3 리턴 키로 넘김: 키패드가 계속 떠 있으니 시트의 [다음] 대신 키패드 ↵ 를 눌러 다음 시트로 (마지막 장만 [다음])
+       off 기존: [다음] → 키패드 내려감 → 새 시트 → 키패드 다시 올라옴 */
+    const kbKeep = () => variant('kbkeep') || 'off'
     const tapNext = async () => {
-      await ptr?.tap(fsEl('next'), { move: 300, pause: 80 }); if (!alive()) return false
+      const K = kbKeep()
+      const btn = K === 'B3' && kbOpenRef.current ? rootRef.current?.querySelector('.key.ret') : fsEl('next')
+      await ptr?.tap(btn || fsEl('next'), { move: 300, pause: 80 }); if (!alive()) return false
+      if (K !== 'off') { ptr?.hide(); setFfocus(''); await wait(220); return alive() }   // 키패드는 그대로 둔다
       ptr?.hide(); setFfocus(''); setKbOpen(false); await wait(300); return alive()
     }
     const parkNext = () => setTimeout(() => { if (alive()) ptr?.park(fsEl('next')) }, 60)   // 시트 내용이 렌더된 뒤 [다음] 위에
@@ -1981,7 +1994,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (variant('replanno') !== 'off') {
         await ptr?.tap(confirmNoRef.current, { move: 420, pause: 140 }); if (!alive()) return
         ptr?.hide(); setConfirmPop(false); await wait(220); if (!alive()) return
-        hideSheet(); setWarnBar(false); setSelPlan(0)
+        await ptr?.tap(sheetRef.current?.querySelector('.appbar .x'), { move: 380, pause: 120 }); if (!alive()) return   // 팝업은 × 로 직접 닫는다 (사용자 2026-09-16)
+        ptr?.hide(); hideSheet(); setWarnBar(false); setSelPlan(0)
         await wait(600); if (!alive()) return
         setTail(TAIL)
         await new Promise(afterLayout); if (!alive()) return
