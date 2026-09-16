@@ -1511,7 +1511,7 @@ export default function App() {
           </div>
           )}
           <div className="variants v-kbkeep">
-            <b className="vtitle">시안 1-2 · 스텝 10~12 — 신청서 시트가 연속될 때 키패드</b>
+            <b className="vtitle">시안 1-2 · 스텝 10~12 — 신청서 시트가 연속될 때 키패드 — B-1 확정</b>
             {KBKEEPS.map((v) => (
               <button key={v.id} aria-pressed={kbkeepV === v.id} onClick={() => { setKbkeepV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}

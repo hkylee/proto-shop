@@ -1574,11 +1574,11 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
        B3 리턴 키로 넘김: 키패드가 계속 떠 있으니 시트의 [다음] 대신 키패드 ↵ 를 눌러 다음 시트로 (마지막 장만 [다음])
        off 기존: [다음] → 키패드 내려감 → 새 시트 → 키패드 다시 올라옴 */
     const kbKeep = () => variant('kbkeep') || 'off'
-    const tapNext = async () => {
+    const tapNext = async (close = false) => {   // close: 다음이 입력 시트가 아니면(스텝 12 마지막 [다음] → 신청서 확인) 키패드를 닫는다 (사용자 2026-09-16)
       const K = kbKeep()
-      const btn = K === 'B3' && kbOpenRef.current ? rootRef.current?.querySelector('.key.ret') : fsEl('next')
+      const btn = K === 'B3' && kbOpenRef.current && !close ? rootRef.current?.querySelector('.key.ret') : fsEl('next')
       await ptr?.tap(btn || fsEl('next'), { move: 300, pause: 80 }); if (!alive()) return false
-      if (K !== 'off') { ptr?.hide(); setFfocus(''); await wait(220); return alive() }   // 키패드는 그대로 둔다
+      if (K !== 'off' && !close) { ptr?.hide(); setFfocus(''); await wait(220); return alive() }   // 키패드는 그대로 둔다
       ptr?.hide(); setFfocus(''); setKbOpen(false); await wait(300); return alive()
     }
     const parkNext = () => setTimeout(() => { if (alive()) ptr?.park(fsEl('next')) }, 60)   // 시트 내용이 렌더된 뒤 [다음] 위에
@@ -1619,17 +1619,21 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       if (!await tapNext()) return
       setOptK(OPT.addr); if (!await openFsheet(2)) return
       // [검색] 탭 → 주소 검색 풀페이지 팝업(html[data-zippop] Z1 아래서 / Z2 오른쪽에서 / Z3 시트에서 자라남) → 키패드 → 검색어 타이핑 → 결과 8행 → 첫 행 탭 → 팝업 닫히며 우편번호·주소 채움
+      const keep = kbKeep() !== 'off'
+      if (keep) { setFfocus(''); setKbOpen(false); await wait(420); if (!alive()) return }   // B-1: 풀팝업으로 나갈 때는 키패드가 먼저 내려간다 (사용자 2026-09-16)
       await ptr?.tap(fsEl('zipbtn'), { move: 340, pause: 90 }); if (!alive()) return
       ptr?.hide(); setZipPop(true); setZipQ(''); setZipList(false)
       await wait(520); if (!alive()) return
+      if (keep) { await ptr?.tap(rootRef.current?.querySelector('.sheet.zip .zip-search'), { move: 320, pause: 80 }); if (!alive()) return; ptr?.hide() }   // 검색 필드를 눌러야 키패드가 뜬다
       setKbOpen(true); await wait(500); if (!alive()) return
       if (!await typeInto(setZipQ, ZIP_Q, 85)) return
       await wait(250); if (!alive()) return
       setZipList(true)
       await wait(900); if (!alive()) return
       await ptr?.tap(rootRef.current?.querySelector('.zip-item'), { move: 360, pause: 90 }); if (!alive()) return
-      ptr?.hide(); setZipPop(false); setF('zip', ADDR_ZIP); setF('line', ADDR_LINE); setFfocus('detail')
-      await wait(550); if (!alive()) return                                    // 팝업이 내려간 뒤 상세 주소 (키패드는 그대로)
+      ptr?.hide(); setZipPop(false); setF('zip', ADDR_ZIP); setF('line', ADDR_LINE)
+      if (keep) { setKbOpen(false); setFfocus('') } else setFfocus('detail')   // B-1: 결과를 고르면 키패드도 함께 내려가고, 상세 주소를 칠 때 다시 올라온다
+      await wait(550); if (!alive()) return                                    // 팝업이 내려간 뒤 상세 주소
       if (!await fillField('detail', ADDR_DETAIL, 120)) return
       await wait(300); if (!alive()) return
       await ptr?.tap(fsEl('chk'), { move: 300, pause: 80 }); if (!alive()) return
@@ -1850,7 +1854,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     }
     const playReview = async () => {
       const T = rv(), [msg, line, msg2, card] = reviewItems
-      if (!await tapNext()) return
+      if (!await tapNext(true)) return
       setFsheet(0); setKbField(false); setFfocus('')
       await wait(650); if (!alive()) return
       await collapseAway(formItems[1]); if (!alive()) return           // Alert 는 역할을 마쳤으니 그 자리에 결과가 온다
