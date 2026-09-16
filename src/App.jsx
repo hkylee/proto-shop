@@ -1736,7 +1736,7 @@ export default function App() {
           )}
           {SHOW_ALL && (
           <div className="variants v-brief">
-            <b className="vtitle">뷰어 · 좌측 설명 영역 — 시안 1-1 · 1-2 의 장점 · 고려 지점</b>
+            <b className="vtitle">뷰어 · 좌측 설명 영역 — 시안 1-1 · 1-2 의 장점 · 고려 지점 — D-2 확정</b>
             {BRIEFS.map((v) => (
               <button key={v.id} aria-pressed={briefV === v.id} onClick={() => { document.documentElement.dataset.brief = v.id; setBriefV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
