@@ -512,7 +512,8 @@ export default function AgentChat2({ stage = 'usage' }) {
             {t.msgs.map((m, j) => <AiMessage key={j}>{m.split('\n').map((l, k) => <span key={k}>{k > 0 && <br />}{l}</span>)}</AiMessage>)}
             {/* 시트 × → 복귀 시안 S-1 (Figma 234:92897): 안내문 아래 칩 → 탭 → 칩이 사라지고 '이어서 진행할게요.' → 시트 복귀 */}
             {t.xchip && <div className="cta-stack xdetour x-chip"><div className="button-ai">{t.xchip}</div></div>}
-            {t.xmsg && <p className="msg-ai xdetour x-msg">{t.xmsg}</p>}
+            {/* × → [이어서 진행하기] 뒤에는 Agent 멘트 대신 질문·답 사용자 말풍선 (사용자 2026-09-16) — 시트가 다시 올라와 선택이 이어진다 */}
+            {t.xchip && <div className="xdetour x-msg"><AnswerBubble q={t.sheet} a={t.xchip} /></div>}
             <div className="t2-result">
               {/* 뒤따르는 merge 턴의 답은 이 말풍선 안에 다음 세트로 이어 붙는다 — 질문·답 두 세트가 한 말풍선 (Figma 442:158815) */}
               {!t.merge && picks[i] >= 0 && <AnswerBubble pairs={[[t.sheet, t.rows[picks[i]][0]], ...TURNS.slice(i + 1).filter((u, j) => u.merge && TURNS.slice(i + 1, i + 1 + j).every((w) => w.merge) && picks[i + 1 + j] >= 0).map((u, j) => [u.sheet, u.rows[picks[i + 1 + j]][0]])]} />}
