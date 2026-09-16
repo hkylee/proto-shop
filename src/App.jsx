@@ -892,7 +892,11 @@ export default function App() {
   const [playing, setPlaying] = useState(true)   // 스텝이 바뀌면 재생 중 → 끝 신호(ptr-park / ptr-wait)에 false (html[data-playbar] 진행 표시)
   // 자동 재생(웹 뷰어 기본, tapmode=auto)에서는 포인터가 'ptr-park' 로 멈춤을 알리고, 사용자 탭 모드에서는 'ptr-wait' — 둘 다 "이 스텝은 끝났다"
   useEffect(() => { const on = () => { setWaiting(true); setPlaying(false) }; window.addEventListener('ptr-wait', on); window.addEventListener('ptr-park', on); return () => { window.removeEventListener('ptr-wait', on); window.removeEventListener('ptr-park', on) } }, [])
-  useEffect(() => { setWaiting(false); setPlaying(true) }, [cur, pid, replay])
+  useEffect(() => {
+    setWaiting(false); setPlaying(true)
+    // 상품 상세 진입(스텝 1)은 재생할 것이 없다 — 진입 1초 뒤 바로 '끝' (사용자 2026-09-16 "진입하자마자 바로 Step 1 끝 아님?")
+    if (step.view?.stage === 'top') { const t = setTimeout(() => { setPlaying(false); setWaiting(true) }, 1000); return () => clearTimeout(t) }
+  }, [cur, pid, replay])
   const [doneToast, setDoneToast] = useState(false)
   useEffect(() => {
     setDoneToast(false)
