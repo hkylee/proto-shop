@@ -138,7 +138,8 @@ export default function ProductDetail1({ stage = 'top' }) {
     const el = scrollRef.current, ptr = ptrRef.current
     if (!el) return
     const seq = ++seqRef.current, alive = () => seq === seqRef.current
-    const cancel = () => { seqRef.current++ }
+    let camEl = null, camRaf = 0   // N3 연속 추적 카메라 (cancel 이 먼저 불려도 안전하게 effect 맨 위에)
+    const cancel = () => { seqRef.current++; if (camRaf) cancelAnimationFrame(camRaf); camRaf = 0; camEl = null }
     const prev = prevRef.current; prevRef.current = stage
     const ambV = variant('ambient'), ambientOn = ambV && ambV !== 'off'
     const pick = (k, v) => setSel((s) => ({ ...s, [k]: v }))
@@ -292,10 +293,25 @@ export default function ProductDetail1({ stage = 'top' }) {
     }
 
     // ── 요금제 질의: T+ → 타이핑 → 전송과 함께 Agent 풀팝업이 올라온다 → 턴이 차례로 드러나며 아래로 팬 → 추천 시트 ──
-    const agPan = async (dur = 650) => {
+    /* 풀팝업 안에서 새 요소를 따라가는 리듬 = 시안 1 의 follow 규칙 (html[data-agentfollow], 사용자 2026-09-16 "슈우웅 올라온다 → 시안 1 처럼")
+       예전: 매번 맨 아래(꼬리 200px 포함)까지 quart 로 팬 → 필요 이상으로 크게 밀려 올라갔다.
+       공통: 목표는 '새 요소의 아래가 SearchAi 위 30px' (시안 1 anchorBottom), 위로는 가지 않는다
+       N1 요소마다 팬 (시안 1 F-1 확정 규칙 그대로: 거리 기반 320px/s · 최소 0.6s · 사인)
+       N2 턴 끝에 한 번: 요소들은 제자리에서 나타나고 카드까지 들어온 뒤 한 번만 팬
+       N3 연속 추적: 카메라가 마지막 요소 아래를 매 프레임 10% 씩 따라간다 (시안 1 F-3) */
+    const PA_SEARCH_TOP = SCREEN_H - 24 - 52, PA_GAP = 30
+    const agLast = () => { const a = agScrollRef.current; return a ? [...a.children].filter((c) => !c.classList.contains('pa-tail')).pop() : null }
+    const agAnchor = (el) => el.offsetTop + el.offsetHeight - (PA_SEARCH_TOP - PA_GAP)
+    const camStop = () => { if (camRaf) cancelAnimationFrame(camRaf); camRaf = 0; camEl = null }
+    const camLoop = () => { const a = agScrollRef.current; if (!camEl || !a) return; const goal = Math.max(a.scrollTop, Math.min(agAnchor(camEl), a.scrollHeight - a.clientHeight)); const d = goal - a.scrollTop; if (Math.abs(d) > .5) a.scrollTop += d * 0.10; camRaf = requestAnimationFrame(camLoop) }
+    const agPan = async (_dur, end = false) => {
       const a = agScrollRef.current; if (!a) return alive()
       await wait(40); if (!alive()) return false
-      await scrollTo(a, a.scrollHeight - a.clientHeight, dur, inOutQuart); return alive()
+      const AF = variant('agentfollow') || 'N1', el = agLast()
+      if (!el) return alive()
+      if (AF === 'N3') { camEl = el; if (!camRaf) camRaf = requestAnimationFrame(camLoop); if (end) { await wait(700); camStop() } return alive() }
+      if (AF === 'N2' && !end) return alive()
+      await scrollTo(a, Math.max(a.scrollTop, agAnchor(el))); return alive()
     }
     const askPlan = async () => {
       const secEl = secs.plan.current
@@ -354,23 +370,23 @@ export default function ProductDetail1({ stage = 'top' }) {
       await wait(1000); if (!alive()) return false
       setAph(5); if (!await agPan(600)) return false                 // 5 이용중 요금제 카드
       await wait(900); if (!alive()) return false
-      setAph(6); if (!await agPan(700)) return false                 // 6 6개월 그래프
+      setAph(6); if (!await agPan(700, true)) return false           // 6 6개월 그래프 (턴 끝)
       await wait(1200); if (!alive()) return false
       if (!await think(7)) return false                              // 7 … → 8 추천 문장
       if (!await agPan(500)) return false
       await wait(900); if (!alive()) return false
-      setAph(9); if (!await agPan(600)) return false                 // 9 추천 요금제 카드
+      setAph(9); if (!await agPan(600, true)) return false           // 9 추천 요금제 카드 (턴 끝)
       await wait(1000); if (!alive()) return false
-      setAph(10); if (!await agPan(700)) return false                // 10 현재 요금제와 비교
+      setAph(10); if (!await agPan(700, true)) return false          // 10 현재 요금제와 비교 (턴 끝)
       await wait(1400); if (!alive()) return false
-      if (XF === 'F2') { setAph(11); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
+      if (XF === 'F2') { setAph(11); await agPan(500, true); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
       setAsheet(true)                                          // "추천된 요금제를 선택하실래요?"
       await wait(900); if (!alive()) return false
       if (XF === 'F3') return alive()                          // [네] 위에서 대기 — 다음 스텝에서 확인 팝업이 이어진다
       await ptr?.tap(yesRef.current, { move: 420, pause: 140, label: '네' }); if (!alive()) return false
       ptr?.hide(); setAsheet(false); setApick(true); setAph(11)
       await wait(200); if (!alive()) return false
-      await agPan(600); return alive()
+      await agPan(600, true); return alive()
     }
     // ── [나가기]: 확인 팝업(X-3) → [돌아가기] → 풀팝업 하강 → 요금제 섹션, AI PICK 카드 selected ──
     const leaveAgent = async () => {

@@ -378,7 +378,9 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .ai-sheet.pa-sheet { bottom: 24px; padding: 24px 28px 28px; gap: 18px; z-index: 7; }
 .pd1 .pa .pa-sheet .ai-sheet-item { padding: 6px 0; transition: transform .15s; }
 .pd1 .pa .pa-sheet .ai-sheet-item.pressing { transform: scale(.98); transform-origin: left center; }
-.pd1 .pa .pa-sheet .pa-down { position: absolute; left: 50%; top: -58px; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: var(--shadow-ai); display: grid; place-items: center; }
+/* ∨ (Figma 438:189288) 는 시트가 자리 잡은 뒤에만 — 시트가 화면 밖(110%)에 있을 때 시트 위 58px 에 매달린 ∨ 만 화면 아래에 먼저 비치던 문제 (사용자 2026-09-16) */
+.pd1 .pa .pa-sheet .pa-down { position: absolute; left: 50%; top: -58px; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: var(--shadow-ai); display: grid; place-items: center; opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .4s var(--kb-ease); }
+.pd1 .pa .pa-sheet.on .pa-down { opacity: 1; transform: none; transition-delay: .35s; }
 .pd1 .pa .pa-sheet .pa-down i { width: 8px; height: 8px; border-right: 1.6px solid var(--fg-neutral-solid); border-bottom: 1.6px solid var(--fg-neutral-solid); transform: translateY(-2px) rotate(45deg); }
 .pd1 .pa .home-ind { z-index: 8; }
 /* 풀팝업이 열려 있는 동안 상세의 나머지 오버레이는 뒤로 */
