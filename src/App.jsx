@@ -1412,13 +1412,15 @@ export default function App() {
             <span className="vdesc">{GROWRADS.find((v) => v.id === growradV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants v-procfx">
-            <b className="vtitle">공통 · AI 응답이 그려질 때 본문 처리 (Figma 520:148502, 시안 1-1 · 1-2 · 2) — 미확정</b>
+            <b className="vtitle">공통 · AI 응답이 그려질 때 본문 처리 (Figma 520:148502, 시안 1-1 · 1-2 · 2) — T-2 확정</b>
             {PROCFXS.map((v) => (
               <button key={v.id} aria-pressed={procfxV === v.id} onClick={() => { setProcfxV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{PROCFXS.find((v) => v.id === procfxV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants v-openbg">
             <b className="vtitle">시안 2 · 입력창이 열려 있는 동안 뒤 페이지 — D-1 확정</b>
