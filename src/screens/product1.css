@@ -463,3 +463,41 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .appbar-ai.eh-H3.done .contextual-chip .lbl-wrap { min-width: 84px; }
 .pd1 .pa .contextual-chip .back { transition: transform .15s; }
 .pd1 .pa .contextual-chip .back.pressing { transform: scale(.82); }
+
+/* ── T+ 를 누르면 입력창 위에 뜨는 추천 발화 3개 (Figma ixGPs9 419:150090, 2026-09-16) ──
+   자리: 입력창(bottom 319 · 높이 52 → 두 줄이면 110) 위 10px, 왼쪽 20. 열림(dock-open)에서만. 등장 방식 html[data-sugfx]
+   B1 아래에서 차례로: 입력창 가까운 것부터 90ms 간격으로 14px 떠오른다 (시안 1 L-2 언어)
+   B2 입력창에서 튀어나옴: 입력창 자리에서 위로 튀어나오듯 scale .9 → 1, 80ms 간격 (시안 1 L-3 언어)
+   B3 한 덩어리: 키패드 · 입력창과 한 몸으로 아래에서 올라온다, 개별 스태거 없음 (시안 1 L-1 언어) */
+.pd1 .sug-stack { position: absolute; left: 20px; bottom: calc(319px + 52px + 10px); z-index: 6; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; transition: bottom .35s var(--kb-ease); }
+.pd1 .dock.multi ~ .sug-stack { bottom: calc(319px + 110px + 10px); }
+.pd1 .sug-stack .button-ai { background: rgba(255,255,255,.92); opacity: 0; }
+.pd1.dock-open .sug-stack { pointer-events: auto; }
+/* B1 아래에서 차례로 */
+.pd1 .sug-stack.sfx-B1 .button-ai { transform: translateY(14px); transition: opacity .3s, transform .3s; }
+.pd1.dock-open .sug-stack.sfx-B1 .button-ai { opacity: 1; transform: none; transition: opacity .45s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.22,1,.36,1); transition-delay: calc(var(--kb-ms) * .7 + var(--ri) * 90ms); }
+/* B2 입력창에서 튀어나옴 */
+.pd1 .sug-stack.sfx-B2 { transform-origin: 50% 100%; }
+.pd1 .sug-stack.sfx-B2 .button-ai { transform: translateY(28px) scale(.9); transform-origin: 50% 100%; transition: opacity .25s, transform .25s; }
+.pd1.dock-open .sug-stack.sfx-B2 .button-ai { opacity: 1; transform: none; transition: opacity .4s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.2,1.2,.4,1); transition-delay: calc(var(--kb-ms) * .8 + var(--ri) * 80ms); }
+/* B3 한 덩어리: 키패드와 같은 곡선·시간으로 함께 올라온다 */
+.pd1 .sug-stack.sfx-B3 { transition: bottom .35s var(--kb-ease), transform var(--kb-ms) var(--kb-ease), opacity .2s; transform: translateY(480px); opacity: 0; }
+.pd1.dock-open .sug-stack.sfx-B3 { transform: none; opacity: 1; transition: bottom .35s var(--kb-ease), transform var(--kb-ms) var(--kb-ease), opacity .2s; }
+.pd1 .sug-stack.sfx-B3 .button-ai { opacity: 1; }
+.pd1.dock-sent .sug-stack.sfx-B3, .pd1.dock-closing .sug-stack.sfx-B3, .pd1.dock-idle .sug-stack.sfx-B3, .pd1.dock-hold .sug-stack.sfx-B3 { opacity: 0; transform: translateY(480px); }
+/* 전송 뒤(dock-sent · closing)에는 바로 사라진다 — 답이 그 자리에 오므로 */
+.pd1.dock-sent .sug-stack .button-ai, .pd1.dock-closing .sug-stack .button-ai { opacity: 0; transition-delay: 0s; }
+.pd1.ag-in .sug-stack { transition: none; }
+
+/* ── 입력창이 열려 있는 동안 뒤 페이지 (html[data-openbg], 2026-09-16 "뒤가 딤되거나 그라디언트, 블러") — 페이지 위 · 입력창/칩/키패드 아래(z 5) ──
+   D1 브랜드 그라데이션: 아래에서 위로 투명 → 브랜드 블루(Figma 419:150090 Gradient · 시안 1 aidim D-1 과 같은 색). 칩 뒤가 물들고 위쪽 상품은 그대로 보인다
+   D2 전면 딤: 시안 1 스텝 3 Agent 실행 오버레이(L-1)와 같은 55% 네이비 스크림. 페이지가 완전히 뒤로 물러난다
+   D3 블러 딤: 시안 1 L-2 와 같은 35% + blur 10. 페이지가 흐려져 "지금은 Agent 차례" 가 읽히되 어디에 있었는지는 남는다 */
+.pd1 .open-scrim { position: absolute; inset: 0; z-index: 1;   /* 키보드(z 2) 아래 — 딤은 페이지에만, 키보드는 그대로 (사용자 2026-09-16) */ pointer-events: none; opacity: 0; transition: opacity .45s cubic-bezier(.65,0,.35,1); }
+.pd1.dock-open .open-scrim, .pd1.dock-hold .open-scrim { opacity: 1; }
+.pd1.dock-sent .open-scrim, .pd1.dock-closing .open-scrim { opacity: 0; transition-duration: .35s; }
+.pd1 .open-scrim.ob-D1 { background: linear-gradient(to bottom, rgba(58,56,236,0) 28%, rgba(58,56,236,.28) 62%, rgba(58,56,236,.6) 100%); }
+.pd1 .open-scrim.ob-D2 { background: rgba(6,12,31,.55); }
+.pd1 .open-scrim.ob-D3 { background: rgba(6,12,31,.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+/* D1 에서는 전송 뒤의 하단 그라데이션(ai-dim)과 같은 색이라 이어진다. D2·D3 는 스크림이 빠지고 ai-dim 이 들어온다 */
+.pd1.ag-in .open-scrim { transition: none; }

@@ -4,7 +4,7 @@ import { IcoSparkleAi, IcoSparkle, IcoVoice, IcoBack } from '../components/Icons
 import { StatusBar, Keyboard, TYPE_MS } from './AgentShell.jsx'
 import { PlanCard, UsageGraph, UserMessage, AiMessage, Card, BenefitBadges, Thinking } from './AgentChat.jsx'
 import { AgentBackground, SearchAi } from './AgentShell.jsx'
-import { IcoNewChat } from '../components/Icons.jsx'
+import { IcoNewChat, IcoWon } from '../components/Icons.jsx'
 import OrderConfirm from './OrderConfirm.jsx'
 import { variant } from '../lib/variants.js'
 import { wait, scrollTo, tween, inOut, inOutSine, inOutQuart, cubicOut, outExpo, reducedMotion } from '../lib/motion.js'
@@ -39,6 +39,8 @@ const THINK_MS = 1000      // 스트립 생각 점
 const PLAN_Q = '요금제를 변경하고 싶어. 어떤 요금제가 적합한지 추천해주고 보기 쉽게 비교표로 답변해줘'
 const PLAN_REC = '5GX 프라임 플러스'
 const AG_MS = 500           // 풀팝업 상승·하강 (.pa transition)
+// T+ 를 누르면 입력창 위에 항상 뜨는 추천 발화 3개 (Figma ixGPs9 419:150090 Stack · ButtonAi 44 · gap 8, 사용자 2026-09-16)
+const SUGGEST = ['지금 이용중인 휴대폰과 뭐가 달라', '기기변경하면 받을 수 있는 혜택 뭐있어', '나의 이용현황에 맞는 요금제 추천해줘']
 
 // ── 세 번의 AI 질의 (E-1): 섹션 · 발화 · 추천 항목 · 이유 ──
 const ASKS = {
@@ -654,7 +656,14 @@ export default function ProductDetail1({ stage = 'top' }) {
           <div className="srow"><IcoSparkle size={16} className="spark tail" /><span className="send" aria-label="보내기"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="#060C1F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg></span></div>
         </div>
       </div>
+      {/* 추천 발화 스택 (Figma 419:150090): 입력창(키패드 위) 위 10px 에 3개. 열림 상태(dock-open)에서만 보이고 전송하면 사라진다.
+          등장 방식 html[data-sugfx]: B1 아래에서 차례로 / B2 입력창에서 튀어나옴 / B3 입력창과 한 덩어리로 */}
+      <div className={`sug-stack sfx-${variant('sugfx') || 'B1'}`} aria-hidden={dock !== 'open'}>
+        {SUGGEST.map((t, i) => <div className="button-ai" key={t} style={{ '--i': i, '--ri': SUGGEST.length - 1 - i }}><IcoWon />{t}</div>)}
+      </div>
       <div className="ai-dim" aria-hidden />   {/* Agent 호출 시 하단 그라데이션 딤 (html[data-aidim]) */}
+      {/* 입력창이 열려 있는 동안 뒤 페이지 처리 (html[data-openbg], 사용자 2026-09-16): D1 아래에서 올라오는 브랜드 그라데이션 / D2 전면 딤 / D3 블러 딤 */}
+      <div className={`open-scrim ob-${variant('openbg') || 'D1'}`} aria-hidden />
       {/* 답변 스트립 (E-1): 입력창 바로 위. 생각 점 → 이유 1줄 + 추천 → [이 항목으로 선택] */}
       {/* Q2·Q3: 답이 2안 언어의 바텀 시트로 (딤 없음 G-1). 입력창 위 12px, 생각 점 → 제목·답 → 추천 행 → 선택 */}
       {sheetAsk ? (

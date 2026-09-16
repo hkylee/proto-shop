@@ -136,6 +136,18 @@ const ASKMODALS = [
 /* 시안 2 스텝 5 · [↑ 보내기] 뒤 전환의 호흡 (html[data-agentpace]) — 사용자 2026-09-16 "속도가 너무 빠르고 전환감이 빨라" */
 /* 시안 2 풀팝업 헤더 → [‹ 요금제 추천 & 변경 | 7/20 선택 완료] (html[data-exithdr], Figma 473:146215) — 사용자 2026-09-16 "나가기 버튼 선택할 때의 헤더" */
 /* 시안 2 풀팝업 안 새 요소 따라가기 (html[data-agentfollow]) — 사용자 2026-09-16 "너무 슈우웅 올라온다, 시안 1 처럼 심리스하게" */
+/* 시안 2 T+ → 입력창 위 추천 발화 3개의 등장 (html[data-sugfx], Figma 419:150090) — 사용자 2026-09-16 "항상 그 위에 추천 버블 3개, 액션적으로" */
+/* 시안 2 입력창이 열려 있는 동안 뒤 페이지 처리 (html[data-openbg]) — 사용자 2026-09-16 "뒤가 딤되거나 그라디언트, 블러" */
+const OPENBGS = [
+  { id: 'D1', label: 'D-1 브랜드 그라데이션', desc: '아래에서 위로 투명 → 브랜드 블루가 올라와 칩 뒤가 물든다(Figma 419:150090 Gradient, 전송 뒤 하단 딤과 같은 색이라 그대로 이어진다). 위쪽 상품은 또렷하게 남아 "상세 위에서 잠깐 부른다" 는 시안 2 의 전제가 유지된다' },
+  { id: 'D2', label: 'D-2 전면 딤 55%', desc: '시안 1 스텝 3 의 Agent 실행 오버레이(L-1)와 같은 네이비 스크림. 페이지가 완전히 뒤로 물러나 칩과 입력창에만 집중된다. 대신 상세가 어두워져 "돌아갈 곳" 이 흐릿하다' },
+  { id: 'D3', label: 'D-3 블러 딤 35%', desc: '시안 1 L-2 와 같은 35% + blur 10. 상세가 흐려져 "지금은 Agent 차례" 가 읽히되 어디에 있었는지는 형태로 남는다. 가장 요즘 언어지만 블러가 무거운 기기에서는 프레임이 떨어질 수 있다' },
+]
+const SUGFXS = [
+  { id: 'B1', label: 'B-1 아래에서 차례로', desc: '입력창이 자리 잡은 뒤 가까운 칩부터 90ms 간격으로 14px 떠오른다(시안 1 L-2 언어). 키패드 → 입력창 → 칩 순서가 읽혀 "무엇을 물을 수 있는지" 가 마지막에 제안처럼 붙는다' },
+  { id: 'B2', label: 'B-2 입력창에서 튀어나옴', desc: '칩이 입력창 자리에서 위로 튀어나오듯 scale .9 → 1 로 80ms 간격으로 펴진다(시안 1 L-3 언어). 살짝 넘치는 스프링 곡선. "입력창이 제안을 내놓는다" 는 인과가 또렷하지만 가장 요란하다' },
+  { id: 'B3', label: 'B-3 키패드와 한 덩어리', desc: '칩 · 입력창 · 키패드가 한 몸으로 아래에서 올라온다(시안 1 L-1 언어, Figma 정지 화면 그대로). 개별 움직임이 없어 가장 조용하고 빠르지만 칩이 "제안" 으로 따로 읽히지는 않는다' },
+]
 const AGENTFOLLOWS = [
   { id: 'N1', label: 'N-1 요소마다 팬 (시안 1 F-1)', desc: '시안 1 확정 규칙 그대로. 새 문장·카드가 나올 때마다 그 요소의 아래가 SearchAi 위 30px 에 오는 만큼만 내려간다(거리 기반 320px/s, 최소 0.6s, 사인 곡선). 예전처럼 맨 아래까지 밀어 올리지 않아 이동 거리가 절반 이하' },
   { id: 'N2', label: 'N-2 턴 끝에 한 번', desc: '문장·카드는 제자리에서 차례로 나타나고 화면은 멈춰 있다가, 한 턴(그래프까지 · 추천 카드까지 · 비교표까지)이 끝났을 때만 한 번 내려간다. 읽는 동안 화면이 흔들리지 않는다' },
@@ -179,7 +191,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -851,6 +863,10 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.exitpop = exitpopV }, [exitpopV])
   const [askmodalV, setAskmodalV] = useState(() => (LAB ? (Q0.get('qm') || CONFIRMED.askmodal) : CONFIRMED.askmodal))
   useEffect(() => { document.documentElement.dataset.askmodal = askmodalV }, [askmodalV])
+  const [openbgV, setOpenbgV] = useState(() => (LAB ? (Q0.get('ob') || CONFIRMED.openbg) : CONFIRMED.openbg))
+  useEffect(() => { document.documentElement.dataset.openbg = openbgV }, [openbgV])
+  const [sugfxV, setSugfxV] = useState(() => (LAB ? (Q0.get('sb') || CONFIRMED.sugfx) : CONFIRMED.sugfx))
+  useEffect(() => { document.documentElement.dataset.sugfx = sugfxV }, [sugfxV])
   const [agentfollowV, setAgentfollowV] = useState(() => (LAB ? (Q0.get('af') || CONFIRMED.agentfollow) : CONFIRMED.agentfollow))
   useEffect(() => { document.documentElement.dataset.agentfollow = agentfollowV }, [agentfollowV])
   const [exithdrV, setExithdrV] = useState(() => (LAB ? (Q0.get('eh') || CONFIRMED.exithdr) : CONFIRMED.exithdr))
@@ -1376,6 +1392,24 @@ export default function App() {
               <button key={v.id} aria-pressed={exitflowV === v.id} onClick={() => { setExitflowV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{EXITFLOWS.find((v) => v.id === exitflowV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
+          <div className="variants v-openbg">
+            <b className="vtitle">시안 2 · 입력창이 열려 있는 동안 뒤 페이지 — D-1 확정</b>
+            {OPENBGS.map((v) => (
+              <button key={v.id} aria-pressed={openbgV === v.id} onClick={() => { setOpenbgV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{OPENBGS.find((v) => v.id === openbgV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
+          <div className="variants v-sugfx">
+            <b className="vtitle">시안 2 · T+ 를 누르면 입력창 위 추천 발화 3개 (Figma 419:150090) — B-1 확정</b>
+            {SUGFXS.map((v) => (
+              <button key={v.id} aria-pressed={sugfxV === v.id} onClick={() => { setSugfxV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{SUGFXS.find((v) => v.id === sugfxV)?.desc}</span>
           </div>
           )}
           {SHOW_ALL && (
