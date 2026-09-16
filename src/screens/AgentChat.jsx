@@ -1883,8 +1883,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       await collapseAway(formItems[1]); if (!alive()) return           // Alert 는 역할을 마쳤으니 그 자리에 결과가 온다
       reviewEl.classList.add('on'); void reviewEl.offsetHeight
       setTail(420)
-      if (!await think(reviewEl, line)) return                        // 생각 점 → 곧바로 '개통 신청서 작성이 완료되었어요' 선
+      if (!await think(reviewEl, line)) return                        // 생각 점 → 곧바로 시트 4장의 질문·답 말풍선
       await follow(line); if (!alive()) return
+      if (mode === 'an2') { setTail(TAIL); await wait(300); if (!alive()) return; ptr?.park(line, 0, '탭', true); return }   // 2안: 여기서 끝 — 스텝 14 가 본인 인증 안내로 바로 이어진다
       await wait(1200); if (!alive()) return
       reveal(msg2); await follow(msg2); if (!alive()) return
       await wait(T.text); if (!alive()) return
@@ -1899,7 +1900,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setOptK(OPT.addr); setFsheet(0); setZipPop(false); setKbField(false); setFfocus(''); setKbOpen(false)
       formItems[1].style.display = 'none'
       reviewEl.classList.add('on'); showNow(reviewItems); reviewEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setTail(TAIL)
-      afterLayout(() => { scroll.scrollTop = anchorBottom(reviewChipWrap) })
+      afterLayout(() => { scroll.scrollTop = anchorBottom(reviewChipWrap || reviewItems.at(-1)) })
     }
     /* ── 13번: [개통 이어가기] → 말풍선 → 본인 인증 안내 → AI 바텀시트 → 토스 → 밖으로 나갔다 복귀 (html[data-ext])
        X1 앱 전환 슬라이드: 토스 화면이 오른쪽에서 밀려 들어와 덮고(0.45s), 인증이 끝나면 오른쪽으로 빠지며 돌아옴
@@ -1926,15 +1927,16 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       return alive()
     }
     const playAuth = async () => {
-      const T = rv(), X = variant('ext'), [bubble, m1, doneLine, m2] = authItems
-      await ptr?.tap(reviewChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
-      ptr?.hide(); reviewChipRef.current.classList.add('gone'); await wait(220); if (!alive()) return
-      reviewChipWrap.style.display = 'none'                            // 칩 자리까지 접어 말풍선이 카드 아래 16px 에 (Figma 26:41946)
-      if (!await reviewAway()) return
+      const T = rv(), X = variant('ext'), an2 = mode === 'an2', [bubble, m1, doneLine, m2] = an2 ? [null, ...authItems] : authItems
+      if (!an2) {
+        await ptr?.tap(reviewChipRef.current, { move: 300, pause: 80 }); if (!alive()) return
+        ptr?.hide(); reviewChipRef.current.classList.add('gone'); await wait(220); if (!alive()) return
+        reviewChipWrap.style.display = 'none'                            // 칩 자리까지 접어 말풍선이 카드 아래 16px 에 (Figma 26:41946)
+        if (!await reviewAway()) return
+      }
       authEl.classList.add('on'); void authEl.offsetHeight
       setTail(420)
-      reveal(bubble); await follow(bubble); if (!alive()) return
-      await wait(T.bubble); if (!alive()) return
+      if (bubble) { reveal(bubble); await follow(bubble); if (!alive()) return; await wait(T.bubble); if (!alive()) return }
       if (!await think(authEl, m1)) return
       await follow(m1, true); if (!alive()) return
       await wait(600); if (!alive()) return
@@ -1968,7 +1970,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       card.style.display = 'none'
       if (W === 'W2' && fold) showNow([fold])
     }
-    const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); reviewChipWrap.style.display = 'none'; finalAuthCard(); authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems[3]) }) }
+    const finalAuth = () => { setOptK(OPT.auth2); reviewChipRef.current?.classList.add('gone'); if (reviewChipWrap) reviewChipWrap.style.display = 'none'; finalAuthCard(); authEl.classList.add('on'); showNow(authItems); authEl.querySelectorAll('.thinking').forEach((d) => { d.style.display = 'none' }); setAuthSheet(2); afterLayout(() => { scroll.scrollTop = anchorBottom(authItems.at(-1)) }) }
     /* ── 7번: 요금제 재선택 (Figma ixGPs9 271:126019). 대화에 남은 [다시 선택하기] → 전체 요금제 팝업(초기화 안내 띠, 현재 요금제 선택됨·적용 비활성)
        → 다른 요금제 탭 → [적용하기] 활성 → 탭 → '요금제를 변경하시겠어요?' 확인 모달 → [네] → 팝업 내려가고 줄의 요금제명이 바뀐다 */
     /* 스텝 9 진입 — 대화 위쪽에 남아 있는 '선택한 요금제 · 다시 선택하기' 줄까지 화면을 되감아 앵커링한다
@@ -2556,6 +2558,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {inForm
               ? <FinDone label={FIN_LABEL[3]} value={PHONE} line={FIN_DONE[3]} />
               : <AnswerBubble pairs={[[FSHEETS[0], fv.rrn ? fv.rrn.replace(/●/g, '*') : ''], [FSHEETS[1], `${ADDR_LINE} ${ADDR_DETAIL}`], [FSHEETS[2], fv.email || EMAIL], [FSHEETS[3], fv.phone || PHONE]].map(([q, a]) => [q.replace(/\.$/, ''), a])} />}   {/* 2안: 시트 4장의 질문·답이 한 말풍선에 (Figma ixGPs9 545:163804, 사용자 2026-09-16) — 주민등록번호만 마스킹 */}
+            {/* 2안(an2): 시트 4장의 질문·답 말풍선만 남기고 안내 · 신청서 카드 · [개통 이어가기] 없이 곧바로 본인 인증으로 (사용자 2026-09-16) */}
+            {mode !== 'an2' && <>
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
@@ -2564,11 +2568,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {/* W-2: 카드가 접힌 자리에 남는 줄 */}
             <div className="plan-fold review-fold" ref={reviewFoldRef}><span className="lbl">작성한 신청서</span><b>{REVIEW_ROWS[0][1]} · {PHONE}</b><em>다시 보기</em></div>
             <div className="cta-stack"><div className="button-ai" ref={reviewChipRef}>{REVIEW_CHIP}</div></div>
+            </>}
           </div>
 
           {/* 13번: 본인 인증 → 밖으로 → 복귀 → 신원 인증 (10906:5561 → 5614) */}
           <div className="auth" ref={authRef}>
-            <UserMessage>{REVIEW_CHIP}</UserMessage>
+            {mode !== 'an2' && <UserMessage>{REVIEW_CHIP}</UserMessage>}
             <Thinking />
             <AiMessage>{AUTH_MSG1}</AiMessage>
             <div className="done-line"><i className="chk" /><span>{AUTH_DONE}</span><em /></div>
