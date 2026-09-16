@@ -900,8 +900,16 @@ export default function App() {
   useEffect(() => { const on = () => { setWaiting(true); setPlaying(false) }; window.addEventListener('ptr-wait', on); window.addEventListener('ptr-park', on); return () => { window.removeEventListener('ptr-wait', on); window.removeEventListener('ptr-park', on) } }, [])
   useEffect(() => {
     setWaiting(false); setPlaying(true)
+    const done = () => { setPlaying(false); setWaiting(true) }
     // 상품 상세 진입(스텝 1)은 재생할 것이 없다 — 진입 1초 뒤 바로 '끝' (사용자 2026-09-16 "진입하자마자 바로 Step 1 끝 아님?")
-    if (step.view?.stage === 'top') { const t = setTimeout(() => { setPlaying(false); setWaiting(true) }, 1000); return () => clearTimeout(t) }
+    if (step.view?.stage === 'top') { const t = setTimeout(done, 1000); return () => clearTimeout(t) }
+    // 끝 신호를 보내지 않는 스텝(상품 상세 옵션 둘러보기 · Agent 실행 타이핑 등)의 안전망: 폰 화면 DOM 이 2.5s 동안 멈추고 포인터도 움직이지 않으면 '끝' (사용자 2026-09-16 "→ 로 넘어가야 할 타이밍에 계속 재생 중")
+    const root = document.querySelector('.phone-wrap .screen') || document.querySelector('.phone-wrap'); if (!root) return   // 데스크톱 셸의 phone-wrap 은 ref 가 없어 DOM 에서 찍는다
+    let t = setTimeout(done, 2500)
+    const quiet = () => { clearTimeout(t); t = setTimeout(() => { if (document.querySelector('.ptr-layer.hover:not(.park)')) quiet(); else done() }, 2500) }
+    const mo = new MutationObserver(quiet)
+    mo.observe(root, { subtree: true, childList: true, attributes: true, characterData: true })
+    return () => { clearTimeout(t); mo.disconnect() }
   }, [cur, pid, replay])
   const [doneToast, setDoneToast] = useState(false)
   useEffect(() => {

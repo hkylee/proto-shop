@@ -464,3 +464,9 @@ html[data-shellswap="S2"] .view.same-shell.view-out .chat-scroll { animation: xf
 html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-shellswap="S2"] .view.same-shell.view-out .search-ai, html[data-shellswap="S2"] .view.same-shell.view-out .home-ind { opacity: 0; }
 @keyframes xfIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes xfOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* 목업 Y 고정 (사용자 2026-09-16 "목업 Y 위치가 계속 바뀐다"): 왼쪽 스텝 패널이 폰보다 길어지는 스텝에서 그리드 행이 커지고 가운데 정렬된 폰이 내려갔다.
+   폰과 화살표를 행 위쪽에 붙이고, 화살표는 폰(872) 의 세로 가운데에 맞춘다 */
+.stage { align-items: start; }
+.stage .phone-wrap { align-self: start; }
+.stage .round { align-self: start; margin-top: calc(872px / 2 - 28px); }
