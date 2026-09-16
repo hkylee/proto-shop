@@ -1162,3 +1162,4 @@ html[data-stackgap]:not([data-stackgap="off"]) .opt-turn > .plan-fold.opt-fold.o
 .form-line.fin-done .fd-tag { align-self: flex-start; padding: 2px 6px; border-radius: 4px; background: #F0F4FF; color: #4B59FF; font-style: normal; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; margin-bottom: 2px; }
 /* 신청서 카드 마스킹 뒤 값 옆 회색 눈 (누르면 해제된다는 뜻만 — 토글은 미구현) */
 .review-card .kv b .eye { display: inline-block; vertical-align: -3px; margin-left: 6px; color: var(--fg-neutral-subtle); }
+.fs-next:not(:has(.chev)) { padding: 0 18px; }   /* [완료] 는 화살표가 없어 좌우 여백을 맞춘다 */

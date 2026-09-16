@@ -2721,11 +2721,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {mode === 'an2' ? (
               /* 2안 (Figma 90:101338): 진행 ‹ n / 4 › 가 [다음] 왼쪽 같은 줄에, 버튼은 brand-solid(비활성 30%) */
               <div className="fs-foot">
-                <div className="pager"><i className={`chev l ${fsShow === 1 ? 'dim' : ''}`} /><b>{fsShow}</b><span>/ {FSHEETS.length}</span><i className="chev r" /></div>
-                <div className={`fs-next brand ${fsReady ? 'on' : ''}`} data-f="next">다음<i className="chev r" /></div>
+                <div className="pager"><i className={`chev l ${fsShow === 1 ? 'dim' : ''}`} /><b>{fsShow}</b><span>/ {FSHEETS.length}</span><i className={`chev r ${fsShow === FSHEETS.length ? 'dim' : ''}`} /></div>
+                {/* 마지막 장은 [완료] — 화살표 없음 (사용자 2026-09-16, 1-1 · 1-2 일괄) */}
+                <div className={`fs-next brand ${fsReady ? 'on' : ''}`} data-f="next">{fsShow === FSHEETS.length ? '완료' : <>다음<i className="chev r" /></>}</div>
               </div>
             ) : (
-              <div className={`fs-next ${fsReady ? 'on' : ''}`} data-f="next">다음<i className="chev r" /></div>
+              <div className={`fs-next ${fsReady ? 'on' : ''}`} data-f="next">{fsShow === FSHEETS.length ? '완료' : <>다음<i className="chev r" /></>}</div>
             )}
           </div>
         )}
