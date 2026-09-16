@@ -408,7 +408,10 @@ export default function AgentChat2({ stage = 'usage' }) {
     const playTurns = async (idx) => { for (const i of idx) { if (!await playTurn(i)) return false } return true }
     // 사용자 탭 모드: 스텝 끝에 [이어서 진행하기] 칩 → 탭 → 다음 스텝. 다음 스텝이 시작되면 칩은 사라진다
     const showNextChip = async () => {
-      const w = nextChipRef.current; if (!userTap() || !w) return
+      const w = nextChipRef.current
+      // 자동 재생(웹 뷰어)에서는 칩을 띄우지 않지만 '이 스텝은 끝났다' 신호는 보낸다 — 재생 상태 칩(B-3)과 5~8 구간 자동 진행(AUTO_CHAIN)이 이걸 듣는다 (2026-09-16 "step 7 끝났는데 계속 재생 중")
+      if (!userTap()) { setTimeout(() => { if (alive()) window.dispatchEvent(new CustomEvent('ptr-park')) }, 400); return }
+      if (!w) return
       w.classList.add('on'); void w.offsetHeight
       await wait(60); if (!alive()) return
       await follow(w); if (!alive()) return
