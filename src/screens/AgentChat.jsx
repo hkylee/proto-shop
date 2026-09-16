@@ -49,7 +49,7 @@ const ALT_COPY = {
   C2: '무제한 요금제 3개를 추천드려요. 할인 방법까지 한 번에 고를 수 있어요.',
   C3: '첫 번째가 하경님 사용량에 가장 잘 맞는 AI PICK이에요. 다른 요금제도 함께 비교해 보세요.',
 }
-const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓', CHIP_PLAN = '요금제 선택으로 이동 ↑', CHIP_BACK = '변경 결과로 이동 ↓'
+const CHIP_UP = '쿠폰 선택으로 이동 ↑', CHIP_DOWN = '이어서 선택으로 이동 ↓', CHIP_PLAN = '요금제 선택으로 이동 ↑', CHIP_BACK = '변경 결과로 이동 ↓', CHIP_RESUME = '신청서 작성으로 이동 ↓'
 
 // 추가혜택 (Figma 12120:33276) — RadioCard 3개, 미선택
 const BENEFITS = [
@@ -484,7 +484,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
   const prevRef = useRef(null)       // null = 첫 마운트. from: 다른 화면(2안 AgentChat2)에서 넘어와 첫 마운트인데도 재생해야 할 때 이전 스테이지를 알려준다
   const allRef = useRef(null)
   const sheetRef = useRef(null)
-  const applyRef = useRef(null), confirmRef = useRef(null)
+  const applyRef = useRef(null), confirmRef = useRef(null), confirmNoRef = useRef(null)
   const [selPlan, setSelPlan] = useState(-1)
   // 스텝 7 요금제 재선택 (Figma ixGPs9 271:126019): 팝업 상단 초기화 안내 띠 · 변경 확인 모달 · 대화 줄의 요금제명 교체
   const [warnBar, setWarnBar] = useState(false), [confirmPop, setConfirmPop] = useState(false), [replanIdx, setReplanIdx] = useState(-1)
@@ -1976,6 +1976,20 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       setSelPlan(REPLAN_PICK); await wait(650); if (!alive()) return  // [적용하기] 활성
       await ptr?.tap(applyRef.current, { move: 380, pause: 120 }); if (!alive()) return
       ptr?.hide(); setConfirmPop(true); await wait(900); if (!alive()) return
+      /* [아니오] 로 되돌아오기 (html[data-replanno], 사용자 2026-09-16 "요금제 변경하면 앞선 옵션을 다시 다 골라야 해서 꼬인다").
+         모달이 닫히고 팝업이 내려간 뒤 아무것도 바뀌지 않은 채, 하단 핀 [신청서 작성으로 이동 ↓] 을 눌러 원래 있던 CTA 자리로 내려간다 */
+      if (variant('replanno') !== 'off') {
+        await ptr?.tap(confirmNoRef.current, { move: 420, pause: 140 }); if (!alive()) return
+        ptr?.hide(); setConfirmPop(false); await wait(220); if (!alive()) return
+        hideSheet(); setWarnBar(false); setSelPlan(0)
+        await wait(600); if (!alive()) return
+        setTail(TAIL)
+        await new Promise(afterLayout); if (!alive()) return
+        const wrap = doneChipRef.current?.parentElement
+        await anchorDown(null, wrap, CHIP_RESUME); if (!alive()) return
+        ptr?.park(doneChipRef.current, 450, '탭')   // 다음 스텝(신청서)의 첫 탭 = 원래의 [신청서 작성 시작하기]
+        return
+      }
       await ptr?.tap(confirmRef.current, { move: 420, pause: 140 }); if (!alive()) return
       ptr?.hide(); setConfirmPop(false); await wait(220); if (!alive()) return
       hideSheet(); setWarnBar(false)
@@ -2028,6 +2042,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const staleAbove = () => { foldCardRef.current?.classList.add('stale'); optsRef.current?.classList.add('stale') }
     const unstale = () => { foldCardRef.current?.classList.remove('stale'); optsRef.current?.classList.remove('stale'); replanOutRef.current?.classList.remove('on'); unreveal([...(replanOutRef.current?.children || [])]) }
     const finalReplan = () => {
+      if (variant('replanno') !== 'off') {   // [아니오] 흐름의 최종 상태 = 스텝 8 이 끝난 자리 그대로 (요금제 · 옵션 불변, CTA 가 화면 아래)
+        setReplanIdx(-1); setWarnBar(false); setConfirmPop(false); hideSheet(); setSelPlan(0)
+        const wrap = doneChipRef.current?.parentElement
+        afterLayout(() => { if (wrap) scroll.scrollTop = anchorBottom(wrap) })
+        return
+      }
       setReplanIdx(REPLAN_PICK); setWarnBar(false); setConfirmPop(false); hideSheet()
       staleAbove()
       const E = variant('replanend')
@@ -2621,7 +2641,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
           <div className="cp-box">
             <h4>요금제를 변경하시겠어요?</h4>
             <p>요금제를 변경하면 이후 Agent와 대화하며 선택한 항목이 모두 초기화돼요.</p>
-            <div className="cp-btns"><span className="no">아니오</span><span className="yes" ref={confirmRef}>네</span></div>
+            <div className="cp-btns"><span className="no" ref={confirmNoRef}>아니오</span><span className="yes" ref={confirmRef}>네</span></div>
           </div>
         </div>
       </div>
