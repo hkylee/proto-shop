@@ -94,7 +94,7 @@ const BARS = [11.5, 55.4, 41.8, 101.9, 79, 84.6]
 
 /* ── 레이아웃 상수 (393×852, Figma 498px 프레임 환산) ── */
 const SCREEN_H = SH   // 기본 852. F-2(화면 높이 유동)에서는 실제 뷰포트 높이 — src/lib/screen.js
-const CHAT_TOP = 124          // 고정 헤더(상태바 59 + 앱바 48) 아래 채팅 시작선 = 두 번째 오프닝 앵커 위치 (.chat-scroll padding-top). 컨텍스트 헤더 줄이 없어져 199 → 124 (2026-09-16)
+const CHAT_TOP = 140          // 고정 헤더(상태바 59 + 앱바 48 = 107) 아래 33px (Figma 483:145930 첫 말풍선 top) — 헤더 그라데이션 꼬리(33px)가 말풍선을 가리지 않는 선. 채팅 시작선 = 두 번째 오프닝 앵커 위치 (.chat-scroll padding-top). 컨텍스트 헤더 줄이 없어져 199 → 124 (2026-09-16)
 const SEARCH_H = 52
 const SEARCH_TOP = SCREEN_H - SEARCH_BOTTOM - SEARCH_H       // SearchAi 상단 = 776
 const SEARCH_TOP_KB = SCREEN_H - SEARCH_BOTTOM_KB - SEARCH_H // 키보드 위로 올라간 SearchAi 상단

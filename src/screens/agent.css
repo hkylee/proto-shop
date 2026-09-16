@@ -66,7 +66,7 @@
 .ai-header-fixed .ai-bg { z-index: 0; }
 .ai-header-fixed > :not(.ai-bg) { position: relative; }
 .bottom-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(226,230,241,0), rgba(226,230,241,.9) 60%); }
-.chat-scroll { position: absolute; inset: 0; padding: 124px 20px 0; overflow-y: auto; scrollbar-width: none; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+.chat-scroll { position: absolute; inset: 0; padding: 140px 20px 0; overflow-y: auto; scrollbar-width: none; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
 .chat-scroll::-webkit-scrollbar { display: none; }
 
 .msg-user { display: flex; justify-content: flex-end; width: 100%; }
@@ -135,7 +135,7 @@ html[data-kbfx="K3"] .ai-screen.kb .search-ai .voice { margin-top: 2px; }
 @keyframes msgHl { 0% { background: var(--blue-100); } 35% { background: var(--blue-100); } 100% { background: transparent; } }
 
 /* 9번 세부 시안 — ① 제스처: G-2 스크롤 인디케이터 · G-3 앵커 칩 */
-.scroll-ind { position: absolute; right: 4px; top: 132px; width: 3px; height: calc(776px - 124px - 16px); z-index: 4; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.scroll-ind { position: absolute; right: 4px; top: 148px; width: 3px; height: calc(776px - 140px - 16px); z-index: 4; opacity: 0; transition: opacity .25s; pointer-events: none; }
 .scroll-ind.on { opacity: 1; }
 .scroll-ind i { display: block; width: 3px; border-radius: 2px; background: rgba(6,12,31,.35); }
 /* 등장은 transform, 눌림은 개별 속성(translate/scale)으로 — 서로 덮어쓰지 않아 어느 위치 방식이든 안전 */
@@ -672,7 +672,7 @@ html[data-hdrfade="G4"] .ai-header-fixed::before { bottom: -32px; background: li
 /* G5 헤더 구간 100 → 85% + backdrop blur 20, 아래 40px 꼬리에서 85 → 0 (블러도 같이 사라짐) */
 html[data-hdrfade="G5"] .ai-header-fixed::before { bottom: -40px; background: linear-gradient(180deg, var(--bg-basement) 107px, rgba(226,230,241,.85) 171px, rgba(226,230,241,0) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); -webkit-mask-image: linear-gradient(180deg, #000 171px, transparent 100%); mask-image: linear-gradient(180deg, #000 171px, transparent 100%); }
 /* G6 상태바 100%, 앱바~헤더 100 → 70% + blur 30, 아래 56px 긴 꼬리 */
-html[data-hdrfade="G6"] .ai-header-fixed::before { bottom: -56px; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 107px, rgba(226,230,241,0) 100%); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }   /* 헤더 184 → 107 (컨텍스트 헤더 줄 제거, 2026-09-16) */
+html[data-hdrfade="G6"] .ai-header-fixed::before { bottom: -33px; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 107px, rgba(226,230,241,0) 100%);   /* 꼬리 56 → 33: 채팅 시작선(140) 에서 정확히 0 — 첫 말풍선이 가려지지 않는다 (사용자 2026-09-16) */ backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }   /* 헤더 184 → 107 (컨텍스트 헤더 줄 제거, 2026-09-16) */
 
 /* ── 신청서 시트 플로우 (Figma ixGPs9 67:28493, 2026-09-08) ─────────────────────────────
    말풍선 → 개인정보 Alert(대화 안) → 화면 딤 + AiAgentBottomSheet 4장(‹ n/4 › ×) → 시트 닫힘 → Alert 자리에 안내 + 완료 선(재입력) → 신청서 카드 */
@@ -848,7 +848,7 @@ html[data-zippop="Z3"] .sheet.zip.on { transform: none; opacity: 1; border-radiu
 /* ── F-2(폭 맞춤 + 화면 높이 유동, 2026-09-11): 852 캔버스 높이를 그대로 쓰던 자리만 실제 화면 높이(--ch)로 ──
    나머지는 위(top)·아래(bottom) 한쪽에 붙어 있어 높이가 줄어도 자리가 맞는다.
    특히 .suggest-stack / .launch-ov .stack 의 bottom 384 는 키패드(310)+SearchAi(52)+13 이라 비례시키면 안 된다(고정 유지). */
-html[data-mfit="F2"] .scroll-ind { height: calc(var(--ch, 852px) - 216px); }    /* 776 − 124 − 16 = 852 − 216 */
+html[data-mfit="F2"] .scroll-ind { height: calc(var(--ch, 852px) - 232px); }    /* 776 − 140 − 16 = 852 − 232 */
 
 
 /* ── 폭 유동 (html[data-mwidth="W2"] · "W3", 2026-09-11): 캔버스 폭이 393 이 아닐 때 ──────────────

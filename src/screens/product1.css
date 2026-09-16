@@ -346,7 +346,7 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa.off { visibility: hidden; transition: none; }
 /* 헤더 = 시안 1 확정 G-6 을 이 헤더(상태바 59 + 앱바 48 = 107) 에 맞춰 환산: 상태바 100%, 앱바 100 → 70% + blur 30, 아래 56px 꼬리에서 0. 글로우(ai-bg)는 60% 지점부터 사라진다 (사용자 2026-09-16 "헤더 영역에 그라디언트, 지금은 fill") */
 .pd1 .pa .pa-head { z-index: 3; background: transparent; overflow: visible; }
-.pd1 .pa .pa-head::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: -56px; z-index: 0; pointer-events: none; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 107px, rgba(226,230,241,0) 100%); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }
+.pd1 .pa .pa-head::before { content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: -33px; z-index: 0; pointer-events: none; background: linear-gradient(180deg, var(--bg-basement) 59px, rgba(226,230,241,.7) 107px, rgba(226,230,241,0) 100%); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); -webkit-mask-image: linear-gradient(180deg, #000 107px, transparent 100%); mask-image: linear-gradient(180deg, #000 107px, transparent 100%); }
 .pd1 .pa .pa-head .ai-bg { -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%); mask-image: linear-gradient(180deg, #000 60%, transparent 100%); }
 .pd1 .pa .appbar-ai .right { display: flex; gap: 6px; }
 .pd1 .pa .btn-icon-ai.exit { transition: transform .15s; }
@@ -354,7 +354,7 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .contextual-chip { gap: 6px; }
 .pd1 .pa .contextual-chip .chev-d { width: 12px; height: 12px; position: relative; display: inline-block; }
 .pd1 .pa .contextual-chip .chev-d::before { content: ""; position: absolute; left: 2.5px; top: 1px; width: 5px; height: 5px; border-right: 1.5px solid var(--fg-neutral-solid); border-bottom: 1.5px solid var(--fg-neutral-solid); transform: rotate(45deg); }
-.pd1 .pa .chat-scroll.pa-scroll { padding-top: 124px; gap: 8px; }   /* 상태바 59 + 앱바 48 + 17 */
+.pd1 .pa .chat-scroll.pa-scroll { padding-top: 140px; gap: 8px; }   /* 상태바 59 + 앱바 48 + 33 = 시안 1 채팅 시작선과 같은 140 */
 /* 등장 질감 = 시안 1 공통 등장 규칙(agent.css --rv-dur/--rv-y/--rv-blur/--rv-scale/--rv-ease, reveal S-1 균일 박자) 그대로 — 안마다 다르게 정의하지 않는다 (사용자 2026-09-16 "공통정의처럼") */
 .pd1 .pa .pa-in { animation: paIn var(--rv-dur) var(--rv-ease) both; }
 @keyframes paIn { from { opacity: 0; transform: translateY(var(--rv-y)) scale(var(--rv-scale)); filter: blur(var(--rv-blur)); } to { opacity: 1; transform: none; filter: none; } }

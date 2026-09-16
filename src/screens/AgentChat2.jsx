@@ -52,7 +52,7 @@ const SHEET_MS = 900       // 시트 상승 (R-2 0.9s)
 const SHEET_OUT_MS = SHEET_KEEP_MS - 100   // 시트 하강 뒤 다음 요소까지 (내용 유지 시간과 같은 곳에서)
 const SHEET_HOLD = 650     // 시트가 올라온 뒤 첫 탭까지
 const SCREEN_H = SH   // 기본 852. F-2(화면 높이 유동)에서는 실제 뷰포트 높이 — src/lib/screen.js
-const CHAT_TOP = 124       // 고정 헤더 아래 채팅 시작선 (.chat-scroll padding-top). 컨텍스트 헤더 줄이 없어져 199 → 124 (2026-09-16)
+const CHAT_TOP = 140       // 고정 헤더(107) 아래 33px — 그라데이션 꼬리 끝. 채팅 시작선 (.chat-scroll padding-top). 컨텍스트 헤더 줄이 없어져 199 → 124 (2026-09-16)
 const SHEET_BOTTOM = 86    // .sheet2 bottom (agent2.css) — 기존(SearchAi 위) 모드
 // 대화창을 덮는 모달 (Figma 90:86712 / 155:88000): 시트(높이 그대로)가 화면 아래 20px 에 앉아 SearchAi 를 덮는다. ∨ 플로팅 버튼은 사용자 요청으로 제거 (2026-09-09)
 const SHEET_GAP = 30       // 안내문 하단 ↔ 시트 상단 (사용자 2026-09-09: 20 → +10; Figma 71:76431 실측은 36). 마지막 카드 ↔ SearchAi 30 과 같은 값
