@@ -1118,3 +1118,6 @@ html[data-stackgap]:not([data-stackgap="off"]) .msg-user.s5 { margin-top: 0; }  
 html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .chat-scroll { gap: var(--sg-in); }
 html[data-stackgap]:not([data-stackgap="off"]) .ai2 .msg-ai, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .msg-user, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .t2-bubble { margin-top: 0; margin-bottom: 0; }
 html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2 > .msg-ai:first-child, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .t2-bubble, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2 > .msg-user { margin-top: var(--sg-turn-extra); }
+
+/* 접힌 요약 줄(.opt-fold · .pen-fold-host)은 .in 이 아니라 .on 으로 켜져 등장 규칙의 translateY(4px) 가 남아 있었다 → 위 16 · 아래 8 로 보였다. 자리를 잡은 뒤에는 옮김 없이 (S-4 12 · 24, 2026-09-16) */
+html[data-stackgap]:not([data-stackgap="off"]) .opt-turn > .plan-fold.opt-fold.on, html[data-stackgap]:not([data-stackgap="off"]) .pen > .pen-fold-host.on, html[data-stackgap]:not([data-stackgap="off"]) .pen-fold-host.on > .plan-fold { transform: none; }

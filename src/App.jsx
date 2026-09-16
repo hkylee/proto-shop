@@ -1518,13 +1518,15 @@ export default function App() {
             <span className="vdesc">{SHEETWAITS.find((v) => v.id === sheetwaitV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
           <div className="variants v-stackgap">
-            <b className="vtitle">시안 1-1 · 1-2 · 스택 여백 통일 (바닥 영역) — 미확정</b>
+            <b className="vtitle">시안 1-1 · 1-2 · 스택 여백 통일 (바닥 영역) — S-4 확정</b>
             {STACKGAPS.map((v) => (
               <button key={v.id} aria-pressed={stackgapV === v.id} onClick={() => { setStackgapV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{STACKGAPS.find((v) => v.id === stackgapV)?.desc}</span>
           </div>
+          )}
           {SHOW_ALL && (
           <div className="variants v-fieldtap">
             <b className="vtitle">신청서 · 다음 필드로 넘어갈 때 (시안 1-1 · 1-2) — F-2 확정</b>
