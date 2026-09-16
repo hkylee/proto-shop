@@ -126,6 +126,15 @@ export default function AgentChat2({ stage = 'usage' }) {
     const prevResult = (i) => (i === 0 ? planResRef.current : turnEls[i - 1]?.querySelector('.t2-result'))   // 턴 i 직전의 결과 말풍선 (i=0 → 요금제 말풍선, done → 마지막 턴)
     const anchorTop = (el) => scrollTo(scroll, Math.max(scroll.scrollTop, el.offsetTop - CHAT_TOP))
     const follow = (el) => (topAnchor() ? Promise.resolve() : downTo(el))   // 턴 안 요소: 상단 앵커 모드면 제자리
+    /* 사용자 말풍선(질문·답 · '이어서 진행할게요' · 요금제 결과)은 뜨는 즉시 시작선으로 (html[data-userpin], 사용자 2026-09-16 "사용자 텍스트버블이 항상 상단 고정")
+       지금(off)은 제자리에 뜨고 다음 턴의 생각 점이 시작될 때야 올라간다.
+       U1 시트가 내려간 뒤 바로 / U2 한 박자(0.6s) 읽고 / U3 시트 뒤에서 미리 자리 잡고 시트가 걷힌다 */
+    const userPin = () => variant('userpin') || 'off'
+    const pinUser = async (el) => {
+      if (userPin() === 'off' || !topAnchor()) { await follow(el); return alive() }
+      if (userPin() === 'U2') { await wait(600); if (!alive()) return false }
+      await anchorTop(el); return alive()
+    }
     const setHead = (k, label) => { setOptK(k); setOptLabel(label || null) }
 
     // ── 되감기 / 최종 상태 ──
@@ -325,11 +334,11 @@ export default function AgentChat2({ stage = 'usage' }) {
       await ptr?.tap(chip.firstElementChild, { move: 420, pause: 120 }); if (!alive()) return false
       ptr?.hide(); chip.classList.add('gone'); await wait(320); if (!alive()) return false
       chip.style.display = 'none'
-      reveal(xmsg); await follow(xmsg); if (!alive()) return false
+      reveal(xmsg); if (!await pinUser(xmsg)) return false
       await wait(T.text); if (!alive()) return false
       await openSheet(i, xmsg); return alive()
     }
-    const pickInSheet = async (row) => {
+    const pickInSheet = async (row, beforeClose) => {
       await wait(SHEET_HOLD); if (!alive()) return false
       const el = sheetRef.current.querySelectorAll('.plan-row')[row], sh = sheetRef.current
       // 커버 모달(C1)은 높이가 고정이라 아래 행이 잘릴 수 있다 → 시트 안을 살짝 스크롤해 행을 드러낸 뒤 탭
@@ -337,7 +346,9 @@ export default function AgentChat2({ stage = 'usage' }) {
       if (over > 0) { await scrollTo(sh, sh.scrollTop + over, 500); if (!alive()) return false; await wait(120) }
       await ptr?.tap(el, { move: 420, pause: 120 }); if (!alive()) return false
       setSheetPick(row); await wait(480); if (!alive()) return false
-      ptr?.hide(); await closeSheet(); return alive()
+      ptr?.hide()
+      if (beforeClose) { if (!await beforeClose()) return false }   // U3: 시트가 아직 떠 있는 동안 결과 말풍선이 뒤에서 시작선에 자리 잡는다
+      await closeSheet(); return alive()
     }
     // 한 턴: 생각 점 → 안내(1~2) → 팬 → 시트 → 고르기 → 결과 카드 → 팬
     const playTurn = async (i) => {
@@ -353,10 +364,13 @@ export default function AgentChat2({ stage = 'usage' }) {
       await openSheet(i, msg2 || msg1); if (!alive()) return false
       if (!await revealHidden()) return false
       if (!await sheetDetour(i, el, msg2 || msg1)) return false
-      if (!await pickInSheet(t.pick)) return false
-      setPicks((p) => p.map((v, j) => (j === i ? t.pick : v)))
-      reveal(result); await wait(150); if (!alive()) return false
-      await follow(result); if (!alive()) return false
+      const showResult = async () => { setPicks((p) => p.map((v, j) => (j === i ? t.pick : v))); reveal(result); await wait(150); return alive() }
+      if (userPin() === 'U3') { if (!await pickInSheet(t.pick, async () => (await showResult()) && (await anchorTop(result), alive()))) return false }
+      else {
+        if (!await pickInSheet(t.pick)) return false
+        if (!await showResult()) return false
+        if (!await pinUser(result)) return false
+      }
       if (!topAnchor()) setTail(TAIL)   // 상단 앵커 모드는 다음 턴을 시작선까지 올릴 여유(tail)를 유지
       await wait(T.tail); return alive()
     }
@@ -401,7 +415,7 @@ export default function AgentChat2({ stage = 'usage' }) {
       const res = planResRef.current
       res.classList.add('on'); void res.offsetHeight
       reveal(res); await wait(150); if (!alive()) return
-      await follow(res); if (!alive()) return
+      if (!await pinUser(res)) return
       if (!topAnchor()) setTail(TAIL)
       await showNextChip()
     }
