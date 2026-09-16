@@ -37,7 +37,7 @@ const TURNS = [
     sheet: '어떤 혜택을 선택하시겠어요?', rows: [['청년 데이터 60GB 추가', '매월 데이터를 넉넉하게 사용해요'], ['콘텐츠 이용권', 'YouTube · Netflix · TVING 중 하나'], ['추가 혜택을 선택하지 않을게요', '나중에 Tworld에서 신청할 수 있어요']], pick: 0, icon: true },
   { id: 'disc',    k: 9,  label: '추가 할인 수단', msgs: ['추가로 적용하실 수 있는 할인이 있을까요?\n보유하고 있는 할인 수단이 있다면 선택해 주세요.'],   // 두 줄 (사용자 2026-09-16, 1안과 같은 문구)
     sheet: '추가로 할인받을 수 있는 수단이 있어요.', rows: [['쿠폰/이용권'], ['제휴 포인트'], ['추가 할인 수단을 사용하지 않기']], pick: 0 },
-  { id: 'coupon',  k: 10, label: '쿠폰',          msgs: ['보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요. 이 쿠폰으로 적용해드릴까요?'],
+  { id: 'coupon',  k: 10, label: '쿠폰',          msgs: ['보유하신 쿠폰 중에서는 50,000원 할인 쿠폰이 가장 혜택이 커요. 이 쿠폰으로 적용해드릴까요?'], merge: true,   // 답은 앞 턴(할인 수단) 말풍선에 두 번째 세트로 (Figma 442:158815, 사용자 2026-09-16)
     sheet: '추가로 할인받을 수 있는 수단이 있어요.', rows: [['휴대폰 구매 할인 쿠폰', '', '월 50,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 30,000원'], ['휴대폰 구매 할인 쿠폰', '', '월 20,000원']], pick: 0 },
   { id: 'pay',     k: 11, label: '결제 방법',      msgs: ['휴대폰 대금을 결제할 방법을 선택해 주세요.', '월 부담을 줄이고 싶다면 24개월 할부를 추천해요. 월 71,566원 정도 결제하게 돼요.'],
     sheet: '휴대폰 대금을 어떻게 결제할까요?', rows: [['한번에 결제할게요.', '일시 결제 1,288,000원 더 필요해요'], ['6개월 할부로 할게요', '월 휴대폰 가격 214,667원'], ['12개월 할부로 할게요', '월 휴대폰 가격 107,333원'], ['24개월 할부로 할게요', '월 휴대폰 가격 53,667원']], pick: 0 },
@@ -123,7 +123,7 @@ export default function AgentChat2({ stage = 'usage' }) {
     const downTo = (el) => scrollTo(scroll, Math.max(scroll.scrollTop, anchorBottom(el)))
     // 2안 상단 앵커링 (사용자 2026-09-09, Figma 90:86712): 새 턴이 시작되면 그 턴의 첫 요소를 채팅 시작선(199)에 맞춘다. 이후 같은 턴 안의 요소는 아래로 흘러 쌓이고 스크롤하지 않는다
     const topAnchor = () => variant('s2cover') !== 'off'
-    const prevResult = (i) => (i === 0 ? planResRef.current : turnEls[i - 1]?.querySelector('.t2-result'))   // 턴 i 직전의 결과 말풍선 (i=0 → 요금제 말풍선, done → 마지막 턴)
+    const prevResult = (i) => { let j = i - 1; while (j >= 0 && TURNS[j].merge) j--; return j < 0 ? planResRef.current : turnEls[j]?.querySelector('.t2-result') }   // 턴 i 직전의 결과 말풍선 (i=0 → 요금제 말풍선, done → 마지막 턴). merge 턴은 자기 말풍선이 없으니 그 앞으로
     const anchorTop = (el) => scrollTo(scroll, Math.max(scroll.scrollTop, el.offsetTop - CHAT_TOP))
     const follow = (el) => (topAnchor() ? Promise.resolve() : downTo(el))   // 턴 안 요소: 상단 앵커 모드면 제자리
     /* 사용자 말풍선(질문·답 · '이어서 진행할게요' · 요금제 결과)은 뜨는 즉시 시작선으로 (html[data-userpin], 사용자 2026-09-16 "사용자 텍스트버블이 항상 상단 고정")
@@ -364,12 +364,13 @@ export default function AgentChat2({ stage = 'usage' }) {
       await openSheet(i, msg2 || msg1); if (!alive()) return false
       if (!await revealHidden()) return false
       if (!await sheetDetour(i, el, msg2 || msg1)) return false
+      const resEl = t.merge ? prevResult(i) : result   // merge 턴: 답이 앞 말풍선에 붙으므로 그 말풍선을 기준으로
       const showResult = async () => { setPicks((p) => p.map((v, j) => (j === i ? t.pick : v))); reveal(result); await wait(150); return alive() }
-      if (userPin() === 'U3') { if (!await pickInSheet(t.pick, async () => (await showResult()) && (await anchorTop(result), alive()))) return false }
+      if (userPin() === 'U3') { if (!await pickInSheet(t.pick, async () => (await showResult()) && (await anchorTop(resEl), alive()))) return false }
       else {
         if (!await pickInSheet(t.pick)) return false
         if (!await showResult()) return false
-        if (!await pinUser(result)) return false
+        if (!await pinUser(resEl)) return false
       }
       if (!topAnchor()) setTail(TAIL)   // 상단 앵커 모드는 다음 턴을 시작선까지 올릴 여유(tail)를 유지
       await wait(T.tail); return alive()
@@ -511,7 +512,8 @@ export default function AgentChat2({ stage = 'usage' }) {
             {t.xchip && <div className="cta-stack xdetour x-chip"><div className="button-ai">{t.xchip}</div></div>}
             {t.xmsg && <p className="msg-ai xdetour x-msg">{t.xmsg}</p>}
             <div className="t2-result">
-              {picks[i] >= 0 && <AnswerBubble q={t.sheet} a={t.rows[picks[i]][0]} />}
+              {/* 뒤따르는 merge 턴의 답은 이 말풍선 안에 다음 세트로 이어 붙는다 — 질문·답 두 세트가 한 말풍선 (Figma 442:158815) */}
+              {!t.merge && picks[i] >= 0 && <AnswerBubble pairs={[[t.sheet, t.rows[picks[i]][0]], ...TURNS.slice(i + 1).filter((u, j) => u.merge && TURNS.slice(i + 1, i + 1 + j).every((w) => w.merge) && picks[i + 1 + j] >= 0).map((u, j) => [u.sheet, u.rows[picks[i + 1 + j]][0]])]} />}
             </div>
           </div>
         ))}
