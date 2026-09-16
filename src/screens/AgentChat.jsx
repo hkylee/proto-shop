@@ -1378,8 +1378,12 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const syncFold = async () => {
       if ((variant('planfold') || 'off') === 'off' || reducedMotion()) { await wait(600); return alive() }
       const S = variant('foldsync') || 'T3'
+      /* 접히는 카드가 화면 위로 벗어나 있으면(리스트 카드가 길어져 [전체보기] 만 보이던 자리) 먼저 카드 머리를 시작선으로 끌어 내려 접힘이 보이게 (사용자 2026-09-16 "너무 위로 올라가서 안 보임") */
+      const cardEl = usageCardRef.current
+      let panned = 0
+      if (cardEl && scroll.scrollTop > anchorHeader(cardEl) + 2) { await scrollTo(scroll, anchorHeader(cardEl), 420, inOutSine); if (!alive()) return false; panned = 420 }
       if (S === 'T1') {                                            // 팝업과 함께 출발 — 팝업이 디졸브로 바뀐 뒤(2026-09-16)에는 화면 전체가 덮여 접힘이 안 보였다 → 페이드가 거의 걷힌 0.34s 뒤에 출발해 접힘이 보이게 (사용자 "윗영역에서는 적어도 보이게")
-        await wait(340); if (!alive()) return false
+        await wait(Math.max(0, 340 - panned)); if (!alive()) return false
         const p = foldPlans()
         await wait(Math.max(0, SHEET_DOWN - 340)); if (!alive()) return false
         return await p
