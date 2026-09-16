@@ -502,3 +502,5 @@ html[data-shellswap="S2"] .view.same-shell.view-out .ai-header-fixed, html[data-
 
 .wb1 .brief.d2 .grp.note .gk, .wb1 .brief .note .tag { color: var(--fg-neutral-mute); }
 .wb1 .brief .note .tag { background: rgba(6,12,31,.06); }
+.wb1 .brief.d2 .grp.note li { color: var(--fg-neutral-mute); }   /* 참고는 약간 회색, 읽히는 정도로 (사용자 2026-09-16) */
+.wb1 .brief.d2 .grp.note li::before { opacity: .3; }
