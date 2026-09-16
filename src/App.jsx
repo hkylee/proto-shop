@@ -132,6 +132,12 @@ const ASKMODALS = [
 ]
 /* 시안 2 스텝 5→6 · Agent 에서 나가는 순서 (html[data-exitflow]) — 사용자 2026-09-16 "질의 이후 나갈 때 confirm popup 뜨면서 다시 상품 상세로" */
 /* 시안 2 스텝 5 · SearchAi 1줄 → 2줄 전환 (html[data-sinput], Figma 472:144639) — 사용자 2026-09-16 "인풋필드 변화를 매끄럽게" */
+/* 시안 2 스텝 5 · 발화 뒤 Agent 풀팝업이 나타나는 방식 (html[data-agentin]) — 사용자 2026-09-16 "슬라이드업이 심리스하지 않다, 시안 1 호출처럼" */
+const AGENTINS = [
+  { id: 'A1', label: 'A-1 블러 디졸브 (시안 1 전환)', desc: '시안 1 이 상품 상세 → Agent 로 넘어갈 때 쓰는 화면 전환 그대로. 상세·입력창·키패드가 0.6s 동안 6px 흐려지며 위로 12px 물러나고, 그 위로 Agent 화면이 스며든다. 층이 "올라오는" 느낌이 없어 가장 심리스하고, 두 안이 같은 언어가 된다' },
+  { id: 'A2', label: 'A-2 입력창이 화면이 된다', desc: '방금 쓴 두 줄 입력창(radius 28)의 사각형 안에서 Agent 화면이 보이기 시작해 0.55s 에 전체 화면으로 펴진다. "내가 쓴 상자가 대화로 커졌다" 는 인과가 가장 또렷하다. 대신 펴지는 동안 상세가 잠깐 남아 보인다' },
+  { id: 'A3', label: 'A-3 위에서 스며듦', desc: '키패드가 내려가는 동안 Agent 화면이 위에서 아래로 0.6s 에 걷혀 내려온다. 헤더(요금제 추천 & 변경)가 먼저 자리 잡고 질문 말풍선이 뒤따라 드러난다. 방향이 슬라이드업과 반대라 "덮인다" 가 아니라 "바뀐다" 로 읽힌다' },
+]
 const SINPUTS = [
   { id: 'M1', label: 'M-1 제자리에서 자라기', desc: '한 줄을 넘치는 글자가 찍히는 순간 입력창이 0.35s 로 위로 자라고(52 → 110) 본문이 바로 두 줄로 흐른다. ✦ 는 아래 줄로 내려가고 음성 아이콘은 사라지며 [↑] 가 나타난다. 한 박자, 가장 자연스러운 "늘어남"' },
   { id: 'M2', label: 'M-2 두 박자 · 층이 먼저', desc: '넘치는 순간 먼저 아이콘 줄이 아래로 내려가 층이 생기고(94), 0.38s 뒤 본문이 줄바꿈되며 110 으로 한 번 더 자란다. "칸이 생겼다 → 글이 채워진다" 가 읽혀 무슨 일이 일어났는지 가장 분명하다. 대신 두 번 움직인다' },
@@ -155,7 +161,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -827,6 +833,8 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.exitpop = exitpopV }, [exitpopV])
   const [askmodalV, setAskmodalV] = useState(() => (LAB ? (Q0.get('qm') || CONFIRMED.askmodal) : CONFIRMED.askmodal))
   useEffect(() => { document.documentElement.dataset.askmodal = askmodalV }, [askmodalV])
+  const [agentinV, setAgentinV] = useState(() => (LAB ? (Q0.get('gi') || CONFIRMED.agentin) : CONFIRMED.agentin))
+  useEffect(() => { document.documentElement.dataset.agentin = agentinV }, [agentinV])
   const [sinputV, setSinputV] = useState(() => (LAB ? (Q0.get('si') || CONFIRMED.sinput) : CONFIRMED.sinput))
   useEffect(() => { document.documentElement.dataset.sinput = sinputV }, [sinputV])
   const [exitflowV, setExitflowV] = useState(() => (LAB ? (Q0.get('xf') || CONFIRMED.exitflow) : CONFIRMED.exitflow))
@@ -1346,13 +1354,24 @@ export default function App() {
             <span className="vdesc">{EXITFLOWS.find((v) => v.id === exitflowV)?.desc}</span>
           </div>
           )}
+          {SHOW_ALL && (
+          <div className="variants v-agentin">
+            <b className="vtitle">시안 2 · 스텝 5 발화 뒤 Agent 풀팝업 등장 — A-1 확정</b>
+            {AGENTINS.map((v) => (
+              <button key={v.id} aria-pressed={agentinV === v.id} onClick={() => { setAgentinV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{AGENTINS.find((v) => v.id === agentinV)?.desc}</span>
+          </div>
+          )}
+          {SHOW_ALL && (
           <div className="variants v-sinput">
-            <b className="vtitle">시안 2 · 스텝 5 요금제 발화 — SearchAi 1줄 → 2줄 (Figma 472:144639) — 미확정</b>
+            <b className="vtitle">시안 2 · 스텝 5 요금제 발화 — SearchAi 1줄 → 2줄 (Figma 472:144639) — M-1 확정</b>
             {SINPUTS.map((v) => (
               <button key={v.id} aria-pressed={sinputV === v.id} onClick={() => { setSinputV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{SINPUTS.find((v) => v.id === sinputV)?.desc}</span>
           </div>
+          )}
           <div className="variants v-exitpop">
             <b className="vtitle">시안 2 · [나가기] 확인 팝업 (Agent 우측 상단) — X-3 확정</b>
             {EXITPOPS.map((v) => (

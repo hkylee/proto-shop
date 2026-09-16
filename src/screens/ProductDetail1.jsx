@@ -10,7 +10,7 @@ import { variant } from '../lib/variants.js'
 import { wait, scrollTo, tween, inOut, inOutSine, inOutQuart, cubicOut, outExpo, reducedMotion } from '../lib/motion.js'
 import './product2.css'
 import './product1.css'
-import { SCREEN_W } from '../lib/screen.js'
+import { SCREEN_W, SCREEN_H } from '../lib/screen.js'
 
 /* 1안 · Static 중심 + AI 일시 호출 — 상품 상세 (3안 v2 화면 구조 그대로, Figma T1mhl… 10547:16625)
    E-1 배지 + 팬: T+ 버튼이 입력창으로 모핑 → 질의 → 입력창 위 답변 스트립 → 페이지의 추천 항목에 [AI 추천] 배지 →
@@ -149,7 +149,7 @@ export default function ProductDetail1({ stage = 'top' }) {
       setSel(FINAL[stage]); setDock('idle'); setTyped(''); setAsk(null); setAnswered(false); setHint(null); setAmb(null); setXpop(false); setMulti(false); setWrap(false); setFade(false)
       setPayReady(stage === 'rest' || stage === 'payout'); setPayOn(stage === 'payout'); ptr?.hide()
       // 요금제 스텝의 최종 상태 = 풀팝업이 열려 답이 모두 나온 뒤 (F1: [네] 눌러 선택 완료 · F2: 안내만 · F3: 시트가 떠 있음)
-      if (stage === 'plan') { setAgent('in'); setAph(5); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
+      if (stage === 'plan') { setAgent('in'); setAph(9); setAsheet(XF === 'F3'); setApick(XF === 'F1'); const toEnd = () => { const a = agScrollRef.current; if (a) a.scrollTop = a.scrollHeight }; requestAnimationFrame(toEnd); setTimeout(toEnd, 350) }
       else { setAgent('off'); setAph(0); setAsheet(false); setApick(false) }
       if (stage === 'top') scrollTo(el, 0, 500, inOut)
       else if (stage === 'rest' || stage === 'payout') el.scrollTop = el.scrollHeight
@@ -302,6 +302,8 @@ export default function ProductDetail1({ stage = 'top' }) {
       await ptr?.tap(dockRef.current, { move: 500, pause: 120, label: 'T 호출' }); if (!alive()) return false
       ptr?.hide()
       setAsk({ ...ASKS.plan, q: PLAN_Q }); setDock('open'); setAmb(null)
+      // A2(입력창이 화면이 된다) 출발 사각형 — 두 줄 입력창(SearchAiMulti 110) 자리: left 20 · width 353 · bottom 319(키패드 위). 전환 전에 미리 심어 두어야 clip-path 가 거기서 출발한다
+      rootRef.current.style.setProperty('--pa-clip', `inset(${SCREEN_H - 319 - 110}px 20px 319px 20px round 28px)`)
       await wait(KB_MS + 350); if (!alive()) return false
       const tq = dockRef.current.querySelector('.tq'), fieldEl = dockRef.current.querySelector('.field')
       fieldEl.classList.add('filled')
@@ -324,22 +326,33 @@ export default function ProductDetail1({ stage = 'top' }) {
       setTyped(PLAN_Q)
       await wait(600); if (!alive()) return false
       // 전송 → 키패드가 내려가는 동안 풀팝업이 올라온다. 뒤의 입력창은 팝업에 가린 뒤 T+ 로 조용히 복귀
-      setAgent('in'); setAph(1); setDock('closing')
-      await wait(AG_MS); if (!alive()) return false
+      // 풀팝업 등장 (html[data-agentin], 사용자 2026-09-16 "시안 1 처럼 심리스하게"): A1 블러 디졸브 / A2 입력창이 화면으로 커짐 / A3 위에서 스며듦
+      const AI = variant('agentin') || 'A1'
+      // 시안 1 의 턴 리듬(Figma 483:145930): 말풍선 → 오프닝 타이틀 → (타이틀이 접히며) 안내 문장 → 카드 하나씩 → 추천 → 비교표. 한 번에 한 조각
+      setAgent('in'); setAph(1); setDock('closing')                  // 1 질문 말풍선
+      await wait(AI === 'A1' ? 650 : AG_MS); if (!alive()) return false
       setDock('idle'); setTyped(''); setAsk(null); setMulti(false); setWrap(false)
+      await wait(350); if (!alive()) return false
+      setAph(2)                                                      // 2 "최근 6개월간 이용현황을 먼저 살펴볼게요 · 나의 요금제 확인"
+      await wait(1600); if (!alive()) return false
+      setAph(3)                                                      // 3 타이틀이 접히고 이용현황 안내 문장
+      await wait(1000); if (!alive()) return false
+      setAph(4); if (!await agPan(600)) return false                 // 4 이용중 요금제 카드
       await wait(900); if (!alive()) return false
-      setAph(2); if (!await agPan(800)) return false          // 이용현황 안내 + 이용중 요금제 + 그래프
-      await wait(1500); if (!alive()) return false
-      setAph(3); if (!await agPan(700)) return false          // 추천 문장 + 추천 요금제 카드
-      await wait(1300); if (!alive()) return false
-      setAph(4); if (!await agPan(700)) return false          // 현재 요금제와 비교
+      setAph(5); if (!await agPan(700)) return false                 // 5 6개월 그래프
       await wait(1400); if (!alive()) return false
-      if (XF === 'F2') { setAph(5); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
+      setAph(6); if (!await agPan(500)) return false                 // 6 추천 문장
+      await wait(900); if (!alive()) return false
+      setAph(7); if (!await agPan(600)) return false                 // 7 추천 요금제 카드
+      await wait(1000); if (!alive()) return false
+      setAph(8); if (!await agPan(700)) return false                 // 8 현재 요금제와 비교
+      await wait(1400); if (!alive()) return false
+      if (XF === 'F2') { setAph(9); await agPan(500); return alive() }   // 시트 없이 — [나가기] 한 번으로 정리
       setAsheet(true)                                          // "추천된 요금제를 선택하실래요?"
       await wait(900); if (!alive()) return false
       if (XF === 'F3') return alive()                          // [네] 위에서 대기 — 다음 스텝에서 확인 팝업이 이어진다
       await ptr?.tap(yesRef.current, { move: 420, pause: 140, label: '네' }); if (!alive()) return false
-      ptr?.hide(); setAsheet(false); setApick(true); setAph(5)
+      ptr?.hide(); setAsheet(false); setApick(true); setAph(9)
       await wait(200); if (!alive()) return false
       await agPan(600); return alive()
     }
@@ -434,7 +447,7 @@ export default function ProductDetail1({ stage = 'top' }) {
   const morphPre = variant('planmorph') === 'on' && sel.plan < 0
 
   return (
-    <div className={`pd pd2 pd1 ${morph} dock-${dock} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
+    <div className={`pd pd2 pd1 ${morph} dock-${dock} ag-${agent} ain-${variant('agentin') || 'A1'} amb-${ambV} ${amb ? 'amb-on' : ''} ${ask?.fromAmb ? 'from-amb' : ''}`} ref={rootRef}>
       <div className="pd2-scroll" ref={scrollRef}>
         <StatusBar className="pd-status" />
         <div className="pd2-appbar"><IcoBack /><span className="sp" /><i className="ico-share" /><i className="ico-menu" /></div>
@@ -743,17 +756,14 @@ function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef
       </div>
       <div className="chat-scroll pa-scroll" ref={scrollRef}>
         {aph >= 1 && <UserMessage className="pa-in">{PLAN_Q}</UserMessage>}
-        {aph >= 1 && <div className="opening pa-in"><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
-        {aph >= 2 && (<>
-          <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>
-          <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>
-          <Card className="pa-in"><UsageGraph /></Card>
-        </>)}
-        {aph >= 3 && (<>
-          <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>
-          <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>
-        </>)}
-        {aph >= 4 && (
+        {/* 오프닝 타이틀은 답이 시작되면 접혀 사라진다 (시안 1 collapse C-2: 글자 먼저 → 높이). Figma 두 번째 프레임에는 타이틀이 없다 */}
+        {aph >= 2 && aph < 9 && <div className={`opening pa-in ${aph >= 3 ? 'gone' : ''}`}><h2 className="ai-title">최근 6개월간 이용현황을<br />먼저 살펴볼게요</h2><div className="status">나의 요금제 확인</div></div>}
+        {aph >= 3 && <AiMessage className="pa-in">최근 6개월간 월평균 22.4GB를 사용했어요. 현재 요금제의 데이터 제공량은 20GB로, 초과 시 속도 제한이 적용되고 있어요.</AiMessage>}
+        {aph >= 4 && <Card className="pa-in"><span className="badge">이용중 요금제</span><div className="cell-desc">{PA_CUR.name}</div><div className="cell-title">{PA_CUR.price}</div><div className="cell-desc">{PA_CUR.caps}</div><BenefitBadges /></Card>}
+        {aph >= 5 && <Card className="pa-in"><UsageGraph /></Card>}
+        {aph >= 6 && <AiMessage className="pa-in">이용 패턴을 고려하면 데이터를 제한 없이 사용할 수 있는 {PLAN_REC}가 가장 적합해요.</AiMessage>}
+        {aph >= 7 && <Card className="pa-in"><div className="cell-desc">{PA_REC.name}</div><div className="cell-title">{PA_REC.price}</div><div className="cell-desc">{PA_REC.caps}</div><BenefitBadges /></Card>}
+        {aph >= 8 && (
           <Card className="compare pa-cmp pa-in">
             <h3>현재 요금제와 비교</h3>
             <div className="cmp">
@@ -763,11 +773,11 @@ function PlanAgent({ state, aph, sheet, picked, flow, scrollRef, exitRef, yesRef
             <p>월 36,200원이 높지만 데이터가 무제한으로 바뀌어 속도 제한이 사라져요. 가족결합이 가능한 상품이라 함께 쓰면 더 유리해요.</p>
           </Card>
         )}
-        {aph >= 5 && picked && (<>
+        {aph >= 9 && picked && (<>
           <div className="done-line pa-in"><i className="chk" />{PLAN_REC} 선택 완료<em /></div>
           <AiMessage className="pa-in">상품 상세에도 그대로 적용해 둘게요. 오른쪽 위 [나가기]로 돌아가면 이어서 진행할 수 있어요.</AiMessage>
         </>)}
-        {aph >= 5 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
+        {aph >= 9 && !picked && flow === 'F2' && <AiMessage className="pa-in">이 요금제로 진행하시려면 오른쪽 위 [나가기]로 돌아가 주세요. 추천 요금제가 선택된 상태로 이어져요.</AiMessage>}
         <div className="pa-tail" />
       </div>
       <SearchAi style={{ bottom: 24 }} />

@@ -27,7 +27,8 @@
    M1 자라기: 높이가 0.35s 로 자라는 동안 본문이 바로 줄바꿈되고 ✦ 는 아래 줄로, 음성은 사라진다 — 한 박자
    M2 두 박자: 먼저 아이콘 줄이 아래로 내려가 층이 생기고(94) 0.38s 뒤 본문이 줄바꿈되며 110 으로 — 층 → 글
    M3 크로스페이드: 넘치는 순간 안쪽이 0.15s 사라지고 두 줄 레이아웃으로 나타난다. 높이만 0.26s 로 이어진다 */
-.pd1 .dock.multi { height: 110px; transition: width var(--kb-ms) var(--kb-ease), bottom var(--kb-ms) var(--kb-ease), height .35s var(--kb-ease), background .3s, transform .15s; }
+/* 자라는 동안 알약(999) → SearchAiMulti 의 radius 28 로 함께 (사용자 2026-09-16) */
+.pd1 .dock.multi { height: 110px; border-radius: 28px; transition: width var(--kb-ms) var(--kb-ease), bottom var(--kb-ms) var(--kb-ease), height .35s var(--kb-ease), border-radius .35s var(--kb-ease), background .3s, transform .15s; }
 .pd1 .dock.multi .sinp { grid-template-columns: 1fr; grid-template-rows: 44px 32px; row-gap: 8px; padding: 16px 10px 10px 24px; align-items: start; }
 .pd1 .dock.multi .sinp .lead, .pd1 .dock.multi .sinp .voice { position: absolute; opacity: 0; pointer-events: none; transition: opacity .15s; }
 .pd1 .dock.multi .sinp .lead { left: 24px; top: 15px; }
@@ -42,7 +43,7 @@
 .pd1 .dock.mv-M2.multi:not(.wrap) .sinp .field { height: 22px; }
 .pd1 .dock.mv-M2.multi .sinp .srow { transition: opacity .25s; }
 /* M3: 안쪽 크로스페이드, 높이는 짧게 */
-.pd1 .dock.mv-M3.multi { transition-duration: var(--kb-ms), var(--kb-ms), .26s, .3s, .15s; }
+.pd1 .dock.mv-M3.multi { transition-duration: var(--kb-ms), var(--kb-ms), .26s, .26s, .3s, .15s; }
 .pd1 .dock.mv-M3 .sinp { transition: opacity .3s .15s; }
 .pd1 .dock.mv-M3.fade .sinp { opacity: 0; transition: opacity .14s; }
 .pd1 .dock.mv-M3.multi .sinp { animation: pd1up .3s cubic-bezier(.22,1,.36,1) both; }
@@ -354,7 +355,10 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .chat-scroll.pa-scroll { padding-top: 124px; gap: 8px; }   /* 상태바 59 + 앱바 48 + 17 */
 .pd1 .pa .pa-in { animation: paIn .5s cubic-bezier(.22,1,.36,1) both; }
 @keyframes paIn { from { opacity: 0; transform: translateY(10px); } }
-.pd1 .pa .opening { gap: 8px; }
+.pd1 .pa .opening { gap: 8px; max-height: 140px; }
+/* 답이 시작되면 오프닝 타이틀이 접힌다 — 글자가 먼저 사라지고(0.25s) 높이가 닫힌다(0.4s). 시안 1 collapse C-2 와 같은 순서 */
+.pd1 .pa .opening.gone { animation: paGone .55s cubic-bezier(.65,0,.35,1) both; pointer-events: none; }
+@keyframes paGone { 0% { opacity: 1; max-height: 140px; margin-top: 23px; } 45% { opacity: 0; max-height: 140px; margin-top: 23px; } 100% { opacity: 0; max-height: 0; margin-top: 0; } }
 .pd1 .pa .opening .status { font-size: 13px; font-weight: 500; letter-spacing: -.04em; color: var(--fg-neutral-subtle); }
 .pd1 .pa .ai-card { width: auto; flex: none; }
 .pd1 .pa .pa-tail { flex: none; height: 200px; }
@@ -376,3 +380,28 @@ html[data-aidim="D3"] .pd1 .ai-dim { height: 300px; background: linear-gradient(
 .pd1 .pa .home-ind { z-index: 8; }
 /* 풀팝업이 열려 있는 동안 상세의 나머지 오버레이는 뒤로 */
 .pd1 .exit-pop { z-index: 40; }
+
+/* ── 풀팝업 등장 방식 (html[data-agentin], 2026-09-16 "시안 1 호출처럼 심리스하게"). 나갈 때(.out)는 공통으로 아래로 내려간다 ──
+   A1 블러 디졸브 — 시안 1 의 화면 전환(player.css blurOut/blurIn: 0.6s · blur 6 · 위로 12px)을 그대로. 상세·입력창·키패드가 흐려지며 물러나고 Agent 화면이 그 위로 스며든다
+   A2 입력창이 화면이 된다 — SearchAiMulti 사각형(radius 28)에서 Agent 화면이 잘려 보이다 0.55s 에 전체 화면으로 펴진다. "내가 쓴 입력창이 대화가 됐다"
+   A3 위에서 스며듦 — 키패드가 내려가는 동안 Agent 화면이 위에서 아래로 0.6s 에 걷혀 내려온다(와이프). 상단 헤더가 먼저 자리 잡는다 */
+.pd1.ain-A1 .pa { transform: none; opacity: 0; transition: opacity .6s cubic-bezier(.65,0,.35,1); }
+.pd1.ain-A1 .pa.in { opacity: 1; }
+.pd1.ain-A1 .pa.out { opacity: 1; transform: translateY(100%); transition: transform .5s var(--kb-ease); }
+.pd1.ain-A1 .pa.off { opacity: 0; }
+/* 물러남은 transition 이 아니라 animation 으로 — .dock 의 T+ → 입력창 모핑(width·bottom transition)을 덮어쓰지 않도록 (2026-09-16 "T 아이콘 눌렀을 때 말풍선 몰핑되게") */
+.pd1.ain-A1.ag-in .pd2-scroll, .pd1.ain-A1.ag-in .dock, .pd1.ain-A1.ag-in .keyboard, .pd1.ain-A1.ag-in .pd2-bottom { animation: pd1away .6s cubic-bezier(.65,0,.35,1) both; }
+.pd1.ain-A1.ag-out .pd2-scroll, .pd1.ain-A1.ag-out .dock, .pd1.ain-A1.ag-out .keyboard, .pd1.ain-A1.ag-out .pd2-bottom { animation: pd1back .5s cubic-bezier(.65,0,.35,1) both; }
+@keyframes pd1away { to { filter: blur(6px); opacity: 0; translate: 0 -12px; } }
+@keyframes pd1back { from { filter: blur(6px); opacity: 0; translate: 0 -12px; } }
+.pd1.ain-A2 .pa { transform: none; clip-path: var(--pa-clip, inset(0 round 0)); transition: clip-path .55s var(--kb-ease); }
+.pd1.ain-A2 .pa.in { clip-path: inset(0 round 0); }
+.pd1.ain-A2 .pa.out { clip-path: inset(0 round 0); transform: translateY(100%); transition: transform .5s var(--kb-ease); }
+.pd1.ain-A2 .pa .pa-scroll > *, .pd1.ain-A2 .pa .pa-head { transition: opacity .3s; }
+.pd1.ain-A2 .pa:not(.in) .pa-head { opacity: 0; }
+.pd1.ain-A3 .pa { transform: none; clip-path: inset(0 0 100% 0); transition: clip-path .6s cubic-bezier(.65,0,.35,1); }
+.pd1.ain-A3 .pa.in { clip-path: inset(0); }
+.pd1.ain-A3 .pa.out { clip-path: inset(0); transform: translateY(100%); transition: transform .5s var(--kb-ease); }
+
+/* 숨어 있는 동안(off)에는 어떤 등장 방식도 전환하지 않는다 — 출발 값이 조용히 자리 잡도록 */
+.pd1.ain-A1 .pa.off, .pd1.ain-A2 .pa.off, .pd1.ain-A3 .pa.off { transition: none; }
