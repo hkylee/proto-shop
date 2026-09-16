@@ -11,13 +11,14 @@ import { SCREEN_W } from '../lib/screen.js'
 export const userTap = () => document.documentElement.dataset.tapmode === 'user'
 const emit = (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail }))
 // 스텝 끝 대기 자리를 사용자가 탭했으면 그 자리를 '장전'해 두고, 다음 스텝의 첫 tap 이 같은 자리면 다시 기다리지 않는다 (한 번 탭 = 한 번 진행)
+// armed 는 요소가 아니라 스냅샷(태그·글자·좌표)으로 남긴다 — 화면 전환(AgentChat2 → AgentChat 등)으로 이전 요소가 이미 DOM 에서 사라지면
+// getBoundingClientRect() 가 0 을 돌려줘 '같은 자리' 판정이 항상 실패했다 (사용자 2026-09-16 "9→10 신청서 작성하기 칩을 두 번 누르는 느낌")
 let armed = null
+const snapshot = (el) => ({ tag: el.tagName, text: el.textContent.trim(), rect: el.getBoundingClientRect() })
 const sameSpot = (a, b) => {
   if (!a || !b) return false
-  if (a === b) return true
-  if (a.tagName !== b.tagName || a.textContent.trim() !== b.textContent.trim()) return false
-  const r = a.getBoundingClientRect(), q = b.getBoundingClientRect()
-  return Math.abs(r.left - q.left) < 8 && Math.abs(r.top - q.top) < 8
+  if (a.tag !== b.tag || a.text !== b.text) return false
+  return Math.abs(a.rect.left - b.rect.left) < 8 && Math.abs(a.rect.top - b.rect.top) < 8
 }
 // 대상이 스크롤 컨테이너 밖이면 안으로 끌어온다 (다음 스텝의 첫 탭 자리가 화면 밖에 있을 때)
 const scrollParent = (el) => { let n = el.parentElement; while (n) { const cs = getComputedStyle(n); if (/(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight + 2) return n; n = n.parentElement } return null }
@@ -113,7 +114,7 @@ export default class Pointer {
     revealInto(el, k).then(() => {
       if (!el.isConnected) return
       this.moveTo(el, 0, label); this.hover()
-      this._startWait(el, () => { armed = el; emit('ptr-park-tap') }); this.layer.classList.add('park')
+      this._startWait(el, () => { armed = snapshot(el); emit('ptr-park-tap') }); this.layer.classList.add('park')
       emit('ptr-wait')   // 뷰어에 '이 스텝 재생이 끝났다 — 탭 또는 → 으로 다음' 을 알린다 (2026-09-16)
     })
   }
@@ -139,7 +140,7 @@ export default class Pointer {
   // 탭 제스처 = 이동 → 잠깐 멈춤 → 누름 (공통 규칙 §6). 시퀀스마다 세 줄씩 반복하던 것을 한 호출로
   async tap(el, { move = 450, pause = 160, label = '탭' } = {}) {
     await this.moveTo(el, move, label)
-    if (userTap()) { if (armed && sameSpot(armed, el)) armed = null; else await this.waitTap(el) }   // 사용자 탭 모드: 직전 스텝 끝에서 이미 탭한 자리면 바로, 아니면 여기서 기다린다
+    if (userTap()) { if (armed && sameSpot(armed, snapshot(el))) armed = null; else await this.waitTap(el) }   // 사용자 탭 모드: 직전 스텝 끝에서 이미 탭한 자리면 바로, 아니면 여기서 기다린다
     else if (pause) await wait(pause)
     await this.press(el)
   }

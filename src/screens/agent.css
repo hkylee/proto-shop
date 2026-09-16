@@ -480,10 +480,19 @@ html[data-kbfield="K3"] .ai-screen.kbf .kb-scrim { opacity: 1 !important; }   /*
 /* 12번 신청서 확인 카드 (CellLeftTable 5행) */
 .ai-card.review-card { gap: 16px; }
 .ai-card.review-card h3 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; letter-spacing: -.05em; }
+.review-card .review-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .review-card .kv-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .review-card .kv { display: flex; gap: 16px; align-items: flex-start; font-size: 15px; line-height: 20px; letter-spacing: -.05em; }
 .review-card .kv span { flex: none; width: 84px; color: var(--fg-neutral-solid); }
 .review-card .kv b { flex: 1; min-width: 0; font-weight: 400; word-break: keep-all; }
+/* 행마다 눈 아이콘 대신 카드 하나에 스위치 하나 — '정보 보기' (Figma ixGPs9 545:163689) */
+.info-toggle { display: inline-flex; align-items: center; gap: 6px; flex: none; cursor: pointer; }
+.info-toggle input { position: absolute; width: 0; height: 0; opacity: 0; }
+.info-toggle em { font-style: normal; font-size: 13px; font-weight: 500; color: var(--fg-neutral-subtle); letter-spacing: -.03em; }
+.info-toggle .track { position: relative; width: 36px; height: 20px; border-radius: 999px; background: rgba(79,89,114,.2); transition: background .2s; flex: none; }
+.info-toggle .track .knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(6,12,31,.25); transition: transform .2s; }
+.info-toggle input:checked + .track { background: var(--blue-600); }
+.info-toggle input:checked + .track .knob { transform: translateX(16px); }
 /* 13번 완료 선 (txt_complete): 체크 + 텍스트 + 가는 선 */
 .done-line { display: flex; align-items: center; gap: 6px; padding: 12px 10px; font-size: 14px; font-weight: 500; color: var(--fg-neutral-mute); letter-spacing: -.04em; }
 .done-line .chk { width: 18px; height: 18px; border-radius: 50%; border: 1.6px solid var(--fg-neutral-mute); position: relative; flex: none; }
@@ -1161,6 +1170,4 @@ html[data-stackgap]:not([data-stackgap="off"]) .opt-turn > .plan-fold.opt-fold.o
 
 /* 접힌 입력 카드 (Figma 545:163657): 파란 배지 라벨 → 마스킹 값 · [재입력] */
 .form-line.fin-done .fd-tag { align-self: flex-start; padding: 2px 6px; border-radius: 4px; background: #F0F4FF; color: #4B59FF; font-style: normal; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: -.04em; margin-bottom: 2px; }
-/* 신청서 카드 마스킹 뒤 값 옆 회색 눈 (누르면 해제된다는 뜻만 — 토글은 미구현) */
-.review-card .kv b .eye { display: inline-block; vertical-align: -3px; margin-left: 6px; color: var(--fg-neutral-subtle); }
 .fs-next:not(:has(.chev)) { padding: 0 18px; }   /* [완료] 는 화살표가 없어 좌우 여백을 맞춘다 */
