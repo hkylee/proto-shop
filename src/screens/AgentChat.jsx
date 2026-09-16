@@ -28,10 +28,11 @@ const SHEET_PLANS = ALT_PLANS.filter((_, i) => i !== 1)
 // 스텝 5 전체 요금제 = 풀페이지 팝업 (Figma ixGPs9 88:83221 → 88:83232, 사용자 2026-09-08: 바텀시트 → 풀페이지). ListProductHorizontal 컴팩트 카드 4장, 선택 = 2px 검정 테두리
 //  Figma 의 '0 청년 99' 대신 흐름과 맞는 SHEET_PLANS 순서 유지 (선택 index 0 = 5GX 프라임 플러스 = planIdx 0)
 const POP_PLANS = [
-  { name: '5GX 프라임 플러스', price: '99,000원', caps: ['데이터 무제한', '통화 무제한', '테더링 80GB'] },
-  { name: '베스트 Pro', price: '119,000원', caps: ['데이터 무제한', '통화 무제한', '문자 무제한'], more: '+2' },
-  { name: '베스트 109', price: '109,000원', caps: ['데이터 무제한', '통화 무제한', '문자 무제한'], more: '+2' },
-  { name: '베스트 99', price: '99,000원', caps: ['데이터 무제한', '통화 무제한', '문자 무제한'] },
+  // 스펙은 '데이터 | 테더링' 두 항목 한 줄 (사용자 스크린샷 2026-09-16 18:03 형식)
+  { name: '5GX 프라임 플러스', price: '99,000원', caps: ['데이터 무제한', '테더링 80GB'] },
+  { name: '베스트 Pro', price: '119,000원', caps: ['데이터 무제한', '테더링 120GB'] },
+  { name: '베스트 109', price: '109,000원', caps: ['데이터 무제한', '테더링 80GB'] },
+  { name: '베스트 99', price: '99,000원', caps: ['데이터 무제한', '테더링 80GB'] },
 ]
 const POP_PLANS_LIGHT = SHEET_PLANS_LIGHT.map(([name, price, desc]) => ({ name, price: price.replace('월 ', ''), caps: desc.split('・') }))
 const PLAN_DEFAULT = 0, PLAN_RESELECT = 2   // 5GX 프라임 플러스 → (스텝 9) 베스트 109
