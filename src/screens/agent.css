@@ -1107,6 +1107,7 @@ html[data-stackgap]:not([data-stackgap="off"]) .msg-ai + .ai-card, html[data-sta
 html[data-stackgap="S1"] { --sg-in: 12px; --sg-turn: 12px; --sg-turn-extra: 0px; --sg-text-row-extra: 0px; }
 html[data-stackgap="S2"] { --sg-in: 8px; --sg-turn: 20px; --sg-turn-extra: 12px; --sg-text-row-extra: 0px; }
 html[data-stackgap="S3"] { --sg-in: 8px; --sg-turn: 24px; --sg-turn-extra: 16px; --sg-text-row-extra: 4px; }
+html[data-stackgap="S4"] { --sg-in: 12px; --sg-turn: 24px; --sg-turn-extra: 12px; --sg-text-row-extra: 0px; }   /* S4 두 값 12 · 24 — "8 은 너무 pack" (사용자 2026-09-16) */
 html[data-stackgap]:not([data-stackgap="off"]) .msg-user.s5 { margin-top: 0; }   /* 첫 말풍선은 채팅 시작선(140)에 그대로 */
 
 /* 생각 점 자리 — 아직 안 나왔거나(in 없음) 이미 사라진 점은 자리를 차지하지 않는다. 최종 상태(showNow 는 .thinking 을 건너뜀)에서 투명한 점이 24 + 27px 의 빈 여백으로 남아

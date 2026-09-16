@@ -160,6 +160,7 @@ const FIELDTAPS = [
 ]
 /* 시안 1-1 스택 여백 통일 (html[data-stackgap]) — 사용자 2026-09-16 "stack 되는 여백감 일정하게" */
 const STACKGAPS = [
+  { id: 'S4', label: 'S-4 두 값 · 12 / 24', desc: '같은 턴 안 12, 새 턴을 여는 요소(말풍선 · 카드 뒤 안내 문장) 위 24. S-2 의 구조를 그대로 두고 값만 한 단계 넓혀 숨이 트인다. 화면은 S-2 보다 조금 길어진다' },
   { id: 'S2', label: 'S-2 두 값 · 8 / 20', desc: '같은 턴 안(문장 → 카드, 카드 → 카드, 접힌 줄)은 8, 새 턴이 시작되는 요소(사용자 말풍선 · 카드 뒤에 오는 안내 문장) 위는 20. 문장이 한 박자를 열어 턴 경계가 읽히면서도 안은 촘촘하다' },
   { id: 'S1', label: 'S-1 한 값 · 12', desc: '모든 인접 요소 사이가 12. 턴 사이도 12 라 가장 고르고 촘촘하지만 턴 경계는 말풍선 모양으로만 구분된다' },
   { id: 'S3', label: 'S-3 Figma 기준 3단 · 8 / 12 / 24', desc: '행 사이 8, 안내문 ↔ 행 12, 턴 사이 24 (Figma 26:31995 의 여백 규칙). 위계가 가장 또렷하지만 화면이 길어진다' },
@@ -1467,13 +1468,15 @@ export default function App() {
             ))}
             <span className="vdesc">{STEPCUES.find((v) => v.id === stepcueV)?.desc}</span>
           </div>
+          {SHOW_ALL && (
           <div className="variants v-sheetwait">
-            <b className="vtitle">시안 1-2 · 본문 → 모달 호흡 — 미확정</b>
+            <b className="vtitle">시안 1-2 · 본문 → 모달 호흡 — W-1 확정</b>
             {SHEETWAITS.map((v) => (
               <button key={v.id} aria-pressed={sheetwaitV === v.id} onClick={() => { setSheetwaitV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
             <span className="vdesc">{SHEETWAITS.find((v) => v.id === sheetwaitV)?.desc}</span>
           </div>
+          )}
           <div className="variants v-stackgap">
             <b className="vtitle">시안 1-1 · 1-2 · 스택 여백 통일 (바닥 영역) — 미확정</b>
             {STACKGAPS.map((v) => (
