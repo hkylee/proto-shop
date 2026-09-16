@@ -112,6 +112,7 @@ export default class Pointer {
       if (!el.isConnected) return
       this.moveTo(el, 0, label); this.hover()
       this._startWait(el, () => { armed = el; emit('ptr-park-tap') }); this.layer.classList.add('park')
+      emit('ptr-wait')   // 뷰어에 '이 스텝 재생이 끝났다 — 탭 또는 → 으로 다음' 을 알린다 (2026-09-16)
     })
   }
   // 포인터 없이 스텝을 넘긴다 — 자동 재생 셸이 ptr-park 와 같은 신호로 받되 지연은 호출자가 정한다 (스텝 8 → 9, html[data-ctaup] 2026-09-16)

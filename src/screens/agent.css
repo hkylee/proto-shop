@@ -1112,3 +1112,8 @@ html[data-stackgap]:not([data-stackgap="off"]) .msg-user.s5 { margin-top: 0; }  
 /* 생각 점 자리 — 아직 안 나왔거나(in 없음) 이미 사라진 점은 자리를 차지하지 않는다. 최종 상태(showNow 는 .thinking 을 건너뜀)에서 투명한 점이 24 + 27px 의 빈 여백으로 남아
    스택 여백이 44 · 48 · 52 로 튀던 원인 (2026-09-16) */
 .thinking:not(.in) { display: none; }
+
+/* 시안 1-2 (AgentChat2 .ai2) 도 같은 스택 여백 시스템 — 모달 안은 그대로, 바닥(대화) 영역만 */
+html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .chat-scroll { gap: var(--sg-in); }
+html[data-stackgap]:not([data-stackgap="off"]) .ai2 .msg-ai, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .msg-user, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .t2-bubble { margin-top: 0; margin-bottom: 0; }
+html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2 > .msg-ai:first-child, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .t2-bubble, html[data-stackgap]:not([data-stackgap="off"]) .ai2 .turn2 > .msg-user { margin-top: var(--sg-turn-extra); }

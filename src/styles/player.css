@@ -410,3 +410,19 @@ html.m, html.m body { width: 100%; max-width: 100%; overflow-x: hidden; }
   .m-pill .mid b { max-width: 160px; }
   .m-controls { font-size: 11px; }
 }
+
+/* ── 스텝 재생이 끝났을 때 폰 밖 안내 (html[data-stepcue], 2026-09-16) ── */
+.stage .round.cue { animation: cuePulse 1.6s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(75,89,255,.35); }
+@keyframes cuePulse { 0% { box-shadow: 0 0 0 0 rgba(75,89,255,.35); } 70% { box-shadow: 0 0 0 14px rgba(75,89,255,0); } 100% { box-shadow: 0 0 0 0 rgba(75,89,255,0); } }
+.step-cue { position: absolute; z-index: 5; pointer-events: none; animation: cueIn .45s cubic-bezier(.22,1,.36,1) both; font-size: 13px; font-weight: 600; letter-spacing: -.03em; color: var(--fg-neutral-solid, #060C1F); }
+@keyframes cueIn { from { opacity: 0; transform: translateY(6px); } }
+/* V1: → 버튼 바로 위 라벨 (stage 3열 그리드의 마지막 열 자리) */
+.step-cue.sc-V1 { right: 28px; top: calc(50% - 56px); width: 64px; text-align: center; }
+.step-cue.sc-V1 .lbl { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #fff; box-shadow: 0 4px 16px rgba(16,49,140,.14); white-space: nowrap; }
+/* V2: 폰 아래 가운데 한 줄 */
+.step-cue.sc-V2 { left: 50%; bottom: 12px; transform: translateX(-50%); }
+.step-cue.sc-V2 .lbl { display: inline-block; padding: 8px 14px; border-radius: 999px; background: #fff; box-shadow: 0 4px 16px rgba(16,49,140,.14); font-weight: 500; color: var(--fg-neutral-mute, #4F5972); white-space: nowrap; }
+/* V3: → 버튼 위 다음 스텝 이름표 */
+.step-cue.sc-V3 { right: 20px; top: calc(50% - 96px); width: 200px; }
+.step-cue.sc-V3 .lbl { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #fff; box-shadow: 0 6px 24px rgba(16,49,140,.16); font-weight: 500; line-height: 1.4; color: var(--fg-neutral-mute, #4F5972); }
+.step-cue.sc-V3 .lbl b { color: var(--fg-neutral-solid, #060C1F); font-weight: 700; }

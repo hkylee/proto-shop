@@ -165,6 +165,20 @@ const STACKGAPS = [
   { id: 'S3', label: 'S-3 Figma 기준 3단 · 8 / 12 / 24', desc: '행 사이 8, 안내문 ↔ 행 12, 턴 사이 24 (Figma 26:31995 의 여백 규칙). 위계가 가장 또렷하지만 화면이 길어진다' },
   { id: 'off', label: '기존 (지금)', desc: '비교용. 요소마다 margin 이 따로 있어 8 · 12 · 16 · 20 · 23 · 24 · 44 · 48 이 섞여 있다' },
 ]
+/* 시안 1-2 · 본문 → 모달 호흡 (html[data-sheetwait]) — 사용자 2026-09-16 "본문 출력되고 조금 있다가 모달" */
+const SHEETWAITS = [
+  { id: 'W1', label: 'W-1 0.6초', desc: '안내 문장이 다 나온 뒤 0.6s 멈추고 시트가 올라온다. 문장을 읽을 한 호흡. 가장 작은 수정' },
+  { id: 'W2', label: 'W-2 1.0초', desc: '1.0s. 문장을 끝까지 읽고 "다음에 뭐가 올까" 를 기대할 여유가 생긴다. 시트 스텝이 많아(5~8) 전체가 길어진다' },
+  { id: 'W3', label: 'W-3 문장이 먼저 올라간 뒤 0.5초', desc: '시트가 뜨기 전에 문장이 시트 위 자리까지 먼저 팬으로 올라가고(0.45s), 자리를 잡은 뒤 0.5s 있다가 시트. 시안 1-1 인증 시트와 같은 규칙 — 문장이 시트에 가려지는 순간이 없다' },
+  { id: 'off', label: '기존 (바로)', desc: '비교용. 문장이 나오는 즉시 시트' },
+]
+/* 뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 (html[data-stepcue]) — 사용자 2026-09-16 "끝난다는 걸 알리고 싶다" */
+const STEPCUES = [
+  { id: 'V1', label: 'V-1 화살표 펄스 + 라벨', desc: '폰 오른쪽 → 버튼에 브랜드 링이 숨 쉬듯 번지고 그 위에 "다음 스텝 →" 라벨이 뜬다. 눌러야 할 것 바로 옆이라 시선 이동이 가장 짧다' },
+  { id: 'V2', label: 'V-2 폰 아래 한 줄', desc: '폰 바로 아래 가운데에 "이 스텝의 재생이 끝났어요 · 폰의 대기 자리를 탭하거나 → 를 누르세요" 한 줄이 떠오른다. 두 가지 진행 방법을 다 말해 주지만 글이 길다' },
+  { id: 'V3', label: 'V-3 다음 스텝 이름표', desc: '→ 버튼 위에 다음 스텝의 번호 · 이름이 카드로 뜬다("8. [다시 선택하기] → …"). 무엇이 이어지는지까지 알려 주지만 카드가 커서 폰 옆이 붐빈다' },
+  { id: 'off', label: '없음 (지금)', desc: '비교용. 포인터가 폰 안에서만 기다린다' },
+]
 const PROCFXS = [
   { id: 'T2', label: 'T-2 은은한 스윕', desc: '보라를 빼고 연한 파랑(#6C8CFF → #B7C6FF)만. 가장자리를 28% 로 넓혀 번지듯 드러나고 1.9s 로 조금 더 느리다. 색 대비가 낮아 "급진적" 인 느낌이 가장 많이 빠진다' },
   { id: 'T3', label: 'T-3 틴트 하나', desc: '연한 하늘(#9EC8FB) 한 색만 가장자리에 살짝. 가장자리 22%, 1.7s. 그라디언트라기보다 "빛이 스치며 글이 드러난다" 에 가까운 가장 조용한 안' },
@@ -222,7 +236,7 @@ const MSHELLS = [
   { id: 'M2', label: 'M-2 상단 세그먼트 + 하단 바', desc: '위에 1안·2안·3안 세그먼트와 스텝 제목, 아래에 ← STEP 2/6 → 와 [목적]. 컨트롤이 항상 보이는 대신 화면이 조금 작아진다(0.8x)' },
 ]
 // 첫 렌더 전에 <html data-*> 를 채운다 — 자식(AgentChat) effect 가 부모 effect 보다 먼저 돌아 최종 상태 계산 때 값이 비어 있지 않도록
-Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
+Object.assign(document.documentElement.dataset, CONFIRMED, { kbdemo: LAB && Q0.get('kb') === '1' ? '1' : '0', launch: (LAB && Q0.get('l')) || CONFIRMED.launch, disp: (LAB && Q0.get('d')) || CONFIRMED.disp, flat: (LAB && Q0.get('f')) || CONFIRMED.flat, altcard: (LAB && Q0.get('a')) || CONFIRMED.altcard, altcopy: (LAB && Q0.get('c')) || CONFIRMED.altcopy, pd: LAB ? (Q0.get('pd') || 'new') : CONFIRMED.pd, pdflow: (LAB && Q0.get('p')) || CONFIRMED.pdflow, cardsel: (LAB && Q0.get('s')) || CONFIRMED.cardsel, stream: (LAB && Q0.get('z')) || CONFIRMED.stream, think: (LAB && Q0.get('w')) || CONFIRMED.think, fill: (LAB && Q0.get('i')) || CONFIRMED.fill, kbfield: (LAB && Q0.get('k')) || CONFIRMED.kbfield, follow: (LAB && Q0.get('f2')) || CONFIRMED.follow, ext: (LAB && Q0.get('x')) || CONFIRMED.ext, line: (LAB && Q0.get('ln')) || CONFIRMED.line, fsh: (LAB && Q0.get('fs')) || CONFIRMED.fsh, fsm: (LAB && Q0.get('fm')) || CONFIRMED.fsm, dim: (LAB && Q0.get('dm')) || CONFIRMED.dim, sheetgap: (LAB && Q0.get('sg')) || CONFIRMED.sheetgap, s2cover: (LAB && Q0.get('cv')) || CONFIRMED.s2cover, tmorph: (LAB && Q0.get('tm')) || CONFIRMED.tmorph, pdscroll: (LAB && Q0.get('ds')) || CONFIRMED.pdscroll, sheetfx: (LAB && Q0.get('sf')) || CONFIRMED.sheetfx, sheetout: (LAB && Q0.get('so')) || CONFIRMED.sheetout, ctxfx: (LAB && Q0.get('h')) || CONFIRMED.ctxfx, hdrfade: (LAB && Q0.get('hf')) || CONFIRMED.hdrfade, aihint: (LAB && Q0.get('ah')) || CONFIRMED.aihint, aidim: (LAB && Q0.get('ad')) || CONFIRMED.aidim, ambient: (LAB && Q0.get('am')) || CONFIRMED.ambient, zippop: (LAB && Q0.get('zp')) || CONFIRMED.zippop, recflow: (LAB && Q0.get('rf')) || CONFIRMED.recflow, knob: (LAB && Q0.get('kn')) || CONFIRMED.knob, knobtime: (LAB && Q0.get('kt')) || CONFIRMED.knobtime, simx: (LAB && Q0.get('sx')) || CONFIRMED.simx, dimfx: (LAB && Q0.get('df')) || CONFIRMED.dimfx, pdenter: (LAB && Q0.get('pe')) || CONFIRMED.pdenter, sheetlook: (LAB && Q0.get('sl')) || CONFIRMED.sheetlook, planfold: (LAB && Q0.get('pf')) || CONFIRMED.planfold, foldsync: (LAB && Q0.get('fy')) || CONFIRMED.foldsync, boxland: (LAB && Q0.get('bl')) || CONFIRMED.boxland, boxfade: (LAB && Q0.get('bf')) || CONFIRMED.boxfade, selfade: (LAB && Q0.get('sv')) || CONFIRMED.selfade, penfold: (LAB && Q0.get('pn')) || CONFIRMED.penfold, foldanchor: (LAB && Q0.get('fa')) || CONFIRMED.foldanchor, replanup: (LAB && Q0.get('ru')) || CONFIRMED.replanup, replanend: (LAB && Q0.get('re')) || CONFIRMED.replanend, ctaup: (LAB && Q0.get('cu')) || CONFIRMED.ctaup, rewind: (LAB && Q0.get('rw')) || CONFIRMED.rewind, reviewaway: (LAB && Q0.get('ra')) || CONFIRMED.reviewaway, autokb: (LAB && Q0.get('ak')) || CONFIRMED.autokb, planmorph: (LAB && Q0.get('pm')) || CONFIRMED.planmorph, fform: (LAB && Q0.get('ff')) || CONFIRMED.fform, planswipe: (LAB && Q0.get('pw')) || CONFIRMED.planswipe, exitpop: (LAB && Q0.get('xp')) || CONFIRMED.exitpop, sinput: (LAB && Q0.get('si')) || CONFIRMED.sinput, agentin: (LAB && Q0.get('gi')) || CONFIRMED.agentin, agentpace: (LAB && Q0.get('gp')) || CONFIRMED.agentpace, exithdr: (LAB && Q0.get('eh')) || CONFIRMED.exithdr, agentfollow: (LAB && Q0.get('af')) || CONFIRMED.agentfollow, sugfx: (LAB && Q0.get('sb')) || CONFIRMED.sugfx, sheetwait: (LAB && Q0.get('sw')) || CONFIRMED.sheetwait, stepcue: (LAB && Q0.get('sc')) || CONFIRMED.stepcue, stackgap: (LAB && Q0.get('sk')) || CONFIRMED.stackgap, fieldtap: (LAB && Q0.get('ft')) || CONFIRMED.fieldtap, replanpan: (LAB && Q0.get('rp')) || CONFIRMED.replanpan, growrad: (LAB && Q0.get('gr')) || CONFIRMED.growrad, procfx: (LAB && Q0.get('pc')) || CONFIRMED.procfx, openbg: (LAB && Q0.get('ob')) || CONFIRMED.openbg, askmodal: (LAB && Q0.get('qm')) || CONFIRMED.askmodal, exitflow: (LAB && Q0.get('xf')) || CONFIRMED.exitflow, exitlist: (LAB && Q0.get('xl')) || CONFIRMED.exitlist, exithier: (LAB && Q0.get('xh')) || CONFIRMED.exithier, planexit: (LAB && Q0.get('px')) || CONFIRMED.planexit, fincard: (LAB && Q0.get('fc')) || CONFIRMED.fincard })
 // 상단 고정 헤더 배경 페이드 (html[data-hdrfade]). 헤더 171px = 상태바 59 + 앱바 48 + 컨텍스트 47
 const HDRFADES = [   // 2차 (사용자: 51:26203 컨텍스트 헤더까지는 안정감 있게) — 헤더 171px 구간은 유지, 그 아래 꼬리가 사라짐
   { id: 'G4', label: 'G-4 fill 유지 + 꼬리 32px', desc: '헤더 끝(171px)까지 basement 100% 그대로. 그 아래 32px 꼬리에서 100 → 0%. 블러 없음, 가장 단순' },
@@ -865,6 +879,10 @@ export default function App() {
   const [replay, setReplay] = useState(0)
   useEffect(showOnly, [])   // ?only= 로 남길 시안 줄 (렌더 뒤에 켠다)
   // 완료 토스트: 마지막 스텝에 들어온 뒤 (마지막 모션 여유 + 1.5s) 표시. 스텝이 바뀌면 숨김
+  /* 스텝 재생이 끝나 포인터가 탭 자리에서 기다리는 순간 뷰어(폰 밖)에 안내 (html[data-stepcue], 사용자 2026-09-16 "다음을 누르세요 라고 모바일 화면 밖에서 보여줄 구좌") */
+  const [waiting, setWaiting] = useState(false)
+  useEffect(() => { const on = () => setWaiting(true); window.addEventListener('ptr-wait', on); return () => window.removeEventListener('ptr-wait', on) }, [])
+  useEffect(() => { setWaiting(false) }, [cur, pid, replay])
   const [doneToast, setDoneToast] = useState(false)
   useEffect(() => {
     setDoneToast(false)
@@ -900,6 +918,10 @@ export default function App() {
   useEffect(() => { document.documentElement.dataset.fieldtap = fieldtapV }, [fieldtapV])
   const [stackgapV, setStackgapV] = useState(() => (LAB ? (Q0.get('sk') || CONFIRMED.stackgap) : CONFIRMED.stackgap))
   useEffect(() => { document.documentElement.dataset.stackgap = stackgapV }, [stackgapV])
+  const [sheetwaitV, setSheetwaitV] = useState(() => (LAB ? (Q0.get('sw') || CONFIRMED.sheetwait) : CONFIRMED.sheetwait))
+  useEffect(() => { document.documentElement.dataset.sheetwait = sheetwaitV }, [sheetwaitV])
+  const [stepcueV, setStepcueV] = useState(() => (LAB ? (Q0.get('sc') || CONFIRMED.stepcue) : CONFIRMED.stepcue))
+  useEffect(() => { document.documentElement.dataset.stepcue = stepcueV }, [stepcueV])
   const [sugfxV, setSugfxV] = useState(() => (LAB ? (Q0.get('sb') || CONFIRMED.sugfx) : CONFIRMED.sugfx))
   useEffect(() => { document.documentElement.dataset.sugfx = sugfxV }, [sugfxV])
   const [agentfollowV, setAgentfollowV] = useState(() => (LAB ? (Q0.get('af') || CONFIRMED.agentfollow) : CONFIRMED.agentfollow))
@@ -1438,8 +1460,22 @@ export default function App() {
             <span className="vdesc">{GROWRADS.find((v) => v.id === growradV)?.desc}</span>
           </div>
           )}
+          <div className="variants v-stepcue">
+            <b className="vtitle">뷰어 · 스텝 재생이 끝났을 때 폰 밖 안내 — 미확정</b>
+            {STEPCUES.map((v) => (
+              <button key={v.id} aria-pressed={stepcueV === v.id} onClick={() => { setStepcueV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{STEPCUES.find((v) => v.id === stepcueV)?.desc}</span>
+          </div>
+          <div className="variants v-sheetwait">
+            <b className="vtitle">시안 1-2 · 본문 → 모달 호흡 — 미확정</b>
+            {SHEETWAITS.map((v) => (
+              <button key={v.id} aria-pressed={sheetwaitV === v.id} onClick={() => { setSheetwaitV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
+            ))}
+            <span className="vdesc">{SHEETWAITS.find((v) => v.id === sheetwaitV)?.desc}</span>
+          </div>
           <div className="variants v-stackgap">
-            <b className="vtitle">시안 1-1 · 스택 여백 통일 — 미확정</b>
+            <b className="vtitle">시안 1-1 · 1-2 · 스택 여백 통일 (바닥 영역) — 미확정</b>
             {STACKGAPS.map((v) => (
               <button key={v.id} aria-pressed={stackgapV === v.id} onClick={() => { setStackgapV(v.id); userNav(); setReplay((n) => n + 1) }}>{v.label}</button>
             ))}
@@ -1745,7 +1781,14 @@ export default function App() {
           : <StepNav variant="R1" cur={cur} go={go} sc={sc} />)}
         <button className="round" onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="이전">←</button>
         <div className="phone-wrap"><Phone key={`${replay}-${pid}`} view={step.view} /><DoneToast show={doneToast} onNext={nextTest} /></div>
-        <button className="round" onClick={() => go(cur + 1)} disabled={cur === steps.length - 1} aria-label="다음">→</button>
+        <button className={`round ${waiting && cur < steps.length - 1 ? 'cue' : ''}`} onClick={() => go(cur + 1)} disabled={cur === steps.length - 1} aria-label="다음">→</button>
+        {waiting && cur < steps.length - 1 && stepcueV !== 'off' && (
+          <div className={`step-cue sc-${stepcueV}`} aria-live="polite">
+            {stepcueV === 'V1' && <span className="lbl">다음 스텝 →</span>}
+            {stepcueV === 'V2' && <span className="lbl">이 스텝의 재생이 끝났어요 · 폰의 대기 자리를 탭하거나 → 를 누르세요</span>}
+            {stepcueV === 'V3' && <span className="lbl">{cur + 2}. {steps[cur + 1].screen}<b>→ 다음</b></span>}
+          </div>
+        )}
 
         {CARDS && (
         <aside className="cards" key={step.id}>

@@ -199,6 +199,16 @@ export default function AgentChat2({ stage = 'usage' }) {
     }
     // 2안 커버 모달 (html[data-s2cover]="on", Figma 90:86712): 시트는 높이·내용 그대로, 화면 아래에서 20px 고정(SearchAi 를 덮음). 시트 위 8px 에 44px ∨ 버튼 — 위치는 시트 높이를 재서 --sheet-h 로
     const openSheet = async (which, msg) => {
+      /* 본문이 출력된 뒤 모달이 올라오기까지의 호흡 (html[data-sheetwait], 사용자 2026-09-16 "본문 출력되고 조금 있다가 모달"):
+         W1 0.6s / W2 1.0s / W3 문장을 먼저 시트 위로 올려 두고(팬) 0.5s / off 바로(기존) */
+      { const W = variant('sheetwait') || 'off'
+        if (W === 'W1') { await wait(600); if (!alive()) return }
+        else if (W === 'W2') { await wait(1000); if (!alive()) return }
+        else if (W === 'W3' && msg) {
+          const to = gapTarget(msg)
+          if (to > scroll.scrollTop + 1) { setTail(600); await scrollTo(scroll, to, 450, QUINT_OUT); if (!alive()) return }
+          await wait(500); if (!alive()) return
+        } }
       if (variant('s2cover') !== 'off') {
         setSheet(which); setSheetPick(-1)
         const armed = await armKnob(msg); if (!alive()) return
