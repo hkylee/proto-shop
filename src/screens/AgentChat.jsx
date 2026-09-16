@@ -358,14 +358,21 @@ function Card({ children, className = '', innerRef }) {
   return <section className={`ai-card ${className}`} ref={innerRef}>{children}</section>
 }
 /* 4번 요금제 리스트 한 줄 = RadioCard (Figma 435:172477): 추천 배지 → 이름 + 우측 chevron 한 줄 → 설명 → 월 가격 */
+// 스텝 4 요금제 리스트 행 = 풀팝업 카드(.plan-mini)와 같은 컴포넌트 (사용자 스크린샷 2026-09-16 18:03: 이름 · 가격/월 · 데이터|테더링 · 썸네일 · 배지)
 function PlanPickRow({ idx, sel, rec, style }) {
   const [name, price, caps] = ALT_PLANS[idx]
   return (
-    <div className={`plan-pick ${rec ? 'pp-rec' : ''} ${sel ? 'sel' : ''}`} style={style}>
+    <div className={`plan-pick plan-mini ${rec ? 'pp-rec' : ''} ${sel ? 'sel' : ''}`} style={style}>
       {rec && <span className="rec-badge">추천</span>}
-      <div className="pp-top"><span className="pp-name">{name}</span><i className="chev r" /></div>
-      <div className="pp-caps">{caps}</div>
-      <div className="pp-price">{price}</div>
+      <div className="pc-head">
+        <div className="pc-text">
+          <div className="pc-name">{name}</div>
+          <div className="pc-price"><b>{price.replace(/^월\s*/, '')}</b><span>/월</span></div>
+          <div className="pc-caps">{caps.split('・').slice(0, 2).map((t, k) => <span key={t}>{k > 0 && <i />}{t}</span>)}</div>
+        </div>
+        <div className="pc-thumb"><img src="/screens/pd2/plan-thumb.png" alt="" /><em>무제한</em></div>
+      </div>
+      <BenefitBadges />
     </div>
   )
 }
