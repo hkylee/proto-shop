@@ -103,8 +103,10 @@ export default class Pointer {
     this.show(); await wait(dur)
   }
   // 대상 위로 이동해 hover 상태로 대기 (다음 스텝의 탭 예고)
-  park(el, dur = 500, label = '탭') {
+  // quiet: 강조(포인터 · 파란 테두리) 없이 스텝 끝 신호만 — 다음 스텝이 그 버튼을 누르지 않을 때 (1안 스텝 7 끝 → 8 재선택, 사용자 2026-09-16). 사용자 탭 모드는 탭할 자리가 필요해 그대로
+  park(el, dur = 500, label = '탭', quiet = false) {
     if (!el) return
+    if (!userTap() && quiet) { this.hide(); emit('ptr-park'); return }
     if (!userTap()) { this.moveTo(el, dur, label); this.hover(); emit('ptr-park'); return }   // 자동 재생 셸(폰 도메인)은 이 신호로 다음 스텝을 이어간다
     // 사용자 탭 모드: 대상을 화면 안으로 끌어온 뒤 그 자리에서 기다린다. 탭하면 장전 + 셸이 다음 스텝으로
     const b = this.root.getBoundingClientRect(), k = b.width / SCREEN_W || 1

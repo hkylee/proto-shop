@@ -1489,7 +1489,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       reveal(chipWrap); await wait(T.tail); if (!alive()) return
       setTail(TAIL)
       await follow(chipWrap, true); if (!alive()) return
-      ptr?.park(doneChipRef.current)
+      ptr?.park(doneChipRef.current, 500, '탭', true)   // 스텝 8(재선택)이 먼저라 여기서는 CTA 를 강조하지 않는다 — 강조는 재선택 끝에 (사용자 2026-09-16)
     }
     const finalOpts2 = () => {
       setOptK(OPT.gift)
@@ -2240,7 +2240,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       form: () => (inForm ? fsEl('rrn') : fsEl('next')), addr: () => (inForm ? fsEl('chk') : fsEl('next')), contact: () => (inForm ? fsEl('phone') : fsEl('next')), review: () => reviewChipRef.current,
       auth: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'), pay: () => rootRef.current.querySelector('.ai-sheet.on .ai-sheet-item'),
     }
-    const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭') }
+    const parkFor = () => { const f = PARK_FOR[stage]; if (f) ptr?.park(f(), 0, stage === 'opts1' ? '쿠폰 변경' : '탭', stage === 'opts2') }
     // 스텝 진입: 바로 앞 스텝에서 왔으면 재생, 아니면 최종 상태로 즉시 (직접 진입·되감기·reduced-motion)
     const dispatch = () => {
       /* 2안(mode an2)은 스텝 9 까지를 AgentChat2 가 그렸고 여기서는 이력 블록(.an2-hist)만 보인다.
