@@ -990,6 +990,7 @@ html[data-penfold="A2"] .pen-fold-host .pf-2 em { display: none; }
 /* 추가 혜택 행 (Figma 435:179905): RadioCard 96h · 왼쪽 썸네일 48 · 오른쪽 (+) 32 */
 .plan-row.with-ico .row-ico { width: 48px; height: 48px; border-radius: 12px; background: rgba(39,59,157,.05); flex: none; align-self: center; }
 .plan-row.with-ico { align-items: center; gap: 16px; padding: 24px; }
+.plan-row.with-ico { position: relative; }   /* + 아이콘의 기준. 없으면 .opt-turn > * 의 등장 transform 이 끝나는 순간 기준 상자가 사라져 아이콘이 튀었다 (2026-09-16) */
 .plan-row .row-plus { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: var(--fg-neutral-solid); flex: none; }
 .plan-row .row-plus::before, .plan-row .row-plus::after { content: ""; position: absolute; left: 50%; top: 50%; background: #fff; border-radius: 1px; }
 .plan-row .row-plus::before { width: 14px; height: 2px; transform: translate(-50%, -50%); }

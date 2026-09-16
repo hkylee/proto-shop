@@ -2297,8 +2297,9 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             </Card>
             {/* 6→7: 할인 방법을 고르면 이 재출력 카드도 요약 줄로 접힌다 (Figma ixGPs9 271:125825) */}
             <div className="pen-fold-host" ref={penFoldRef}>
-              <div className="plan-fold pf-1"><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
-              <div className="plan-fold pf-2"><span className="lbl">선택한 할인 방법</span><b>통신요금 24개월 할인</b><em>다시 선택하기</em></div>
+              {/* 스텝 6 카드는 할인 방법 3행이므로 남는 줄도 '선택한 할인방법 · 공통지원금' (사용자 2026-09-16). 요금제 줄은 A2·A3 에서만 두 번째로 */}
+              <div className="plan-fold pf-1"><span className="lbl">{DISC_FOLD}</span><b>{DISC_LIST[discPick >= 0 ? discPick : DISC_PICK][0]}</b><em>다시 선택하기</em></div>
+              <div className="plan-fold pf-2"><span className="lbl">선택한 요금제</span><b>{planName}</b><em>다시 선택하기</em></div>
             </div>
           </div>
           {/* F-3: 접힌 뒤 대화 맨 아래에 재출력되는 요약 줄 */}
@@ -2673,4 +2674,4 @@ export function TossPane({ done, inline = false, kind = 'toss' }) {
 }
 
 // 2안(AgentChat2) 이 같은 언어를 쓰도록 공유하는 조각들
-export { AnswerBubble, reveal, showNow, unreveal, hideOpening, rv, collapseOpening, anchorBottom, UserMessage, AiMessage, Opening, Thinking, Card, PlanRow, BenefitBadges, POP_PLANS, POP_PLANS_LIGHT, SHEET_TABS, TAIL, CHIP_DEFAULT }
+export { UsageGraph, AnswerBubble, reveal, showNow, unreveal, hideOpening, rv, collapseOpening, anchorBottom, UserMessage, AiMessage, Opening, Thinking, Card, PlanRow, BenefitBadges, POP_PLANS, POP_PLANS_LIGHT, SHEET_TABS, TAIL, CHIP_DEFAULT }
