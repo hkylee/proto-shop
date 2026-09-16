@@ -228,7 +228,7 @@ const OPTS = [
 const REPLAN_PICK = 2   // 스텝 9 에서 바꿔 고르는 요금제 = 베스트 109 (Figma 는 0 청년 107)
 const LAST_OPT = OPTS.length - 1, DONE_TURN = OPTS.length   // 마지막 옵션 턴(추가 혜택) · 완료 턴
 const OPT_RESELECT = { sec: 2, row: 1 }   // 스텝 8: 쿠폰 섹션으로 올라가 30,000원 쿠폰으로 바꿈
-const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요. 휴대폰 개통을 이어가려면 신청서 작성이 필요해요.', DONE_CHIP = '신청서 작성 시작하기'
+const DONE_MSG = '필요한 옵션 선택이 모두 완료되었어요!', DONE_MSG2 = '개통을 위한 신청서만 작성하면 모든 절차가 완료돼요.', DONE_CHIP = '신청서 작성 시작하기'   // 두 말풍선 순차 (사용자 2026-09-16)
 const REPLAN_ASK = '변경된 요금제로 신청서 작성을 이어갈게요.'   // 스텝 9 끝맺음 E-2 에서만 쓰는 한 마디
 
 /* ── 이어서 옵션 안내 (스텝 9·11, Figma ixGPs9 29:21972): 요금제 카드에 할인 방법이 묶여 들어와 할인방법 턴은 폐기(2026-09-07).
@@ -1465,7 +1465,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     /* ── 9번: 마지막 섹션의 행 → T 안심보상 탭 → 완료 안내 + [신청서 작성 시작하기] */
     const playOpts2 = async () => {
       const T = rv()
-      const last = turns[LAST_OPT], [, , card] = optKids(last), done = turns[DONE_TURN], [dm, , chipWrap] = optKids(done)
+      const last = turns[LAST_OPT], [, , card] = optKids(last), done = turns[DONE_TURN], [dm, dm2, chipWrap] = optKids(done)
       setTail(420)
       if (!await reselectIntro()) return                              // 추가 혜택 턴 등장 (옛 재선택 스텝이 하던 몫, 스텝 8 폐기 2026-09-11)
       await ptr?.tap(optRow(LAST_OPT, OPTS[LAST_OPT].rec)); if (!alive()) return
@@ -1477,6 +1477,8 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       done.classList.add('on'); void done.offsetHeight
       if (!await think(done, dm)) return
       await follow(dm); if (!alive()) return
+      await wait(T.text); if (!alive()) return
+      reveal(dm2); await follow(dm2); if (!alive()) return          // 두 번째 말풍선이 뒤따른다 (사용자 2026-09-16)
       await wait(T.text); if (!alive()) return
       /* 스텝 9 로 넘기기 (html[data-ctaup], 사용자 2026-09-16 "버튼 누르는 듯한 액션 나오기 전에 위로 바로").
          off 기존: CTA 를 따라 내려온 뒤 포인터가 그 위에 '탭' 으로 머문다 → 다음 스텝에서 되감기
@@ -2412,7 +2414,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             <div className="opt-turn done">
               <Thinking />
               <AiMessage>{DONE_MSG}</AiMessage>
-              <AiMessage className="none" />
+              <AiMessage>{DONE_MSG2}</AiMessage>
               <div className="cta-stack"><div className="button-ai" ref={mode === 'an2' ? undefined : doneChipRef}>{DONE_CHIP}</div></div>
             </div>
           </div>
