@@ -574,7 +574,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
     const optKids = (t) => [...t.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('opt-fold'))
     const optRow = (i, j) => turns[i].querySelectorAll('.plan-row')[j]
     const formEl = formRef.current, formItems = [...formEl.children]   // [말풍선, 개인정보 Alert]
-    const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('review-fold'))   // [안내, 완료 선, 안내 2, 신청서 카드, 칩]
+    const reviewEl = reviewRef.current, reviewItems = [...reviewEl.children].filter((c) => !c.classList.contains('thinking') && !c.classList.contains('review-fold'))   // [완료 선, 안내 2, 신청서 카드, 칩] (2안 안내 1 은 2026-09-16 삭제)
     const reviewCard = () => reviewEl.querySelector('.review-card')   // 자식 수가 시트(5)·바닥(4)으로 다르다 — 위치 대신 무엇인지로
     const reviewChipWrap = reviewEl.querySelector('.cta-stack')
     const authEl = authRef.current, authItems = [...authEl.children].filter((c) => !c.classList.contains('thinking'))   // [말풍선, 안내 1, 완료 선, 안내 2]
@@ -1851,17 +1851,15 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
       el.style.display = 'none'
     }
     const playReview = async () => {
-      const T = rv(), [msg, line, msg2, card] = reviewItems
+      const T = rv(), [line, msg2, card] = reviewItems
       if (!await tapNext(true)) return
       setFsheet(0); setKbField(false); setFfocus('')
       await wait(650); if (!alive()) return
       await collapseAway(formItems[1]); if (!alive()) return           // Alert 는 역할을 마쳤으니 그 자리에 결과가 온다
       reviewEl.classList.add('on'); void reviewEl.offsetHeight
       setTail(420)
-      if (!await think(reviewEl, msg)) return
-      await follow(msg); if (!alive()) return
-      await wait(T.text); if (!alive()) return
-      reveal(line); await follow(line); if (!alive()) return
+      if (!await think(reviewEl, line)) return                        // 생각 점 → 곧바로 '개통 신청서 작성이 완료되었어요' 선
+      await follow(line); if (!alive()) return
       await wait(1200); if (!alive()) return
       reveal(msg2); await follow(msg2); if (!alive()) return
       await wait(T.text); if (!alive()) return
@@ -2530,10 +2528,7 @@ export default function AgentChat({ stage = 'usage', from = null, mode = 'an3' }
             {!inForm && <Thinking />}
             {inForm
               ? <FinDone label={FIN_LABEL[3]} value={PHONE} line={FIN_DONE[3]} />
-              : <>
-                <AiMessage>{FORM_INTRO[0]}<br />{FORM_INTRO[1]}</AiMessage>
-                <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>
-              </>}
+              : <div className="form-line"><span>{FORM_DONE}</span><a>{FORM_REDO}</a></div>}   {/* 2안: 안내 없이 완료 선만 (사용자 2026-09-16 "개통 신청서 작성이 완료되었어요. 만 뜨면") */}
             <AiMessage>{REVIEW_MSG}</AiMessage>
             <Card className="review-card">
               <h3>신청서</h3>
